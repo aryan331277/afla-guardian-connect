@@ -25,11 +25,30 @@ const ScanWizard = () => {
     cropResidue: 'medium',
     lackIrrigation: 'medium',
     insects: 'medium',
-    soilPH: 'medium'
+    soilPH: 'neutral'
   });
 
   const handleSubmit = () => {
-    // Process scan and show results
+    // Simulate processing with basic risk calculation
+    const riskFactors = [
+      scanData.cropGenotype === 'very-high' ? 1 : 0,
+      scanData.fertilisation === 'very-less' ? 1 : 0,
+      scanData.lackIrrigation === 'very-high' ? 1 : 0,
+      scanData.insects === 'very-high' ? 1 : 0,
+      scanData.soilPH === 'acidic' ? 1 : 0
+    ];
+    
+    const riskScore = riskFactors.reduce((sum, factor) => sum + factor, 0);
+    const riskLevel = riskScore >= 3 ? 'High Risk' : riskScore >= 2 ? 'Medium Risk' : 'Low Risk';
+    
+    // Store scan results for display
+    localStorage.setItem('lastScanResult', JSON.stringify({
+      riskLevel,
+      timestamp: new Date().toISOString(),
+      recommendations: ['Improve drainage', 'Monitor soil moisture', 'Apply fungicide if needed']
+    }));
+    
+    alert(`Scan Complete! Risk Level: ${riskLevel}`);
     navigate('/farmer');
   };
 
@@ -73,7 +92,7 @@ const ScanWizard = () => {
             <div className="space-y-4">
               <h3 className="font-semibold">Manual Assessment Required:</h3>
               
-              {['cropGenotype', 'fertilisation', 'cropResidue', 'lackIrrigation', 'insects', 'soilPH'].map((field) => (
+              {['cropGenotype', 'fertilisation', 'cropResidue', 'lackIrrigation', 'insects'].map((field) => (
                 <div key={field}>
                   <Label className="mb-2 block">{t(`crop.${field.toLowerCase()}`, field)}</Label>
                   <div className="grid grid-cols-5 gap-2">
@@ -90,6 +109,23 @@ const ScanWizard = () => {
                   </div>
                 </div>
               ))}
+              
+              {/* Special pH field with acidic/basic/neutral */}
+              <div>
+                <Label className="mb-2 block">{t('crop.soil.ph', 'Soil pH Level')}</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {['acidic', 'neutral', 'basic'].map((level) => (
+                    <Button
+                      key={level}
+                      variant={scanData.soilPH === level ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setScanData({...scanData, soilPH: level})}
+                    >
+                      {level.charAt(0).toUpperCase() + level.slice(1)}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <Button onClick={handleSubmit} className="w-full" size="lg">

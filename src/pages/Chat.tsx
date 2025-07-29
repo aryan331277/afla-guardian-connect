@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Send, Bot } from 'lucide-react';
+import { ArrowLeft, Send, Bot, ExternalLink, MessageCircle } from 'lucide-react';
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -29,6 +29,16 @@ const Chat = () => {
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <h1 className="text-xl font-bold text-primary">AI Assistant</h1>
+        <div className="flex gap-2 ml-auto">
+          <Button variant="outline" size="sm" onClick={() => window.open('https://google.com', '_blank')}>
+            <ExternalLink className="w-4 h-4 mr-1" />
+            AI Chatbot
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => window.open('https://google.com', '_blank')}>
+            <MessageCircle className="w-4 h-4 mr-1" />
+            Discussion
+          </Button>
+        </div>
       </div>
 
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
