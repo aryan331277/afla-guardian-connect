@@ -13,6 +13,7 @@ import FarmerDashboard from "./pages/FarmerDashboard";
 import BuyerDashboard from "./pages/BuyerDashboard";
 import GovernmentDashboard from "./pages/GovernmentDashboard";
 import ScanWizard from "./pages/ScanWizard";
+import ScanResults from "./pages/ScanResults";
 import BuyerScan from "./pages/BuyerScan";
 import Community from "./pages/Community";
 import UpgradePlan from "./pages/UpgradePlan";
@@ -45,6 +46,7 @@ const AppContent = () => {
           <Route path="/buyer" element={<BuyerDashboard />} />
           <Route path="/government" element={<GovernmentDashboard />} />
           <Route path="/scan" element={<ScanWizard />} />
+          <Route path="/scan-results" element={<ScanResults />} />
           <Route path="/buyer-scan" element={<BuyerScan />} />
           <Route path="/community" element={<Community />} />
           <Route path="/upgrade" element={<UpgradePlan />} />

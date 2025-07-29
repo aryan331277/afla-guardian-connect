@@ -29,27 +29,101 @@ const ScanWizard = () => {
   });
 
   const handleSubmit = () => {
-    // Simulate processing with basic risk calculation
-    const riskFactors = [
-      scanData.cropGenotype === 'very-high' ? 1 : 0,
-      scanData.fertilisation === 'very-less' ? 1 : 0,
-      scanData.lackIrrigation === 'very-high' ? 1 : 0,
-      scanData.insects === 'very-high' ? 1 : 0,
-      scanData.soilPH === 'acidic' ? 1 : 0
-    ];
+    // Simulate comprehensive analysis with detailed recommendations
+    const analysisResults = generateAnalysis(scanData);
     
-    const riskScore = riskFactors.reduce((sum, factor) => sum + factor, 0);
-    const riskLevel = riskScore >= 3 ? 'High Risk' : riskScore >= 2 ? 'Medium Risk' : 'Low Risk';
-    
-    // Store scan results for display
+    // Store detailed scan results
     localStorage.setItem('lastScanResult', JSON.stringify({
-      riskLevel,
+      ...analysisResults,
       timestamp: new Date().toISOString(),
-      recommendations: ['Improve drainage', 'Monitor soil moisture', 'Apply fungicide if needed']
+      scanData: scanData
     }));
     
-    alert(`Scan Complete! Risk Level: ${riskLevel}`);
-    navigate('/farmer');
+    // Navigate to results page
+    navigate('/scan-results');
+  };
+
+  const generateAnalysis = (data: typeof scanData) => {
+    let riskScore = 0;
+    const recommendations = [];
+    const warnings = [];
+    
+    // Crop genotype analysis
+    if (data.cropGenotype === 'very-high') {
+      riskScore += 2;
+      recommendations.push("Use resistant maize varieties like H6213 or DK8053");
+    } else if (data.cropGenotype === 'high') {
+      riskScore += 1;
+      recommendations.push("Consider upgrading to more resistant varieties next season");
+    }
+    
+    // Fertilization analysis  
+    if (data.fertilisation === 'very-less') {
+      riskScore += 2;
+      recommendations.push("Apply NPK 17:17:17 at 50kg/acre during planting");
+      warnings.push("Nutrient deficiency increases aflatoxin risk");
+    }
+    
+    // Irrigation analysis
+    if (data.lackIrrigation === 'very-high') {
+      riskScore += 3;
+      recommendations.push("Install drip irrigation system - reduces drought stress");
+      recommendations.push("Mulch around plants to retain soil moisture");
+      warnings.push("Water stress is the #1 aflatoxin risk factor");
+    }
+    
+    // Insect analysis
+    if (data.insects === 'very-high') {
+      riskScore += 2;
+      recommendations.push("Apply Karate 2.5EC immediately - target stem borers");
+      recommendations.push("Set up pheromone traps for early detection");
+      warnings.push("Insect damage creates entry points for aflatoxin-producing fungi");
+    }
+    
+    // pH analysis
+    if (data.soilPH === 'acidic') {
+      riskScore += 1;
+      recommendations.push("Apply agricultural lime at 2 tons/acre");
+      recommendations.push("Test soil pH again after 3 months");
+    } else if (data.soilPH === 'basic') {
+      recommendations.push("Add organic matter to buffer high pH");
+    }
+    
+    // Determine risk level
+    let riskLevel, riskColor;
+    if (riskScore >= 6) {
+      riskLevel = "Critical Risk";
+      riskColor = "text-red-600";
+      warnings.push("Immediate action required - high probability of aflatoxin contamination");
+    } else if (riskScore >= 4) {
+      riskLevel = "High Risk"; 
+      riskColor = "text-orange-600";
+    } else if (riskScore >= 2) {
+      riskLevel = "Medium Risk";
+      riskColor = "text-yellow-600";
+    } else {
+      riskLevel = "Low Risk";
+      riskColor = "text-green-600";
+    }
+    
+    // Add general recommendations
+    recommendations.push("Harvest when moisture content is below 25%");
+    recommendations.push("Dry maize to 14% moisture within 48 hours");
+    recommendations.push("Store in clean, dry containers with proper ventilation");
+    
+    return {
+      riskLevel,
+      riskColor,
+      riskScore,
+      recommendations,
+      warnings,
+      nextSteps: [
+        "Monitor field weekly for pest activity",
+        "Check soil moisture every 3 days", 
+        "Apply fungicide if rainfall exceeds 100mm/week",
+        "Plan harvest timing based on weather forecast"
+      ]
+    };
   };
 
   return (
@@ -101,7 +175,10 @@ const ScanWizard = () => {
                         key={level}
                         variant={scanData[field as keyof typeof scanData] === level ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => setScanData({...scanData, [field]: level})}
+                        onClick={() => {
+                          console.log(`Setting ${field} to ${level}`);
+                          setScanData({...scanData, [field]: level});
+                        }}
                       >
                         {level.replace('-', ' ')}
                       </Button>
@@ -119,7 +196,10 @@ const ScanWizard = () => {
                       key={level}
                       variant={scanData.soilPH === level ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => setScanData({...scanData, soilPH: level})}
+                      onClick={() => {
+                        console.log(`Setting pH to ${level}`);
+                        setScanData({...scanData, soilPH: level});
+                      }}
                     >
                       {level.charAt(0).toUpperCase() + level.slice(1)}
                     </Button>
