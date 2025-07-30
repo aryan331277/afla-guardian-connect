@@ -30,11 +30,11 @@ const Chat = () => {
         </Button>
         <h1 className="text-xl font-bold text-primary">AI Assistant</h1>
         <div className="flex gap-2 ml-auto">
-          <Button variant="outline" size="sm" onClick={() => window.open('https://google.com', '_blank')}>
+          <Button variant="outline" size="sm" className="hover-scale" onClick={() => window.open('https://google.com', '_blank')}>
             <ExternalLink className="w-4 h-4 mr-1" />
             AI Chatbot
           </Button>
-          <Button variant="outline" size="sm" onClick={() => window.open('https://google.com', '_blank')}>
+          <Button variant="outline" size="sm" className="hover-scale" onClick={() => navigate('/community')}>
             <MessageCircle className="w-4 h-4 mr-1" />
             Discussion
           </Button>
@@ -43,10 +43,10 @@ const Chat = () => {
 
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
         {messages.map((msg, index) => (
-          <Card key={index} className={msg.role === 'assistant' ? 'bg-primary/5' : 'bg-accent/5 ml-8'}>
+          <Card key={index} className={`animate-fade-in ${msg.role === 'assistant' ? 'bg-primary/5' : 'bg-accent/5 ml-8'}`} style={{ animationDelay: `${index * 0.1}s` }}>
             <CardContent className="p-3">
               <div className="flex items-start gap-2">
-                {msg.role === 'assistant' && <Bot className="w-4 h-4 mt-1 text-primary" />}
+                {msg.role === 'assistant' && <Bot className="w-4 h-4 mt-1 text-primary animate-float" />}
                 <p className="text-sm">{msg.content}</p>
               </div>
             </CardContent>

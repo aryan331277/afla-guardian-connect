@@ -66,10 +66,10 @@ const FarmerDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 pb-20">
       {/* Header */}
-      <div className="bg-card border-b p-4">
+      <div className="bg-card border-b p-4 animate-slide-in">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-primary flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-primary flex items-center gap-2 animate-fade-in">
               {t('dashboard.title', 'Dashboard')}
               <button
                 onClick={() => handleSpeak('Welcome to your farmer dashboard')}
@@ -104,22 +104,22 @@ const FarmerDashboard = () => {
 
       {/* Gamification Stats */}
       <div className="p-4">
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <Card className="text-center">
+        <div className="grid grid-cols-3 gap-4 mb-6 stagger-animation">
+          <Card className="text-center hover-scale animate-bounce-in" style={{ '--index': 0 } as any}>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-primary">{user?.gamificationPoints || 0}</div>
+              <div className="text-2xl font-bold text-primary animate-float">{user?.gamificationPoints || 0}</div>
               <div className="text-sm text-muted-foreground">{t('game.points', 'Points')}</div>
             </CardContent>
           </Card>
-          <Card className="text-center">
+          <Card className="text-center hover-scale animate-bounce-in" style={{ '--index': 1 } as any}>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-accent">{user?.scanStreak || 0}</div>
+              <div className="text-2xl font-bold text-accent animate-pulse">{user?.scanStreak || 0}</div>
               <div className="text-sm text-muted-foreground">{t('game.streak', 'Day Streak')}</div>
             </CardContent>
           </Card>
-          <Card className="text-center">
+          <Card className="text-center hover-scale animate-bounce-in" style={{ '--index': 2 } as any}>
             <CardContent className="p-4">
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs animate-wiggle">
                 {user?.currentTier || 'Curious Scout'}
               </Badge>
             </CardContent>
@@ -127,12 +127,13 @@ const FarmerDashboard = () => {
         </div>
 
         {/* Main Action Buttons - Height ratios: 0.25 : 0.40 : 0.20 : 0.15 */}
-        <div className="space-y-4">
+        <div className="space-y-4 stagger-animation">
           {/* Chat with AI - 25% height */}
           <Button
             onClick={() => handleNavigate('/chat', 'AI Chat')}
-            className="w-full h-24 text-left p-6 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-primary-foreground"
+            className="w-full h-24 text-left p-6 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-primary-foreground hover-glow animate-fade-in"
             variant="default"
+            style={{ '--index': 0 } as any}
           >
             <div className="flex items-center w-full">
               <MessageCircle className="w-8 h-8 mr-4" />
@@ -157,8 +158,9 @@ const FarmerDashboard = () => {
           {/* New Scan - 40% height */}
           <Button
             onClick={() => handleNavigate('/scan', 'Field Scanner')}
-            className="w-full h-40 text-left p-6 bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent text-accent-foreground"
+            className="w-full h-40 text-left p-6 bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent text-accent-foreground hover-glow animate-fade-in"
             variant="secondary"
+            style={{ '--index': 1 } as any}
           >
             <div className="flex items-center w-full h-full">
               <Scan className="w-12 h-12 mr-4" />
@@ -184,8 +186,9 @@ const FarmerDashboard = () => {
           {/* Community - 20% height */}
           <Button
             onClick={() => handleNavigate('/community', 'Community Forum')}
-            className="w-full h-20 text-left p-4 bg-gradient-to-r from-success/90 to-success/70 hover:from-success hover:to-success/80 text-white"
+            className="w-full h-20 text-left p-4 bg-gradient-to-r from-success/90 to-success/70 hover:from-success hover:to-success/80 text-white hover-glow animate-fade-in"
             variant="secondary"
+            style={{ '--index': 2 } as any}
           >
             <div className="flex items-center w-full">
               <Users className="w-6 h-6 mr-3" />
@@ -210,8 +213,9 @@ const FarmerDashboard = () => {
           {/* Upgrade Plan - 15% height */}
           <Button
             onClick={() => handleNavigate('/upgrade', 'Premium Upgrade')}
-            className="w-full h-16 text-left p-4 bg-gradient-to-r from-warning/90 to-warning/70 hover:from-warning hover:to-warning/80 text-warning-foreground"
+            className="w-full h-16 text-left p-4 bg-gradient-to-r from-warning/90 to-warning/70 hover:from-warning hover:to-warning/80 text-warning-foreground hover-glow animate-fade-in"
             variant="secondary"
+            style={{ '--index': 3 } as any}
           >
             <div className="flex items-center w-full">
               <Crown className="w-5 h-5 mr-3" />
