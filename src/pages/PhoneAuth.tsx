@@ -17,13 +17,14 @@ const PhoneAuth = () => {
   const [otpSent, setOtpSent] = useState(false);
   
   // Login form state
-  const [loginPhone, setLoginPhone] = useState('');
-  const [loginOtp, setLoginOtp] = useState('');
+  const [loginName, setLoginName] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   
   // Signup form state
   const [signupName, setSignupName] = useState('');
   const [signupPhone, setSignupPhone] = useState('');
   const [signupOtp, setSignupOtp] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -55,7 +56,31 @@ const PhoneAuth = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleSendOTP = async (phone: string, isSignup: boolean = false) => {
+  const handleLogin = async () => {
+    if (!loginName.trim() || !loginPassword.trim()) {
+      toast.error('Please enter both name and password');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginName,
+        password: loginPassword
+      });
+
+      if (error) throw error;
+
+      toast.success('Successfully logged in!');
+    } catch (error: any) {
+      console.error('Error logging in:', error);
+      toast.error(error.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendOTP = async (phone: string) => {
     if (!phone.trim()) {
       toast.error('Please enter a phone number');
       return;
@@ -69,7 +94,7 @@ const PhoneAuth = () => {
       const { error } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
         options: {
-          data: isSignup ? { full_name: signupName } : undefined
+          data: { full_name: signupName }
         }
       });
 
@@ -80,6 +105,46 @@ const PhoneAuth = () => {
     } catch (error: any) {
       console.error('Error sending OTP:', error);
       toast.error(error.message || 'Failed to send OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignupComplete = async () => {
+    if (!signupPassword.trim()) {
+      toast.error('Please set a password');
+      return;
+    }
+
+    if (signupPassword.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const formattedPhone = signupPhone.startsWith('+') ? signupPhone : `+254${signupPhone.replace(/^0/, '')}`;
+      
+      // Create user with email and password
+      const tempEmail = `${formattedPhone.replace('+', '')}@temp.com`;
+      const { error } = await supabase.auth.signUp({
+        email: tempEmail,
+        password: signupPassword,
+        phone: formattedPhone,
+        options: {
+          data: { 
+            full_name: signupName,
+            phone_number: formattedPhone
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success('Account created successfully!');
+    } catch (error: any) {
+      console.error('Error creating account:', error);
+      toast.error(error.message || 'Account creation failed');
     } finally {
       setLoading(false);
     }
@@ -103,8 +168,8 @@ const PhoneAuth = () => {
 
       if (error) throw error;
 
-      toast.success('Successfully logged in!');
-      // Navigation will be handled by the auth state change listener
+      toast.success('Phone verified! Please set your password.');
+      // Continue to password setting instead of logging in
     } catch (error: any) {
       console.error('Error verifying OTP:', error);
       toast.error(error.message || 'Invalid OTP');
@@ -113,13 +178,7 @@ const PhoneAuth = () => {
     }
   };
 
-  const handleLogin = () => {
-    if (!otpSent) {
-      handleSendOTP(loginPhone);
-    } else {
-      handleVerifyOTP(loginPhone, loginOtp);
-    }
-  };
+  const [verifiedOtp, setVerifiedOtp] = useState(false);
 
   const handleSignup = () => {
     if (!signupName.trim()) {
@@ -128,19 +187,24 @@ const PhoneAuth = () => {
     }
     
     if (!otpSent) {
-      handleSendOTP(signupPhone, true);
-    } else {
+      handleSendOTP(signupPhone);
+    } else if (!verifiedOtp) {
       handleVerifyOTP(signupPhone, signupOtp);
+      setVerifiedOtp(true);
+    } else {
+      handleSignupComplete();
     }
   };
 
   const resetForm = () => {
     setOtpSent(false);
-    setLoginPhone('');
-    setLoginOtp('');
+    setVerifiedOtp(false);
+    setLoginName('');
+    setLoginPassword('');
     setSignupName('');
     setSignupPhone('');
     setSignupOtp('');
+    setSignupPassword('');
   };
 
   return (
@@ -163,33 +227,30 @@ const PhoneAuth = () => {
             
             <TabsContent value="login" className="space-y-4 animate-fade-in">
               <div className="space-y-2">
-                <Label htmlFor="login-phone">Phone Number</Label>
+                <Label htmlFor="login-name">Email/Username</Label>
                 <Input
-                  id="login-phone"
-                  type="tel"
-                  placeholder="+254712345678 or 0712345678"
-                  value={loginPhone}
-                  onChange={(e) => setLoginPhone(e.target.value)}
-                  disabled={loading || otpSent}
+                  id="login-name"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={loginName}
+                  onChange={(e) => setLoginName(e.target.value)}
+                  disabled={loading}
                   className="transition-all duration-200 hover:border-primary/50"
                 />
               </div>
               
-              {otpSent && (
-                <div className="space-y-2 animate-slide-in">
-                  <Label htmlFor="login-otp">Enter OTP</Label>
-                  <Input
-                    id="login-otp"
-                    type="text"
-                    placeholder="123456"
-                    value={loginOtp}
-                    onChange={(e) => setLoginOtp(e.target.value)}
-                    disabled={loading}
-                    maxLength={6}
-                    className="transition-all duration-200 hover:border-primary/50"
-                  />
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="login-password">Password</Label>
+                <Input
+                  id="login-password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  disabled={loading}
+                  className="transition-all duration-200 hover:border-primary/50"
+                />
+              </div>
               
               <Button 
                 onClick={handleLogin}
@@ -197,21 +258,18 @@ const PhoneAuth = () => {
                 className="w-full animate-scale-up hover:animate-wiggle"
                 size="lg"
               >
-                {loading ? 'Processing...' : otpSent ? 'Verify OTP' : 'Send OTP'}
+                {loading ? 'Logging in...' : 'Login'}
               </Button>
               
-              {otpSent && (
+              <div className="text-center">
                 <Button
-                  variant="outline"
-                  onClick={() => {
-                    setOtpSent(false);
-                    setLoginOtp('');
-                  }}
-                  className="w-full"
+                  variant="link"
+                  className="text-sm text-muted-foreground hover:text-primary"
+                  onClick={() => toast.info('Forgot password feature coming soon!')}
                 >
-                  Resend OTP
+                  Forgot Password?
                 </Button>
-              )}
+              </div>
             </TabsContent>
             
             <TabsContent value="signup" className="space-y-4 animate-fade-in">
@@ -223,7 +281,7 @@ const PhoneAuth = () => {
                   placeholder="Enter your full name"
                   value={signupName}
                   onChange={(e) => setSignupName(e.target.value)}
-                  disabled={loading || otpSent}
+                  disabled={loading || (otpSent && verifiedOtp)}
                   className="transition-all duration-200 hover:border-primary/50"
                 />
               </div>
@@ -236,12 +294,12 @@ const PhoneAuth = () => {
                   placeholder="+254712345678 or 0712345678"
                   value={signupPhone}
                   onChange={(e) => setSignupPhone(e.target.value)}
-                  disabled={loading || otpSent}
+                  disabled={loading || (otpSent && verifiedOtp)}
                   className="transition-all duration-200 hover:border-primary/50"
                 />
               </div>
               
-              {otpSent && (
+              {otpSent && !verifiedOtp && (
                 <div className="space-y-2 animate-slide-in">
                   <Label htmlFor="signup-otp">Enter OTP</Label>
                   <Input
@@ -257,16 +315,33 @@ const PhoneAuth = () => {
                 </div>
               )}
               
+              {verifiedOtp && (
+                <div className="space-y-2 animate-slide-in">
+                  <Label htmlFor="signup-password">Set Password</Label>
+                  <Input
+                    id="signup-password"
+                    type="password"
+                    placeholder="Create a secure password"
+                    value={signupPassword}
+                    onChange={(e) => setSignupPassword(e.target.value)}
+                    disabled={loading}
+                    className="transition-all duration-200 hover:border-primary/50"
+                  />
+                </div>
+              )}
+              
               <Button 
                 onClick={handleSignup}
                 disabled={loading}
                 className="w-full animate-scale-up hover:animate-wiggle"
                 size="lg"
               >
-                {loading ? 'Processing...' : otpSent ? 'Verify OTP & Sign Up' : 'Send OTP'}
+                {loading ? 'Processing...' : 
+                 verifiedOtp ? 'Create Account' :
+                 otpSent ? 'Verify OTP' : 'Send OTP'}
               </Button>
               
-              {otpSent && (
+              {otpSent && !verifiedOtp && (
                 <Button
                   variant="outline"
                   onClick={() => {
