@@ -6,11 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { User, Session } from '@supabase/supabase-js';
 
 const PhoneAuth = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(false);
@@ -58,7 +59,11 @@ const PhoneAuth = () => {
 
   const handleLogin = async () => {
     if (!loginName.trim() || !loginPassword.trim()) {
-      toast.error('Please enter both email and password');
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter both email and password",
+      });
       return;
     }
 
@@ -77,10 +82,17 @@ const PhoneAuth = () => {
       }
 
       console.log('Login successful:', data);
-      toast.success('Successfully logged in!');
+      toast({
+        title: "Success",
+        description: "Successfully logged in!",
+      });
     } catch (error: any) {
       console.error('Error logging in:', error);
-      toast.error(error.message || 'Login failed. Please check your credentials.');
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: error.message || 'Login failed. Please check your credentials.',
+      });
     } finally {
       setLoading(false);
     }
@@ -88,22 +100,38 @@ const PhoneAuth = () => {
 
   const handleDirectSignup = async () => {
     if (!signupName.trim()) {
-      toast.error('Please enter your full name');
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter your full name",
+      });
       return;
     }
 
     if (!signupPhone.trim()) {
-      toast.error('Please enter your phone number');
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter your phone number",
+      });
       return;
     }
 
     if (!signupPassword.trim()) {
-      toast.error('Please set a password');
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please set a password",
+      });
       return;
     }
 
     if (signupPassword.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Password must be at least 6 characters",
+      });
       return;
     }
 
@@ -120,6 +148,7 @@ const PhoneAuth = () => {
         email: email,
         password: signupPassword,
         options: {
+          emailRedirectTo: `${window.location.origin}/`,
           data: { 
             full_name: signupName,
             phone_number: formattedPhone
@@ -133,7 +162,10 @@ const PhoneAuth = () => {
       }
 
       console.log('Signup successful:', data);
-      toast.success('Account created successfully! You can now login.');
+      toast({
+        title: "Success",
+        description: "Account created successfully! You can now login.",
+      });
       
       // Switch to login tab
       setLoginName(email);
@@ -141,7 +173,11 @@ const PhoneAuth = () => {
       
     } catch (error: any) {
       console.error('Error creating account:', error);
-      toast.error(error.message || 'Account creation failed. Please try again.');
+      toast({
+        variant: "destructive",
+        title: "Signup Failed",
+        description: error.message || 'Account creation failed. Please try again.',
+      });
     } finally {
       setLoading(false);
     }
@@ -218,7 +254,10 @@ const PhoneAuth = () => {
                 <Button
                   variant="link"
                   className="text-sm text-muted-foreground hover:text-primary"
-                  onClick={() => toast.info('Forgot password feature coming soon!')}
+                  onClick={() => toast({
+                    title: "Info",
+                    description: "Forgot password feature coming soon!",
+                  })}
                 >
                   Forgot Password?
                 </Button>
