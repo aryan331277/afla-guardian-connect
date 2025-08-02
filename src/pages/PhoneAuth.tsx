@@ -18,13 +18,13 @@ const PhoneAuth = () => {
   const [otpSent, setOtpSent] = useState(false);
   
   // Login form state
-  const [loginName, setLoginName] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   
   // Signup form state
   const [signupName, setSignupName] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
   const [signupPhone, setSignupPhone] = useState('');
-  const [signupOtp, setSignupOtp] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
 
   useEffect(() => {
@@ -58,7 +58,7 @@ const PhoneAuth = () => {
   }, [navigate]);
 
   const handleLogin = async () => {
-    if (!loginName.trim() || !loginPassword.trim()) {
+    if (!loginEmail.trim() || !loginPassword.trim()) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -67,12 +67,23 @@ const PhoneAuth = () => {
       return;
     }
 
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(loginEmail.trim())) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter a valid email address",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      console.log('Attempting login with:', loginName);
+      console.log('Attempting login with:', loginEmail);
       
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: loginName,
+        email: loginEmail.trim(),
         password: loginPassword
       });
 
@@ -108,11 +119,22 @@ const PhoneAuth = () => {
       return;
     }
 
-    if (!signupPhone.trim()) {
+    if (!signupEmail.trim()) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Please enter your phone number",
+        description: "Please enter your email address",
+      });
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(signupEmail.trim())) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter a valid email address",
       });
       return;
     }
@@ -139,18 +161,15 @@ const PhoneAuth = () => {
     try {
       const formattedPhone = signupPhone.startsWith('+') ? signupPhone : `+254${signupPhone.replace(/^0/, '')}`;
       
-      // Create a unique email from phone number
-      const email = `${formattedPhone.replace('+', '')}@aflaguard.app`;
-      
-      console.log('Creating account with email:', email);
+      console.log('Creating account with email:', signupEmail.trim());
       
       const { data, error } = await supabase.auth.signUp({
-        email: email,
+        email: signupEmail.trim(),
         password: signupPassword,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
           data: { 
-            full_name: signupName,
+            full_name: signupName.trim(),
             phone_number: formattedPhone
           }
         }
@@ -167,9 +186,9 @@ const PhoneAuth = () => {
         description: "Account created successfully! You can now login.",
       });
       
-      // Switch to login tab
-      setLoginName(email);
-      setLoginPassword(signupPassword);
+      // Switch to login tab and prefill email
+      setLoginEmail(signupEmail.trim());
+      setLoginPassword('');
       
     } catch (error: any) {
       console.error('Error creating account:', error);
@@ -188,11 +207,11 @@ const PhoneAuth = () => {
 
   const resetForm = () => {
     setOtpSent(false);
-    setLoginName('');
+    setLoginEmail('');
     setLoginPassword('');
     setSignupName('');
+    setSignupEmail('');
     setSignupPhone('');
-    setSignupOtp('');
     setSignupPassword('');
   };
 
@@ -216,13 +235,13 @@ const PhoneAuth = () => {
             
             <TabsContent value="login" className="space-y-4 animate-fade-in">
               <div className="space-y-2">
-                <Label htmlFor="login-name">Email/Username</Label>
+                <Label htmlFor="login-email">Email Address</Label>
                 <Input
-                  id="login-name"
+                  id="login-email"
                   type="email"
-                  placeholder="Enter your email"
-                  value={loginName}
-                  onChange={(e) => setLoginName(e.target.value)}
+                  placeholder="Enter your email address"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
                   disabled={loading}
                   className="transition-all duration-200 hover:border-primary/50"
                 />
@@ -279,7 +298,20 @@ const PhoneAuth = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="signup-phone">Phone Number</Label>
+                <Label htmlFor="signup-email">Email Address</Label>
+                <Input
+                  id="signup-email"
+                  type="email"
+                  placeholder="Enter your email address"
+                  value={signupEmail}
+                  onChange={(e) => setSignupEmail(e.target.value)}
+                  disabled={loading}
+                  className="transition-all duration-200 hover:border-primary/50"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="signup-phone">Phone Number (Optional)</Label>
                 <Input
                   id="signup-phone"
                   type="tel"
@@ -303,7 +335,6 @@ const PhoneAuth = () => {
                   className="transition-all duration-200 hover:border-primary/50"
                 />
               </div>
-              
               <Button 
                 onClick={handleDirectSignup}
                 disabled={loading}
