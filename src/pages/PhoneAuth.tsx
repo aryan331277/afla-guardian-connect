@@ -159,19 +159,24 @@ const PhoneAuth = () => {
 
     setLoading(true);
     try {
-      const formattedPhone = signupPhone.startsWith('+') ? signupPhone : `+254${signupPhone.replace(/^0/, '')}`;
-      
       console.log('Creating account with email:', signupEmail.trim());
+      
+      const userMetadata: any = {
+        full_name: signupName.trim()
+      };
+      
+      // Only add phone if provided
+      if (signupPhone.trim()) {
+        const formattedPhone = signupPhone.startsWith('+') ? signupPhone : `+254${signupPhone.replace(/^0/, '')}`;
+        userMetadata.phone_number = formattedPhone;
+      }
       
       const { data, error } = await supabase.auth.signUp({
         email: signupEmail.trim(),
         password: signupPassword,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
-          data: { 
-            full_name: signupName.trim(),
-            phone_number: formattedPhone
-          }
+          data: userMetadata
         }
       });
 
