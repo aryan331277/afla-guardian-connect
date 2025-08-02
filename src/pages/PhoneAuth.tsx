@@ -89,21 +89,38 @@ const PhoneAuth = () => {
 
       if (error) {
         console.error('Login Error:', error);
+        
+        // Handle specific error cases
+        if (error.message.includes('Invalid login credentials')) {
+          toast({
+            variant: "destructive",
+            title: "Login Failed",
+            description: "Invalid email or password. If you just signed up, please check your email and confirm your account first.",
+          });
+        } else if (error.message.includes('Email not confirmed')) {
+          toast({
+            variant: "destructive", 
+            title: "Email Not Confirmed",
+            description: "Please check your email and click the confirmation link before logging in.",
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Login Failed", 
+            description: error.message || 'Login failed. Please try again.',
+          });
+        }
         throw error;
       }
 
       console.log('Login successful:', data);
       toast({
-        title: "Success",
+        title: "Welcome Back!",
         description: "Successfully logged in!",
       });
     } catch (error: any) {
       console.error('Error logging in:', error);
-      toast({
-        variant: "destructive",
-        title: "Login Failed",
-        description: error.message || 'Login failed. Please check your credentials.',
-      });
+      // Error handling is done above in the if (error) block
     } finally {
       setLoading(false);
     }
@@ -186,14 +203,22 @@ const PhoneAuth = () => {
       }
 
       console.log('Signup successful:', data);
-      toast({
-        title: "Success",
-        description: "Account created successfully! You can now login.",
-      });
       
-      // Switch to login tab and prefill email
-      setLoginEmail(signupEmail.trim());
-      setLoginPassword('');
+      if (data.user && !data.user.email_confirmed_at) {
+        toast({
+          title: "Check Your Email",
+          description: `We've sent a confirmation link to ${signupEmail.trim()}. Please click the link to verify your account before logging in.`,
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Account created successfully! You can now login.",
+        });
+        
+        // Switch to login tab and prefill email
+        setLoginEmail(signupEmail.trim());
+        setLoginPassword('');
+      }
       
     } catch (error: any) {
       console.error('Error creating account:', error);
