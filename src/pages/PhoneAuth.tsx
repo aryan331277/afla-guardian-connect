@@ -5,17 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { User, Session } from '@supabase/supabase-js';
+import { authService, FarmerUser } from '@/lib/auth';
 import { ttsService } from '@/lib/tts';
 import { Volume2 } from 'lucide-react';
 
 const PhoneAuth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<FarmerUser | null>(null);
   const [loading, setLoading] = useState(false);
   
   // Login form state
@@ -28,33 +26,17 @@ const PhoneAuth = () => {
   const [signupPassword, setSignupPassword] = useState('');
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed:', event, session);
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Redirect authenticated users based on their role
-        if (session?.user) {
-          const role = localStorage.getItem('aflaguard-role') || 'farmer';
-          navigate(`/${role}`);
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        const role = localStorage.getItem('aflaguard-role') || 'farmer';
+    // Check for existing session on mount
+    const checkAuth = async () => {
+      const currentUser = await authService.checkSession();
+      if (currentUser) {
+        setUser(currentUser);
+        const role = currentUser.role || 'farmer';
         navigate(`/${role}`);
       }
-    });
-
-    return () => subscription.unsubscribe();
+    };
+    
+    checkAuth();
   }, [navigate]);
 
   const speakText = async (text: string) => {
@@ -77,32 +59,38 @@ const PhoneAuth = () => {
 
     setLoading(true);
     try {
-      // Convert name to fake email for Supabase compatibility
-      const fakeEmail = `${loginName.toLowerCase().replace(/\s+/g, '')}@farmer.local`;
       console.log('Attempting login with name:', loginName);
       
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: fakeEmail,
-        password: loginPassword
-      });
+      const { session, error } = await authService.login(loginName.trim(), loginPassword);
 
       if (error) {
         console.error('Login Error:', error);
         toast({
           variant: "destructive",
           title: "Login Failed",
-          description: "Invalid name or password. Please check your credentials.",
+          description: error,
         });
-        throw error;
+        return;
       }
 
-      console.log('Login successful:', data);
-      toast({
-        title: "Welcome Back!",
-        description: `Welcome ${loginName}!`,
-      });
+      if (session?.user) {
+        console.log('Login successful:', session.user);
+        setUser(session.user);
+        toast({
+          title: "Welcome Back!",
+          description: `Welcome ${session.user.full_name}!`,
+        });
+        
+        const role = session.user.role || 'farmer';
+        navigate(`/${role}`);
+      }
     } catch (error: any) {
       console.error('Error logging in:', error);
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: "An unexpected error occurred. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -147,56 +135,43 @@ const PhoneAuth = () => {
 
     setLoading(true);
     try {
-      // Convert name to fake email for Supabase compatibility
-      const fakeEmail = `${signupName.toLowerCase().replace(/\s+/g, '')}@farmer.local`;
       console.log('Creating account for:', signupName);
       
-      const formattedPhone = signupPhone.startsWith('+') ? signupPhone : `+254${signupPhone.replace(/^0/, '')}`;
-      
-      const userMetadata = {
-        full_name: signupName.trim(),
-        phone_number: formattedPhone,
-        display_name: signupName.trim()
-      };
-      
-      const { data, error } = await supabase.auth.signUp({
-        email: fakeEmail,
-        password: signupPassword,
-        options: {
-          data: userMetadata
-        }
-      });
+      const { user, error } = await authService.register(
+        signupName.trim(), 
+        signupPhone.trim(), 
+        signupPassword
+      );
 
       if (error) {
         console.error('Signup Error:', error);
-        if (error.message.includes('already registered')) {
-          toast({
-            variant: "destructive",
-            title: "Account Exists",
-            description: "This name is already registered. Please try logging in instead.",
-          });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Signup Failed",
-            description: error.message || 'Account creation failed. Please try again.',
-          });
-        }
-        throw error;
+        toast({
+          variant: "destructive",
+          title: "Signup Failed",
+          description: error,
+        });
+        return;
       }
 
-      console.log('Signup successful:', data);
-      toast({
-        title: "Success!",
-        description: "Account created successfully! You can now login.",
-      });
-      
-      // Switch to login tab and prefill name
-      setLoginName(signupName.trim());
-      setLoginPassword('');
+      if (user) {
+        console.log('Signup successful:', user);
+        toast({
+          title: "Success!",
+          description: "Account created successfully! You can now login.",
+        });
+        
+        // Switch to login tab and prefill name
+        setLoginName(signupName.trim());
+        setLoginPassword('');
+      }
       
     } catch (error: any) {
       console.error('Error creating account:', error);
+      toast({
+        variant: "destructive",
+        title: "Signup Failed",
+        description: "An unexpected error occurred. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
