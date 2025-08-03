@@ -26,6 +26,13 @@ const PhoneAuth = () => {
   const [signupPassword, setSignupPassword] = useState('');
 
   useEffect(() => {
+    // Check if privacy was accepted
+    const privacyAccepted = localStorage.getItem('privacy-accepted');
+    if (!privacyAccepted) {
+      navigate('/privacy-agreement');
+      return;
+    }
+
     // Check for existing session on mount
     const checkAuth = async () => {
       const currentUser = await authService.checkSession();

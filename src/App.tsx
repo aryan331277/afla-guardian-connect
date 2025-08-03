@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import SplashScreen from "./pages/SplashScreen";
+import LogoScreen from "./pages/LogoScreen";
+import PrivacyAgreement from "./pages/PrivacyAgreement";
 import LanguageSelection from "./pages/LanguageSelection";
 import RoleSelection from "./pages/RoleSelection";
 import PhoneAuth from "./pages/PhoneAuth";
@@ -38,7 +40,9 @@ const AppContent = () => {
     <div className="min-h-screen bg-background">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<SplashScreen />} />
+          <Route path="/" element={<LogoScreen />} />
+          <Route path="/splash" element={<SplashScreen />} />
+          <Route path="/privacy-agreement" element={<PrivacyAgreement />} />
           <Route path="/language" element={<LanguageSelection />} />
           <Route path="/role" element={<RoleSelection />} />
           <Route path="/auth" element={<PhoneAuth />} />
