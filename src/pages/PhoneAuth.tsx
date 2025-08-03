@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { User, Session } from '@supabase/supabase-js';
+import { ttsService } from '@/lib/tts';
+import { Volume2 } from 'lucide-react';
 
 const PhoneAuth = () => {
   const navigate = useNavigate();
@@ -15,15 +17,13 @@ const PhoneAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
   
   // Login form state
-  const [loginEmail, setLoginEmail] = useState('');
+  const [loginName, setLoginName] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   
   // Signup form state
   const [signupName, setSignupName] = useState('');
-  const [signupEmail, setSignupEmail] = useState('');
   const [signupPhone, setSignupPhone] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
 
@@ -57,70 +57,52 @@ const PhoneAuth = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleLogin = async () => {
-    if (!loginEmail.trim() || !loginPassword.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please enter both email and password",
-      });
-      return;
+  const speakText = async (text: string) => {
+    try {
+      await ttsService.speak(text, 'en');
+    } catch (error) {
+      console.log('TTS not available:', error);
     }
+  };
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(loginEmail.trim())) {
+  const handleLogin = async () => {
+    if (!loginName.trim() || !loginPassword.trim()) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Please enter a valid email address",
+        description: "Please enter both name and password",
       });
       return;
     }
 
     setLoading(true);
     try {
-      console.log('Attempting login with:', loginEmail);
+      // Convert name to fake email for Supabase compatibility
+      const fakeEmail = `${loginName.toLowerCase().replace(/\s+/g, '')}@farmer.local`;
+      console.log('Attempting login with name:', loginName);
       
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: loginEmail.trim(),
+        email: fakeEmail,
         password: loginPassword
       });
 
       if (error) {
         console.error('Login Error:', error);
-        
-        // Handle specific error cases
-        if (error.message.includes('Invalid login credentials')) {
-          toast({
-            variant: "destructive",
-            title: "Login Failed",
-            description: "Invalid email or password. If you just signed up, please check your email and confirm your account first.",
-          });
-        } else if (error.message.includes('Email not confirmed')) {
-          toast({
-            variant: "destructive", 
-            title: "Email Not Confirmed",
-            description: "Please check your email and click the confirmation link before logging in.",
-          });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Login Failed", 
-            description: error.message || 'Login failed. Please try again.',
-          });
-        }
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: "Invalid name or password. Please check your credentials.",
+        });
         throw error;
       }
 
       console.log('Login successful:', data);
       toast({
         title: "Welcome Back!",
-        description: "Successfully logged in!",
+        description: `Welcome ${loginName}!`,
       });
     } catch (error: any) {
       console.error('Error logging in:', error);
-      // Error handling is done above in the if (error) block
     } finally {
       setLoading(false);
     }
@@ -136,22 +118,11 @@ const PhoneAuth = () => {
       return;
     }
 
-    if (!signupEmail.trim()) {
+    if (!signupPhone.trim()) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Please enter your email address",
-      });
-      return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(signupEmail.trim())) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please enter a valid email address",
+        description: "Please enter your phone number",
       });
       return;
     }
@@ -176,71 +147,65 @@ const PhoneAuth = () => {
 
     setLoading(true);
     try {
-      console.log('Creating account with email:', signupEmail.trim());
+      // Convert name to fake email for Supabase compatibility
+      const fakeEmail = `${signupName.toLowerCase().replace(/\s+/g, '')}@farmer.local`;
+      console.log('Creating account for:', signupName);
       
-      const userMetadata: any = {
-        full_name: signupName.trim()
+      const formattedPhone = signupPhone.startsWith('+') ? signupPhone : `+254${signupPhone.replace(/^0/, '')}`;
+      
+      const userMetadata = {
+        full_name: signupName.trim(),
+        phone_number: formattedPhone,
+        display_name: signupName.trim()
       };
       
-      // Only add phone if provided
-      if (signupPhone.trim()) {
-        const formattedPhone = signupPhone.startsWith('+') ? signupPhone : `+254${signupPhone.replace(/^0/, '')}`;
-        userMetadata.phone_number = formattedPhone;
-      }
-      
       const { data, error } = await supabase.auth.signUp({
-        email: signupEmail.trim(),
+        email: fakeEmail,
         password: signupPassword,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
           data: userMetadata
         }
       });
 
       if (error) {
         console.error('Signup Error:', error);
+        if (error.message.includes('already registered')) {
+          toast({
+            variant: "destructive",
+            title: "Account Exists",
+            description: "This name is already registered. Please try logging in instead.",
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Signup Failed",
+            description: error.message || 'Account creation failed. Please try again.',
+          });
+        }
         throw error;
       }
 
       console.log('Signup successful:', data);
+      toast({
+        title: "Success!",
+        description: "Account created successfully! You can now login.",
+      });
       
-      if (data.user && !data.user.email_confirmed_at) {
-        toast({
-          title: "Check Your Email",
-          description: `We've sent a confirmation link to ${signupEmail.trim()}. Please click the link to verify your account before logging in.`,
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "Account created successfully! You can now login.",
-        });
-        
-        // Switch to login tab and prefill email
-        setLoginEmail(signupEmail.trim());
-        setLoginPassword('');
-      }
+      // Switch to login tab and prefill name
+      setLoginName(signupName.trim());
+      setLoginPassword('');
       
     } catch (error: any) {
       console.error('Error creating account:', error);
-      toast({
-        variant: "destructive",
-        title: "Signup Failed",
-        description: error.message || 'Account creation failed. Please try again.',
-      });
     } finally {
       setLoading(false);
     }
   };
 
-
-
-
   const resetForm = () => {
-    setOtpSent(false);
-    setLoginEmail('');
+    setLoginName('');
     setLoginPassword('');
     setSignupName('');
-    setSignupEmail('');
     setSignupPhone('');
     setSignupPassword('');
   };
@@ -265,20 +230,40 @@ const PhoneAuth = () => {
             
             <TabsContent value="login" className="space-y-4 animate-fade-in">
               <div className="space-y-2">
-                <Label htmlFor="login-email">Email Address</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="login-name">Name</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => speakText("Enter your name")}
+                    className="p-1 h-auto"
+                  >
+                    <Volume2 className="h-3 w-3" />
+                  </Button>
+                </div>
                 <Input
-                  id="login-email"
-                  type="email"
-                  placeholder="Enter your email address"
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
+                  id="login-name"
+                  type="text"
+                  placeholder="Enter your name"
+                  value={loginName}
+                  onChange={(e) => setLoginName(e.target.value)}
                   disabled={loading}
                   className="transition-all duration-200 hover:border-primary/50"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="login-password">Password</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="login-password">Password</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => speakText("Enter your password")}
+                    className="p-1 h-auto"
+                  >
+                    <Volume2 className="h-3 w-3" />
+                  </Button>
+                </div>
                 <Input
                   id="login-password"
                   type="password"
@@ -298,24 +283,21 @@ const PhoneAuth = () => {
               >
                 {loading ? 'Logging in...' : 'Login'}
               </Button>
-              
-              <div className="text-center">
-                <Button
-                  variant="link"
-                  className="text-sm text-muted-foreground hover:text-primary"
-                  onClick={() => toast({
-                    title: "Info",
-                    description: "Forgot password feature coming soon!",
-                  })}
-                >
-                  Forgot Password?
-                </Button>
-              </div>
             </TabsContent>
             
             <TabsContent value="signup" className="space-y-4 animate-fade-in">
               <div className="space-y-2">
-                <Label htmlFor="signup-name">Full Name</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="signup-name">Full Name</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => speakText("Enter your full name")}
+                    className="p-1 h-auto"
+                  >
+                    <Volume2 className="h-3 w-3" />
+                  </Button>
+                </div>
                 <Input
                   id="signup-name"
                   type="text"
@@ -328,20 +310,17 @@ const PhoneAuth = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="signup-email">Email Address</Label>
-                <Input
-                  id="signup-email"
-                  type="email"
-                  placeholder="Enter your email address"
-                  value={signupEmail}
-                  onChange={(e) => setSignupEmail(e.target.value)}
-                  disabled={loading}
-                  className="transition-all duration-200 hover:border-primary/50"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="signup-phone">Phone Number (Optional)</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="signup-phone">Phone Number</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => speakText("Enter your phone number")}
+                    className="p-1 h-auto"
+                  >
+                    <Volume2 className="h-3 w-3" />
+                  </Button>
+                </div>
                 <Input
                   id="signup-phone"
                   type="tel"
@@ -354,7 +333,17 @@ const PhoneAuth = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="signup-password">Set Password</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="signup-password">Set Password</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => speakText("Create a secure password")}
+                    className="p-1 h-auto"
+                  >
+                    <Volume2 className="h-3 w-3" />
+                  </Button>
+                </div>
                 <Input
                   id="signup-password"
                   type="password"
