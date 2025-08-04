@@ -46,7 +46,7 @@ const LanguageSelection = () => {
 
   const handleContinue = () => {
     localStorage.setItem('aflaguard-language', selectedLanguage);
-    navigate('/role');
+    navigate('/privacy-agreement');
   };
 
   return (

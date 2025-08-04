@@ -130,7 +130,7 @@ const FarmerDashboard = () => {
         <div className="space-y-4 stagger-animation">
           {/* Chat with AI - 25% height */}
           <Button
-            onClick={() => handleNavigate('/chat', 'AI Chat')}
+            onClick={() => window.open('https://google.com', '_blank')}
             className="w-full h-24 text-left p-6 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-primary-foreground hover-glow animate-fade-in"
             variant="default"
             style={{ '--index': 0 } as any}

@@ -14,7 +14,8 @@ const PrivacyAgreement = () => {
 
   const speakText = async (text: string) => {
     try {
-      await ttsService.speak(text, 'en');
+      const selectedLanguage = localStorage.getItem('aflaguard-language') || 'en';
+      await ttsService.speak(text, selectedLanguage as any);
     } catch (error) {
       console.log('TTS not available:', error);
     }

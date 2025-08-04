@@ -6,16 +6,16 @@ const LogoScreen = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Auto-navigate to privacy after 3 seconds
+    // Auto-navigate to language selection after 3 seconds
     const timer = setTimeout(() => {
-      navigate('/privacy-agreement');
+      navigate('/language');
     }, 3000);
 
     return () => clearTimeout(timer);
   }, [navigate]);
 
   const handleSkip = () => {
-    navigate('/privacy-agreement');
+    navigate('/language');
   };
 
   return (

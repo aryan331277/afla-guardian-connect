@@ -41,11 +41,11 @@ const AppContent = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LogoScreen />} />
-          <Route path="/splash" element={<SplashScreen />} />
-          <Route path="/privacy-agreement" element={<PrivacyAgreement />} />
           <Route path="/language" element={<LanguageSelection />} />
-          <Route path="/role" element={<RoleSelection />} />
+          <Route path="/privacy-agreement" element={<PrivacyAgreement />} />
           <Route path="/auth" element={<PhoneAuth />} />
+          <Route path="/splash" element={<SplashScreen />} />
+          <Route path="/role" element={<RoleSelection />} />
           <Route path="/farmer" element={<FarmerDashboard />} />
           <Route path="/buyer" element={<BuyerDashboard />} />
           <Route path="/government" element={<GovernmentDashboard />} />
