@@ -8,7 +8,7 @@ import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
-import { MessageCircle, Scan, Users, Crown, Settings, Sun, Moon, Palette } from 'lucide-react';
+import { MessageCircle, Scan, Users, Crown, Settings, Sun, Moon, Palette, User as ProfileIcon } from 'lucide-react';
 
 const FarmerDashboard = () => {
   const navigate = useNavigate();
@@ -83,6 +83,14 @@ const FarmerDashboard = () => {
             <p className="text-muted-foreground">Welcome back, {user?.currentTier || 'Farmer'}!</p>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/profile')}
+              className="p-2"
+            >
+              <ProfileIcon className="w-4 h-4" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
