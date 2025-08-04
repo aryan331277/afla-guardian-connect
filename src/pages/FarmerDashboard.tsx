@@ -87,7 +87,7 @@ const FarmerDashboard = () => {
               variant="ghost"
               size="sm"
               onClick={() => navigate('/profile')}
-              className="p-2"
+              className="p-2 hover-scale"
             >
               <ProfileIcon className="w-4 h-4" />
             </Button>
@@ -95,16 +95,9 @@ const FarmerDashboard = () => {
               variant="ghost"
               size="sm"
               onClick={toggleTheme}
-              className="p-2"
+              className="p-2 hover-scale"
             >
               {getThemeIcon()}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/privacy')}
-            >
-              <Settings className="w-4 h-4" />
             </Button>
           </div>
         </div>

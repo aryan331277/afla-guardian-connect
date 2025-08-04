@@ -123,19 +123,19 @@ const FarmerProfile = () => {
         </Card>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="text-center hover:shadow-lg transition-shadow">
+        <div className="grid grid-cols-2 gap-4 animate-fade-in" style={{ animationDelay: '200ms' }}>
+          <Card className="text-center hover-scale transition-all duration-300 hover:shadow-xl hover:border-primary/30">
             <CardContent className="p-4">
-              <Trophy className="w-8 h-8 mx-auto mb-2 text-primary" />
-              <div className="text-2xl font-bold text-primary">{user?.gamificationPoints || 0}</div>
+              <Trophy className="w-8 h-8 mx-auto mb-2 text-primary animate-bounce" />
+              <div className="text-2xl font-bold text-primary animate-pulse">{user?.gamificationPoints || 0}</div>
               <div className="text-sm text-muted-foreground">Total Points</div>
             </CardContent>
           </Card>
           
-          <Card className="text-center hover:shadow-lg transition-shadow">
+          <Card className="text-center hover-scale transition-all duration-300 hover:shadow-xl hover:border-accent/30">
             <CardContent className="p-4">
-              <Scan className="w-8 h-8 mx-auto mb-2 text-accent" />
-              <div className="text-2xl font-bold text-accent">{user?.scanStreak || 0}</div>
+              <Scan className="w-8 h-8 mx-auto mb-2 text-accent animate-bounce" style={{ animationDelay: '100ms' }} />
+              <div className="text-2xl font-bold text-accent animate-pulse">{user?.scanStreak || 0}</div>
               <div className="text-sm text-muted-foreground">Day Streak</div>
             </CardContent>
           </Card>
@@ -207,31 +207,31 @@ const FarmerProfile = () => {
         </Card>
 
         {/* Quick Actions */}
-        <div className="space-y-3">
+        <div className="space-y-3 animate-fade-in" style={{ animationDelay: '400ms' }}>
           <Button 
             variant="outline" 
-            className="w-full justify-start"
+            className="w-full justify-start hover-scale transition-all duration-300 hover:shadow-lg hover:border-accent/50"
             onClick={() => navigate('/scan-history')}
           >
-            <Scan className="w-4 h-4 mr-3" />
+            <Scan className="w-4 h-4 mr-3 animate-pulse" />
             View Scan History
           </Button>
           
           <Button 
             variant="outline" 
-            className="w-full justify-start"
+            className="w-full justify-start hover-scale transition-all duration-300 hover:shadow-lg hover:border-primary/50"
             onClick={() => navigate('/insights-history')}
           >
-            <Trophy className="w-4 h-4 mr-3" />
+            <Trophy className="w-4 h-4 mr-3 animate-pulse" style={{ animationDelay: '200ms' }} />
             View Past Insights
           </Button>
           
           <Button 
             variant="outline" 
-            className="w-full justify-start"
+            className="w-full justify-start hover-scale transition-all duration-300 hover:shadow-lg hover:border-success/50"
             onClick={() => navigate('/community')}
           >
-            <MessageSquare className="w-4 h-4 mr-3" />
+            <MessageSquare className="w-4 h-4 mr-3 animate-pulse" style={{ animationDelay: '400ms' }} />
             My Community Activity
           </Button>
         </div>

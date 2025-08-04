@@ -13,6 +13,8 @@ import RoleSelection from "./pages/RoleSelection";
 import PhoneAuth from "./pages/PhoneAuth";
 import FarmerDashboard from "./pages/FarmerDashboard";
 import FarmerProfile from "./pages/FarmerProfile";
+import ScanHistory from "./pages/ScanHistory";
+import InsightsHistory from "./pages/InsightsHistory";
 import BuyerDashboard from "./pages/BuyerDashboard";
 import GovernmentDashboard from "./pages/GovernmentDashboard";
 import ScanWizard from "./pages/ScanWizard";
@@ -49,6 +51,8 @@ const AppContent = () => {
           <Route path="/role" element={<RoleSelection />} />
           <Route path="/farmer" element={<FarmerDashboard />} />
           <Route path="/profile" element={<FarmerProfile />} />
+          <Route path="/scan-history" element={<ScanHistory />} />
+          <Route path="/insights-history" element={<InsightsHistory />} />
           <Route path="/buyer" element={<BuyerDashboard />} />
           <Route path="/government" element={<GovernmentDashboard />} />
           <Route path="/scan" element={<ScanWizard />} />
