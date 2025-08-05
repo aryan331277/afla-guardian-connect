@@ -1,116 +1,129 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { t } from '@/lib/i18n';
-import { ArrowLeft, MapPin, Thermometer, Droplets, Leaf } from 'lucide-react';
+import { ttsService } from '@/lib/tts';
+import { DatabaseService } from '@/lib/database';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  Bot, 
+  Scan, 
+  MapPin, 
+  Cloud, 
+  Thermometer, 
+  Droplets, 
+  Leaf, 
+  Beaker,
+  Bug,
+  Sprout,
+  ChevronRight,
+  Sparkles,
+  Zap
+} from 'lucide-react';
 
 const ScanWizard = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [scanData, setScanData] = useState({
-    // Auto-filled features
-    gpsLat: 0,
-    gpsLng: 0,
-    soilMoistureDeficit: 0,
-    highDayTemp: 0,
-    highHumidity: 0,
-    erraticRainfall: 0,
-    soilTexture: 0,
-    ndvi: 0,
-    // User selections
-    cropGenotype: 'medium',
-    fertilisation: 'medium',
-    cropResidue: 'medium',
-    lackIrrigation: 'medium',
-    insects: 'medium',
-    soilPH: 'neutral'
+    location: { lat: -1.2921, lng: 36.8219 }, // Nairobi coordinates
+    weather: { temp: 24, humidity: 65, condition: 'Partly Cloudy' },
+    soil: { ph: 6.5, moisture: 45, nutrients: 'Medium' },
+    ndvi: 0.65,
+    genotype: '',
+    fertilization: '',
+    irrigation: '',
+    insects: '',
+    soilph: ''
   });
 
-  const handleSubmit = () => {
-    // Simulate comprehensive analysis with detailed recommendations
-    const analysisResults = generateAnalysis(scanData);
+  useEffect(() => {
+    // Simulate progress updates
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          return 100;
+        }
+        return prev + 2;
+      });
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const mockApiFeatures = [
+    { icon: MapPin, name: t('scan.gpsLocation', 'GPS Location'), value: 'Nairobi, Kenya', status: 'completed' },
+    { icon: Cloud, name: t('scan.weatherData', 'Weather Data'), value: '24°C, 65% humidity', status: 'completed' },
+    { icon: Beaker, name: t('scan.soilAnalysis', 'Soil Analysis'), value: 'pH 6.5, Medium nutrients', status: 'completed' },
+    { icon: Leaf, name: t('scan.ndviIndex', 'NDVI Index'), value: '0.65 - Healthy vegetation', status: 'completed' },
+    { icon: Thermometer, name: t('scan.temperatureMap', 'Temperature Map'), value: t('scan.fetching', 'Fetching...'), status: 'loading' },
+    { icon: Droplets, name: t('scan.moistureLevels', 'Moisture Levels'), value: t('scan.analyzing', 'Analyzing...'), status: 'loading' },
+    { icon: Bug, name: t('scan.pestDetection', 'Pest Detection'), value: t('scan.scanning', 'Scanning...'), status: 'loading' },
+    { icon: Sprout, name: t('scan.growthPrediction', 'Growth Prediction'), value: t('scan.calculating', 'Calculating...'), status: 'loading' }
+  ];
+
+  const handleAssessment = (field: string, value: string) => {
+    setScanData(prev => ({ ...prev, [field]: value }));
+    setStep(prev => prev + 1);
+  };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    const analysis = generateAnalysis(scanData);
     
-    // Store detailed scan results
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Save scan result using localStorage for now
     localStorage.setItem('lastScanResult', JSON.stringify({
-      ...analysisResults,
-      timestamp: new Date().toISOString(),
-      scanData: scanData
+      ...scanData,
+      analysis,
+      timestamp: new Date().toISOString()
     }));
-    
-    // Navigate to results page
-    navigate('/scan-results');
+
+    navigate('/scan-results', { state: { scanData, analysis } });
   };
 
   const generateAnalysis = (data: typeof scanData) => {
+    // Simplified risk calculation
     let riskScore = 0;
-    const recommendations = [];
-    const warnings = [];
     
-    // Crop genotype analysis
-    if (data.cropGenotype === 'very-high') {
-      riskScore += 2;
-      recommendations.push("Use resistant maize varieties like H6213 or DK8053");
-    } else if (data.cropGenotype === 'high') {
-      riskScore += 1;
-      recommendations.push("Consider upgrading to more resistant varieties next season");
-    }
+    if (data.genotype === 'poor') riskScore += 30;
+    else if (data.genotype === 'average') riskScore += 15;
     
-    // Fertilization analysis  
-    if (data.fertilisation === 'very-less') {
-      riskScore += 2;
-      recommendations.push("Apply NPK 17:17:17 at 50kg/acre during planting");
-      warnings.push("Nutrient deficiency increases aflatoxin risk");
-    }
+    if (data.fertilization === 'poor') riskScore += 25;
+    else if (data.fertilization === 'average') riskScore += 10;
     
-    // Irrigation analysis
-    if (data.lackIrrigation === 'very-high') {
-      riskScore += 3;
-      recommendations.push("Install drip irrigation system - reduces drought stress");
-      recommendations.push("Mulch around plants to retain soil moisture");
-      warnings.push("Water stress is the #1 aflatoxin risk factor");
-    }
+    if (data.irrigation === 'poor') riskScore += 20;
+    else if (data.irrigation === 'average') riskScore += 8;
     
-    // Insect analysis
-    if (data.insects === 'very-high') {
-      riskScore += 2;
-      recommendations.push("Apply Karate 2.5EC immediately - target stem borers");
-      recommendations.push("Set up pheromone traps for early detection");
-      warnings.push("Insect damage creates entry points for aflatoxin-producing fungi");
-    }
+    if (data.insects === 'high') riskScore += 35;
+    else if (data.insects === 'medium') riskScore += 15;
     
-    // pH analysis
-    if (data.soilPH === 'acidic') {
-      riskScore += 1;
-      recommendations.push("Apply agricultural lime at 2 tons/acre");
-      recommendations.push("Test soil pH again after 3 months");
-    } else if (data.soilPH === 'basic') {
-      recommendations.push("Add organic matter to buffer high pH");
-    }
-    
-    // Determine risk level
-    let riskLevel, riskColor;
-    if (riskScore >= 6) {
-      riskLevel = "Critical Risk";
-      riskColor = "text-red-600";
-      warnings.push("Immediate action required - high probability of aflatoxin contamination");
-    } else if (riskScore >= 4) {
-      riskLevel = "High Risk"; 
-      riskColor = "text-orange-600";
-    } else if (riskScore >= 2) {
-      riskLevel = "Medium Risk";
-      riskColor = "text-yellow-600";
-    } else {
-      riskLevel = "Low Risk";
-      riskColor = "text-green-600";
-    }
-    
-    // Add general recommendations
-    recommendations.push("Harvest when moisture content is below 25%");
-    recommendations.push("Dry maize to 14% moisture within 48 hours");
-    recommendations.push("Store in clean, dry containers with proper ventilation");
-    
+    if (data.soilph === 'poor') riskScore += 20;
+    else if (data.soilph === 'average') riskScore += 8;
+
+    const riskLevel = riskScore < 20 ? 'LOW' : riskScore < 50 ? 'MEDIUM' : 'HIGH';
+    const riskColor = riskLevel === 'LOW' ? 'green' : riskLevel === 'MEDIUM' ? 'yellow' : 'red';
+
+    const recommendations = [
+      t('scan.recommendation1', 'Consider soil nutrient supplementation'),
+      t('scan.recommendation2', 'Monitor pest activity closely'),
+      t('scan.recommendation3', 'Optimize irrigation schedule'),
+      t('scan.recommendation4', 'Apply organic fertilizers for better soil health')
+    ];
+
+    const warnings = riskScore > 50 ? [
+      t('scan.warning1', 'High risk detected - immediate action required'),
+      t('scan.warning2', 'Pest infestation likely - apply treatment')
+    ] : [];
+
     return {
       riskLevel,
       riskColor,
@@ -118,101 +131,252 @@ const ScanWizard = () => {
       recommendations,
       warnings,
       nextSteps: [
-        "Monitor field weekly for pest activity",
-        "Check soil moisture every 3 days", 
-        "Apply fungicide if rainfall exceeds 100mm/week",
-        "Plan harvest timing based on weather forecast"
+        t('scan.nextStep1', 'Schedule follow-up scan in 2 weeks'), 
+        t('scan.nextStep2', 'Implement recommended treatments')
       ]
     };
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 p-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/farmer')}>
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <h1 className="text-2xl font-bold text-primary">{t('scan.wizard.title', 'Field Scan Analysis')}</h1>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Leaf className="w-5 h-5" />
-              15-Feature Analysis Wizard
+  const renderScanInterface = () => (
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-full">
+      {/* Left Side - AI Chat Interface (40%) */}
+      <div className="lg:col-span-2 space-y-4">
+        <Card className="h-full animate-fade-in hover-scale">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Bot className="w-5 h-5 text-primary animate-pulse" />
+              {t('scan.aiAssistant', 'AI Assistant')}
+              <Sparkles className="w-4 h-4 text-accent animate-bounce" />
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2 text-sm">
-                <MapPin className="w-4 h-4 text-primary" />
-                <span>GPS: Auto-detected</span>
+          <CardContent className="space-y-4">
+            <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-4 rounded-lg animate-slide-in-right">
+              <p className="text-sm font-medium mb-2">{t('scan.aiGreeting', 'Hello! I\'m your AI farming assistant.')}</p>
+              <p className="text-xs text-muted-foreground">
+                {t('scan.aiDescription', 'I\'ll help analyze your field and provide expert recommendations based on 15+ parameters.')}
+              </p>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="bg-accent/5 p-3 rounded-lg animate-fade-in" style={{ '--index': 1 } as any}>
+                <p className="text-sm">
+                  {t('scan.aiAdvice1', 'Your soil pH of 6.5 is optimal for most crops. Great work!')}
+                </p>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Thermometer className="w-4 h-4 text-accent" />
-                <span>Weather: Auto-filled</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Droplets className="w-4 h-4 text-info" />
-                <span>Soil: Auto-analyzed</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Leaf className="w-4 h-4 text-success" />
-                <span>NDVI: Satellite data</span>
+              <div className="bg-primary/5 p-3 rounded-lg animate-fade-in" style={{ '--index': 2 } as any}>
+                <p className="text-sm">
+                  {t('scan.aiAdvice2', 'Weather conditions are favorable. Consider adjusting irrigation based on humidity levels.')}
+                </p>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="font-semibold">Manual Assessment Required:</h3>
-              
-              {['cropGenotype', 'fertilisation', 'cropResidue', 'lackIrrigation', 'insects'].map((field) => (
-                <div key={field}>
-                  <Label className="mb-2 block">{t(`crop.${field.toLowerCase()}`, field)}</Label>
-                  <div className="grid grid-cols-5 gap-2">
-                    {['very-less', 'less', 'medium', 'high', 'very-high'].map((level) => (
-                      <Button
-                        key={level}
-                        variant={scanData[field as keyof typeof scanData] === level ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => {
-                          console.log(`Setting ${field} to ${level}`);
-                          setScanData({...scanData, [field]: level});
-                        }}
-                      >
-                        {level.replace('-', ' ')}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-              
-              {/* Special pH field with acidic/basic/neutral */}
-              <div>
-                <Label className="mb-2 block">{t('crop.soil.ph', 'Soil pH Level')}</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  {['acidic', 'neutral', 'basic'].map((level) => (
-                    <Button
-                      key={level}
-                      variant={scanData.soilPH === level ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        console.log(`Setting pH to ${level}`);
-                        setScanData({...scanData, soilPH: level});
-                      }}
-                    >
-                      {level.charAt(0).toUpperCase() + level.slice(1)}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <Button onClick={handleSubmit} className="w-full" size="lg">
-              Complete Analysis
+            <Button 
+              onClick={() => window.open('https://google.com', '_blank')}
+              className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white hover-glow animate-bounce-in"
+              style={{ '--index': 3 } as any}
+            >
+              <Bot className="w-4 h-4 mr-2" />
+              {t('scan.chatWithAI', 'Continue Chat with AI')}
+              <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Right Side - Scan Features (60%) */}
+      <div className="lg:col-span-3 space-y-4">
+        <Card className="animate-fade-in">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Scan className="w-5 h-5 text-accent animate-spin" />
+                {t('scan.fieldAnalysis', 'Field Analysis')}
+              </div>
+              <Badge variant="secondary" className="animate-pulse">
+                {t('scan.live', 'Live')}
+              </Badge>
+            </CardTitle>
+            <Progress value={progress} className="mt-2" />
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {mockApiFeatures.map((feature, index) => (
+                <div 
+                  key={index}
+                  className={`p-3 rounded-lg border transition-all duration-500 hover-scale animate-fade-in ${
+                    feature.status === 'completed' 
+                      ? 'bg-success/10 border-success/20' 
+                      : 'bg-warning/10 border-warning/20'
+                  }`}
+                  style={{ '--index': index } as any}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <feature.icon className={`w-4 h-4 ${
+                      feature.status === 'completed' ? 'text-success' : 'text-warning animate-pulse'
+                    }`} />
+                    <span className="text-sm font-medium">{feature.name}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{feature.value}</p>
+                </div>
+              ))}
+            </div>
+
+            {step <= 5 && (
+              <div className="space-y-4 animate-slide-in-right">
+                <h3 className="font-medium flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-primary animate-bounce" />
+                  {t('scan.assessment', 'Quick Assessment')} ({step}/5)
+                </h3>
+                
+                {step === 1 && (
+                  <div className="space-y-3">
+                    <p className="text-sm">{t('scan.genotype', 'Crop Genotype Quality:')}</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['excellent', 'average', 'poor'].map((level) => (
+                        <Button
+                          key={level}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAssessment('genotype', level)}
+                          className="hover-scale animate-bounce-in"
+                          style={{ '--index': level === 'excellent' ? 0 : level === 'average' ? 1 : 2 } as any}
+                        >
+                          {t(`scan.${level}`, level)}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {step === 2 && (
+                  <div className="space-y-3">
+                    <p className="text-sm">{t('scan.fertilization', 'Fertilization Level:')}</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['excellent', 'average', 'poor'].map((level) => (
+                        <Button
+                          key={level}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAssessment('fertilization', level)}
+                          className="hover-scale animate-bounce-in"
+                          style={{ '--index': level === 'excellent' ? 0 : level === 'average' ? 1 : 2 } as any}
+                        >
+                          {t(`scan.${level}`, level)}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {step === 3 && (
+                  <div className="space-y-3">
+                    <p className="text-sm">{t('scan.irrigation', 'Irrigation System:')}</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['excellent', 'average', 'poor'].map((level) => (
+                        <Button
+                          key={level}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAssessment('irrigation', level)}
+                          className="hover-scale animate-bounce-in"
+                          style={{ '--index': level === 'excellent' ? 0 : level === 'average' ? 1 : 2 } as any}
+                        >
+                          {t(`scan.${level}`, level)}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {step === 4 && (
+                  <div className="space-y-3">
+                    <p className="text-sm">{t('scan.insects', 'Insect Activity:')}</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['low', 'medium', 'high'].map((level) => (
+                        <Button
+                          key={level}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAssessment('insects', level)}
+                          className="hover-scale animate-bounce-in"
+                          style={{ '--index': level === 'low' ? 0 : level === 'medium' ? 1 : 2 } as any}
+                        >
+                          {t(`scan.${level}`, level)}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {step === 5 && (
+                  <div className="space-y-3">
+                    <p className="text-sm">{t('scan.soilHealth', 'Overall Soil Health:')}</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['excellent', 'average', 'poor'].map((level) => (
+                        <Button
+                          key={level}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAssessment('soilph', level)}
+                          className="hover-scale animate-bounce-in"
+                          style={{ '--index': level === 'excellent' ? 0 : level === 'average' ? 1 : 2 } as any}
+                        >
+                          {t(`scan.${level}`, level)}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {step > 5 && (
+              <Button
+                onClick={handleSubmit}
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-success to-success/80 hover:from-success/90 hover:to-success text-white hover-glow animate-scale-in"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    {t('scan.analyzing', 'Analyzing...')}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    {t('scan.complete', 'Complete Analysis')}
+                  </>
+                )}
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-background p-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-6 animate-fade-in">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="mb-4 hover-scale"
+          >
+            ← {t('common.back', 'Back')}
+          </Button>
+          <h1 className="text-3xl font-bold text-primary animate-slide-in-right">
+            {t('scan.title', 'AI-Powered Field Analysis')}
+          </h1>
+          <p className="text-muted-foreground animate-fade-in" style={{ '--index': 1 } as any}>
+            {t('scan.subtitle', 'Get comprehensive insights about your field with AI assistance')}
+          </p>
+        </div>
+
+        <div className="h-[calc(100vh-200px)]">
+          {renderScanInterface()}
+        </div>
       </div>
     </div>
   );

@@ -127,57 +127,43 @@ const FarmerDashboard = () => {
           </Card>
         </div>
 
-        {/* Main Action Buttons - Height ratios: 0.25 : 0.40 : 0.20 : 0.15 */}
+        {/* Main Action Buttons */}
         <div className="space-y-4 stagger-animation">
-          {/* Chat with AI - 25% height */}
+          {/* AI-Powered Field Analysis - Combined Chat + Scan */}
           <Button
-            onClick={() => window.open('https://google.com', '_blank')}
-            className="w-full h-24 text-left p-6 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-primary-foreground hover-glow animate-fade-in"
+            onClick={() => handleNavigate('/scan', 'AI Field Analysis')}
+            className="w-full h-48 text-left p-6 bg-gradient-to-br from-primary via-accent to-primary-light hover:from-primary-dark hover:via-accent/90 hover:to-primary text-primary-foreground hover-glow animate-fade-in transform transition-all duration-500 hover:scale-105 hover:shadow-2xl"
             variant="default"
             style={{ '--index': 0 } as any}
           >
-            <div className="flex items-center w-full">
-              <MessageCircle className="w-8 h-8 mr-4" />
-              <div className="flex-1">
-                <div className="text-xl font-semibold">{t('dashboard.chat', 'Chat with AI')}</div>
-                <div className="text-sm opacity-90">Get expert advice and recommendations</div>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSpeak('Chat with AI assistant for farming advice and recommendations');
-                }}
-                className="p-2 rounded-full hover:bg-white/20 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
-                </svg>
-              </button>
-            </div>
-          </Button>
-
-          {/* New Scan - 40% height */}
-          <Button
-            onClick={() => handleNavigate('/scan', 'Field Scanner')}
-            className="w-full h-40 text-left p-6 bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent text-accent-foreground hover-glow animate-fade-in"
-            variant="secondary"
-            style={{ '--index': 1 } as any}
-          >
             <div className="flex items-center w-full h-full">
-              <Scan className="w-12 h-12 mr-4" />
+              <div className="flex flex-col items-center mr-6 animate-bounce">
+                <MessageCircle className="w-8 h-8 mb-2 animate-pulse" />
+                <Scan className="w-10 h-10 animate-spin" style={{ animationDuration: '3s' }} />
+              </div>
               <div className="flex-1">
-                <div className="text-2xl font-semibold mb-2">{t('dashboard.scan', 'New Scan')}</div>
-                <div className="text-sm opacity-90 mb-2">15-feature analysis wizard</div>
-                <div className="text-xs opacity-75">GPS + Weather + Soil + Crop assessment</div>
+                <div className="text-2xl font-bold mb-3 animate-slide-in-right">
+                  {t('dashboard.aiFieldAnalysis', 'AI-Powered Field Analysis')}
+                </div>
+                <div className="text-base opacity-95 mb-2 animate-fade-in" style={{ '--index': 1 } as any}>
+                  {t('dashboard.aiScanDescription', 'Chat with AI + Complete 15-feature field scan')}
+                </div>
+                <div className="text-sm opacity-90 mb-2 animate-fade-in" style={{ '--index': 2 } as any}>
+                  {t('dashboard.aiFeatures', 'GPS • Weather • Soil • Crop • AI Recommendations')}
+                </div>
+                <div className="text-xs opacity-75 animate-fade-in" style={{ '--index': 3 } as any}>
+                  {t('dashboard.aiPromise', 'Get expert advice and comprehensive field insights')}
+                </div>
               </div>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleSpeak('New scan. Complete 15-feature analysis of your field including GPS, weather, soil and crop assessment');
+                  handleSpeak('AI-Powered Field Analysis. Chat with AI assistant and complete comprehensive 15-feature analysis of your field including GPS, weather, soil and crop assessment with expert recommendations');
                 }}
-                className="p-2 rounded-full hover:bg-white/20 transition-colors self-start"
+                className="p-3 rounded-full hover:bg-white/20 transition-all duration-300 self-start animate-bounce"
+                style={{ animationDelay: '0.5s' }}
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
                 </svg>
               </button>
