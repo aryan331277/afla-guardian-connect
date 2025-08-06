@@ -8,6 +8,7 @@ import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
 import { DatabaseService } from '@/lib/database';
 import { useToast } from '@/hooks/use-toast';
+import { useRealTimeData } from '@/hooks/useRealTimeData';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Bot, 
@@ -31,7 +32,6 @@ const ScanWizard = () => {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [fieldDataLoading, setFieldDataLoading] = useState(true);
   const [scanData, setScanData] = useState({
     location: { lat: -1.2921, lng: 36.8219 }, // Nairobi coordinates
     weather: { temp: 24, humidity: 65, condition: 'Partly Cloudy' },
@@ -43,11 +43,12 @@ const ScanWizard = () => {
     insects: '',
     soilph: ''
   });
-  const [fieldData, setFieldData] = useState(null);
+  
+  const { fieldData, isLoading: dataLoading, refreshData } = useRealTimeData();
 
   useEffect(() => {
-    // Fetch real field data on component mount
-    fetchFieldData();
+    // Auto-refresh field data
+    refreshData();
     
     // Simulate progress updates
     const interval = setInterval(() => {
@@ -61,46 +62,31 @@ const ScanWizard = () => {
     }, 100);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [refreshData]);
 
-  const fetchFieldData = async () => {
-    try {
-      setFieldDataLoading(true);
-      
-      const { data, error } = await supabase.functions.invoke('fetch-field-data', {
-        body: {
-          lat: scanData.location.lat,
-          lng: scanData.location.lng,
-          parameters: ['weather', 'soil', 'vegetation', 'pests', 'growth']
-        }
-      });
-
-      if (error) throw error;
-
-      setFieldData(data);
+  useEffect(() => {
+    // Update scan data when field data changes
+    if (fieldData) {
       setScanData(prev => ({
         ...prev,
-        location: data.location,
-        weather: data.weather,
-        soil: data.soil,
-        ndvi: parseFloat(data.vegetation.ndvi)
+        location: { 
+          lat: fieldData.location.lat, 
+          lng: fieldData.location.lng 
+        },
+        weather: { 
+          temp: fieldData.weather.temperature, 
+          humidity: fieldData.weather.humidity, 
+          condition: fieldData.weather.condition 
+        },
+        soil: { 
+          ph: parseFloat(fieldData.soil.ph), 
+          moisture: fieldData.soil.moisture, 
+          nutrients: fieldData.soil.nutrients 
+        },
+        ndvi: parseFloat(fieldData.vegetation.ndvi)
       }));
-
-      toast({
-        title: t('scan.dataFetched', 'Field Data Updated'),
-        description: t('scan.dataFetchedDesc', 'Latest field conditions have been loaded'),
-      });
-    } catch (error) {
-      console.error('Error fetching field data:', error);
-      toast({
-        title: t('scan.dataError', 'Data Fetch Error'),
-        description: t('scan.dataErrorDesc', 'Using cached data instead'),
-        variant: 'destructive'
-      });
-    } finally {
-      setFieldDataLoading(false);
     }
-  };
+  }, [fieldData]);
 
   const getApiFeatures = () => {
     if (!fieldData) {
@@ -334,12 +320,17 @@ const ScanWizard = () => {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Scan className="w-5 h-5 text-accent animate-spin" />
+                <Scan className="w-5 h-5 text-accent animate-spin" style={{ animationDuration: '2s' }} />
                 {t('scan.fieldAnalysis', 'Field Analysis')}
               </div>
-              <Badge variant="secondary" className="animate-pulse">
-                {t('scan.live', 'Live')}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="animate-glow data-fresh">
+                  {t('scan.live', 'Live')}
+                </Badge>
+                {dataLoading && (
+                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                )}
+              </div>
             </CardTitle>
             <Progress value={progress} className="mt-2" />
           </CardHeader>
