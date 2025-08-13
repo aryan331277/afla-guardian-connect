@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Language } from '@/lib/database';
 import { I18nService, t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 const LanguageSelection = () => {
   const navigate = useNavigate();
@@ -51,15 +50,10 @@ const LanguageSelection = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-accent/10 flex flex-col items-center justify-center p-4 animate-fade-in">
-      {/* Theme toggle positioned for outdoor visibility */}
-      <div className="absolute top-4 right-4 z-10">
-        <ThemeToggle />
-      </div>
-      
-      <Card className="w-full max-w-md animate-bounce-in hover-scale hover-glow shadow-2xl border-2">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center p-4 animate-fade-in">
+      <Card className="w-full max-w-md animate-bounce-in hover-scale hover-glow">
         <CardHeader className="text-center animate-slide-in">
-          <CardTitle className="text-2xl text-primary animate-pulse font-bold">
+          <CardTitle className="text-2xl text-primary animate-pulse">
             {t('language.select', 'Select Your Language')}
           </CardTitle>
         </CardHeader>

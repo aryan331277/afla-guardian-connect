@@ -8,7 +8,6 @@ import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
 import { DatabaseService } from '@/lib/database';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { 
   Bot, 
   Scan, 
@@ -31,7 +30,6 @@ const ScanWizard = () => {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [fieldDataLoading, setFieldDataLoading] = useState(true);
   const [scanData, setScanData] = useState({
     location: { lat: -1.2921, lng: 36.8219 }, // Nairobi coordinates
     weather: { temp: 24, humidity: 65, condition: 'Partly Cloudy' },
@@ -43,12 +41,8 @@ const ScanWizard = () => {
     insects: '',
     soilph: ''
   });
-  const [fieldData, setFieldData] = useState(null);
 
   useEffect(() => {
-    // Fetch real field data on component mount
-    fetchFieldData();
-    
     // Simulate progress updates
     const interval = setInterval(() => {
       setProgress(prev => {
@@ -63,118 +57,16 @@ const ScanWizard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const fetchFieldData = async () => {
-    try {
-      setFieldDataLoading(true);
-      
-      const { data, error } = await supabase.functions.invoke('fetch-field-data', {
-        body: {
-          lat: scanData.location.lat,
-          lng: scanData.location.lng,
-          parameters: ['weather', 'soil', 'vegetation', 'pests', 'growth']
-        }
-      });
-
-      if (error) throw error;
-
-      setFieldData(data);
-      setScanData(prev => ({
-        ...prev,
-        location: data.location,
-        weather: data.weather,
-        soil: data.soil,
-        ndvi: parseFloat(data.vegetation.ndvi)
-      }));
-
-      toast({
-        title: t('scan.dataFetched', 'Field Data Updated'),
-        description: t('scan.dataFetchedDesc', 'Latest field conditions have been loaded'),
-      });
-    } catch (error) {
-      console.error('Error fetching field data:', error);
-      toast({
-        title: t('scan.dataError', 'Data Fetch Error'),
-        description: t('scan.dataErrorDesc', 'Using cached data instead'),
-        variant: 'destructive'
-      });
-    } finally {
-      setFieldDataLoading(false);
-    }
-  };
-
-  const getApiFeatures = () => {
-    if (!fieldData) {
-      return [
-        { icon: MapPin, name: t('scan.gpsLocation', 'GPS Location'), value: t('scan.fetching', 'Fetching...'), status: 'loading' },
-        { icon: Cloud, name: t('scan.weatherData', 'Weather Data'), value: t('scan.fetching', 'Fetching...'), status: 'loading' },
-        { icon: Beaker, name: t('scan.soilAnalysis', 'Soil Analysis'), value: t('scan.fetching', 'Fetching...'), status: 'loading' },
-        { icon: Leaf, name: t('scan.ndviIndex', 'NDVI Index'), value: t('scan.fetching', 'Fetching...'), status: 'loading' },
-        { icon: Thermometer, name: t('scan.temperatureMap', 'Temperature Map'), value: t('scan.fetching', 'Fetching...'), status: 'loading' },
-        { icon: Droplets, name: t('scan.moistureLevels', 'Moisture Levels'), value: t('scan.fetching', 'Fetching...'), status: 'loading' },
-        { icon: Bug, name: t('scan.pestDetection', 'Pest Detection'), value: t('scan.fetching', 'Fetching...'), status: 'loading' },
-        { icon: Sprout, name: t('scan.growthPrediction', 'Growth Prediction'), value: t('scan.fetching', 'Fetching...'), status: 'loading' }
-      ];
-    }
-
-    return [
-      { 
-        icon: MapPin, 
-        name: t('scan.gpsLocation', 'GPS Location'), 
-        value: fieldData.location.address || `${fieldData.location.lat}, ${fieldData.location.lng}`, 
-        status: 'completed' 
-      },
-      { 
-        icon: Cloud, 
-        name: t('scan.weatherData', 'Weather Data'), 
-        value: `${fieldData.weather.temperature}°C, ${fieldData.weather.humidity}% humidity`, 
-        status: 'completed' 
-      },
-      { 
-        icon: Beaker, 
-        name: t('scan.soilAnalysis', 'Soil Analysis'), 
-        value: `pH ${fieldData.soil.ph}, ${fieldData.soil.nutrients} nutrients`, 
-        status: 'completed' 
-      },
-      { 
-        icon: Leaf, 
-        name: t('scan.ndviIndex', 'NDVI Index'), 
-        value: `${fieldData.vegetation.ndvi} - ${getVegetationHealth(fieldData.vegetation.ndvi)}`, 
-        status: 'completed' 
-      },
-      { 
-        icon: Thermometer, 
-        name: t('scan.temperatureMap', 'Temperature Map'), 
-        value: `${fieldData.weather.temperature}°C, UV Index: ${fieldData.weather.uvIndex}`, 
-        status: 'completed' 
-      },
-      { 
-        icon: Droplets, 
-        name: t('scan.moistureLevels', 'Moisture Levels'), 
-        value: `${fieldData.soil.moisture}% soil moisture`, 
-        status: 'completed' 
-      },
-      { 
-        icon: Bug, 
-        name: t('scan.pestDetection', 'Pest Detection'), 
-        value: fieldData.pests.detected ? `${fieldData.pests.severity} severity` : t('scan.noPests', 'No pests detected'), 
-        status: 'completed' 
-      },
-      { 
-        icon: Sprout, 
-        name: t('scan.growthPrediction', 'Growth Prediction'), 
-        value: `${fieldData.growthPrediction.yieldEstimate} kg/ha expected`, 
-        status: 'completed' 
-      }
-    ];
-  };
-
-  const getVegetationHealth = (ndvi: string) => {
-    const value = parseFloat(ndvi);
-    if (value > 0.7) return t('scan.excellent', 'Excellent');
-    if (value > 0.5) return t('scan.good', 'Good');
-    if (value > 0.3) return t('scan.fair', 'Fair');
-    return t('scan.poor', 'Poor');
-  };
+  const mockApiFeatures = [
+    { icon: MapPin, name: t('scan.gpsLocation', 'GPS Location'), value: 'Nairobi, Kenya', status: 'completed' },
+    { icon: Cloud, name: t('scan.weatherData', 'Weather Data'), value: '24°C, 65% humidity', status: 'completed' },
+    { icon: Beaker, name: t('scan.soilAnalysis', 'Soil Analysis'), value: 'pH 6.5, Medium nutrients', status: 'completed' },
+    { icon: Leaf, name: t('scan.ndviIndex', 'NDVI Index'), value: '0.65 - Healthy vegetation', status: 'completed' },
+    { icon: Thermometer, name: t('scan.temperatureMap', 'Temperature Map'), value: t('scan.fetching', 'Fetching...'), status: 'loading' },
+    { icon: Droplets, name: t('scan.moistureLevels', 'Moisture Levels'), value: t('scan.analyzing', 'Analyzing...'), status: 'loading' },
+    { icon: Bug, name: t('scan.pestDetection', 'Pest Detection'), value: t('scan.scanning', 'Scanning...'), status: 'loading' },
+    { icon: Sprout, name: t('scan.growthPrediction', 'Growth Prediction'), value: t('scan.calculating', 'Calculating...'), status: 'loading' }
+  ];
 
   const handleAssessment = (field: string, value: string) => {
     setScanData(prev => ({ ...prev, [field]: value }));
@@ -183,56 +75,19 @@ const ScanWizard = () => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
+    const analysis = generateAnalysis(scanData);
     
-    try {
-      toast({
-        title: t('scan.analyzing', 'Analyzing...'),
-        description: t('scan.mlAnalysis', 'Running ML model for aflatoxin risk analysis'),
-      });
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Save scan result using localStorage for now
+    localStorage.setItem('lastScanResult', JSON.stringify({
+      ...scanData,
+      analysis,
+      timestamp: new Date().toISOString()
+    }));
 
-      const { data: analysis, error } = await supabase.functions.invoke('analyze-aflatoxin', {
-        body: {
-          scanData,
-          image: null // Will be populated when image upload is implemented
-        }
-      });
-
-      if (error) throw error;
-
-      // Save scan result using localStorage for now
-      localStorage.setItem('lastScanResult', JSON.stringify({
-        ...scanData,
-        fieldData,
-        analysis,
-        timestamp: new Date().toISOString()
-      }));
-
-      toast({
-        title: t('scan.analysisComplete', 'Analysis Complete'),
-        description: t('scan.analysisCompleteDesc', 'AI model has processed your field data'),
-      });
-
-      navigate('/scan-results', { state: { scanData, fieldData, analysis } });
-    } catch (error) {
-      console.error('Error analyzing aflatoxin risk:', error);
-      toast({
-        title: t('scan.analysisError', 'Analysis Error'),
-        description: t('scan.analysisErrorDesc', 'Failed to complete analysis. Please try again.'),
-        variant: 'destructive'
-      });
-      
-      // Fallback to local analysis
-      const fallbackAnalysis = generateAnalysis(scanData);
-      localStorage.setItem('lastScanResult', JSON.stringify({
-        ...scanData,
-        fieldData,
-        analysis: fallbackAnalysis,
-        timestamp: new Date().toISOString()
-      }));
-      navigate('/scan-results', { state: { scanData, fieldData, analysis: fallbackAnalysis } });
-    } finally {
-      setIsLoading(false);
-    }
+    navigate('/scan-results', { state: { scanData, analysis } });
   };
 
   const generateAnalysis = (data: typeof scanData) => {
@@ -345,7 +200,7 @@ const ScanWizard = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-3 mb-6">
-              {getApiFeatures().map((feature, index) => (
+              {mockApiFeatures.map((feature, index) => (
                 <div 
                   key={index}
                   className={`p-3 rounded-lg border transition-all duration-500 hover-scale animate-fade-in ${

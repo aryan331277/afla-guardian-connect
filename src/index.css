@@ -6,40 +6,40 @@
 
 @layer base {
   :root {
-    /* Day mode - High contrast for sunlight visibility */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 8%;
+    /* Core AflaGuard brand colors */
+    --background: 118 25% 97%;
+    --foreground: 139 30% 15%;
 
-    /* Agricultural green primary palette - Enhanced contrast */
-    --primary: 139 85% 25%;
-    --primary-foreground: 0 0% 100%;
-    --primary-light: 139 70% 35%;
-    --primary-dark: 139 95% 15%;
+    /* Agricultural green primary palette */
+    --primary: 139 60% 35%;
+    --primary-foreground: 118 25% 97%;
+    --primary-light: 139 50% 55%;
+    --primary-dark: 139 70% 25%;
 
-    /* Secondary earth tones - High contrast */
-    --secondary: 25 50% 88%;
-    --secondary-foreground: 0 0% 8%;
+    /* Secondary earth tones */
+    --secondary: 25 30% 85%;
+    --secondary-foreground: 139 30% 15%;
 
-    /* Accent colors - Bold visibility */
-    --accent: 340 80% 45%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent colors - warm feminine touch */
+    --accent: 340 50% 65%;
+    --accent-foreground: 118 25% 97%;
 
-    /* UI elements - Maximum contrast */
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 8%;
+    /* UI elements */
+    --card: 118 25% 99%;
+    --card-foreground: 139 30% 15%;
     
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 8%;
+    --popover: 118 25% 99%;
+    --popover-foreground: 139 30% 15%;
 
-    --muted: 0 0% 95%;
-    --muted-foreground: 0 0% 35%;
+    --muted: 118 15% 92%;
+    --muted-foreground: 139 20% 45%;
 
-    --destructive: 0 85% 45%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 118 25% 97%;
 
-    --border: 0 0% 85%;
-    --input: 0 0% 95%;
-    --ring: 139 85% 25%;
+    --border: 118 20% 88%;
+    --input: 118 20% 88%;
+    --ring: 139 60% 35%;
 
     /* Gamification colors */
     --success: 139 60% 45%;
@@ -76,36 +76,35 @@
   }
 
   .dark {
-    /* Night mode - Reduced eye strain */
-    --background: 0 0% 3%;
-    --foreground: 0 0% 95%;
+    --background: 139 15% 8%;
+    --foreground: 118 25% 95%;
 
-    --primary: 139 70% 65%;
-    --primary-foreground: 0 0% 3%;
-    --primary-light: 139 60% 75%;
-    --primary-dark: 139 80% 55%;
+    --primary: 139 50% 55%;
+    --primary-foreground: 139 15% 8%;
+    --primary-light: 139 40% 65%;
+    --primary-dark: 139 60% 45%;
 
-    --secondary: 25 25% 12%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 25 15% 20%;
+    --secondary-foreground: 118 25% 95%;
 
-    --accent: 340 60% 65%;
-    --accent-foreground: 0 0% 3%;
+    --accent: 340 40% 55%;
+    --accent-foreground: 139 15% 8%;
 
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 95%;
+    --card: 139 15% 12%;
+    --card-foreground: 118 25% 95%;
 
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 139 15% 12%;
+    --popover-foreground: 118 25% 95%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 139 10% 18%;
+    --muted-foreground: 118 15% 65%;
 
-    --destructive: 0 75% 65%;
-    --destructive-foreground: 0 0% 3%;
+    --destructive: 0 55% 50%;
+    --destructive-foreground: 118 25% 95%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 12%;
-    --ring: 139 70% 65%;
+    --border: 139 10% 22%;
+    --input: 139 10% 22%;
+    --ring: 139 50% 55%;
 
     --success: 139 50% 50%;
     --warning: 45 75% 60%;
@@ -122,50 +121,14 @@
   }
 
   .colorblind {
-    /* High contrast color-blind friendly mode */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 0%;
-    
-    --primary: 200 100% 25%;
-    --primary-foreground: 0 0% 100%;
-    --primary-light: 200 80% 35%;
-    --primary-dark: 200 100% 15%;
-    
-    --secondary: 45 100% 85%;
-    --secondary-foreground: 0 0% 0%;
-    
-    --accent: 45 100% 35%;
-    --accent-foreground: 0 0% 100%;
-    
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
-    
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
-    
-    --muted: 0 0% 90%;
-    --muted-foreground: 0 0% 25%;
-    
-    --destructive: 280 100% 35%;
-    --destructive-foreground: 0 0% 100%;
-    
-    --border: 0 0% 75%;
-    --input: 0 0% 90%;
-    --ring: 200 100% 25%;
-    
-    --success: 280 60% 25%;
-    --warning: 45 100% 35%;
-    --info: 200 100% 35%;
-    
-    /* Enhanced contrast for UI elements */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 5%;
-    --sidebar-primary: 200 100% 25%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 90%;
-    --sidebar-accent-foreground: 0 0% 5%;
-    --sidebar-border: 0 0% 75%;
-    --sidebar-ring: 200 100% 25%;
+    --primary: 200 70% 45%;
+    --primary-foreground: 200 15% 95%;
+    --accent: 45 85% 55%;
+    --accent-foreground: 45 15% 15%;
+    --destructive: 280 50% 55%;
+    --success: 280 30% 35%;
+    --warning: 45 85% 55%;
+    --info: 200 70% 55%;
   }
 }
 
