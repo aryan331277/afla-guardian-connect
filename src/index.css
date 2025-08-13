@@ -226,7 +226,7 @@
     }
   }
 
-  /* Consistent Animation System */
+  /* Interactive Animations */
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -270,23 +270,6 @@
     50% { opacity: 0.5; }
   }
 
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-  }
-
-  @keyframes glow {
-    0%, 100% { box-shadow: 0 0 5px hsl(var(--primary) / 0.3); }
-    50% { box-shadow: 0 0 20px hsl(var(--primary) / 0.6); }
-  }
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  /* Animation Classes */
   .animate-fade-in {
     animation: fadeIn 0.6s ease-out;
   }
@@ -319,21 +302,8 @@
     animation: pulse 2s infinite;
   }
 
-  .animate-shake {
-    animation: shake 0.5s ease-in-out;
-  }
-
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite;
-  }
-
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
-
-  /* Hover Effects */
   .hover-scale {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease;
   }
 
   .hover-scale:hover {
@@ -348,51 +318,8 @@
     box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
   }
 
-  .hover-lift {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px hsl(var(--primary) / 0.2);
-  }
-
-  /* Staggered animations */
   .stagger-animation > * {
     animation-delay: calc(var(--index, 0) * 0.1s);
-  }
-
-  /* Loading states */
-  .loading-shimmer {
-    background: linear-gradient(90deg, 
-      hsl(var(--muted)) 25%, 
-      hsl(var(--muted-foreground) / 0.1) 50%, 
-      hsl(var(--muted)) 75%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite;
-  }
-
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-
-  /* Data update indicators */
-  .data-fresh {
-    position: relative;
-  }
-
-  .data-fresh::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 8px;
-    height: 8px;
-    background: hsl(var(--success));
-    border-radius: 50%;
-    animation: pulse 2s infinite;
   }
 
   /* Aflatoxin risk visualization */

@@ -7,16 +7,15 @@ import { DatabaseService, User } from '@/lib/database';
 import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
 import { useToast } from '@/hooks/use-toast';
-import { useRealTimeData } from '@/hooks/useRealTimeData';
-import { ThemeToggle } from '@/components/ThemeToggle';
-import { MessageCircle, Scan, Users, Crown, Settings, RefreshCw, User as ProfileIcon } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
+import { MessageCircle, Scan, Users, Crown, Settings, Sun, Moon, Palette, User as ProfileIcon } from 'lucide-react';
 
 const FarmerDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { theme, toggleTheme } = useTheme();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { userStats, refreshData, lastUpdate, isLoading: dataLoading } = useRealTimeData();
 
   useEffect(() => {
     loadUserData();
@@ -48,18 +47,18 @@ const FarmerDashboard = () => {
     await ttsService.speak(text, user?.language || 'en');
   };
 
-  const handleRefreshData = async () => {
-    await refreshData();
-    await handleSpeak('Data refreshed successfully');
+  const getThemeIcon = () => {
+    switch (theme) {
+      case 'dark': return <Moon className="w-4 h-4" />;
+      case 'colorblind': return <Palette className="w-4 h-4" />;
+      default: return <Sun className="w-4 h-4" />;
+    }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <p className="text-muted-foreground animate-pulse">Loading dashboard...</p>
-        </div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -67,53 +66,39 @@ const FarmerDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 pb-20">
       {/* Header */}
-      <div className="bg-card border-b p-4 animate-slide-in relative">
+      <div className="bg-card border-b p-4 animate-slide-in">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-primary flex items-center gap-2 animate-fade-in">
               {t('dashboard.title', 'Dashboard')}
               <button
                 onClick={() => handleSpeak('Welcome to your farmer dashboard')}
-                className="p-1 rounded-full hover:bg-accent transition-colors animate-bounce"
+                className="p-1 rounded-full hover:bg-accent transition-colors"
               >
                 <svg className="w-5 h-5 text-voice-inactive" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
                 </svg>
               </button>
-              {lastUpdate && (
-                <Badge variant="secondary" className="text-xs animate-glow data-fresh">
-                  Live
-                </Badge>
-              )}
             </h1>
-            <p className="text-muted-foreground animate-fade-in">
-              Welcome back, {userStats?.currentTier || 'Farmer'}!
-            </p>
-            {lastUpdate && (
-              <p className="text-xs text-muted-foreground animate-fade-in">
-                Last updated: {lastUpdate.toLocaleTimeString()}
-              </p>
-            )}
+            <p className="text-muted-foreground">Welcome back, {user?.currentTier || 'Farmer'}!</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleRefreshData}
-              disabled={dataLoading}
+              onClick={() => navigate('/profile')}
               className="p-2 hover-scale"
             >
-              <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
+              <ProfileIcon className="w-4 h-4" />
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/profile')}
-              className="p-2 hover-scale hover-glow"
+              onClick={toggleTheme}
+              className="p-2 hover-scale"
             >
-              <ProfileIcon className="w-4 h-4" />
+              {getThemeIcon()}
             </Button>
-            <ThemeToggle />
           </div>
         </div>
       </div>
@@ -121,34 +106,22 @@ const FarmerDashboard = () => {
       {/* Gamification Stats */}
       <div className="p-4">
         <div className="grid grid-cols-3 gap-4 mb-6 stagger-animation">
-          <Card className="text-center hover-scale hover-lift animate-bounce-in" style={{ '--index': 0 } as any}>
+          <Card className="text-center hover-scale animate-bounce-in" style={{ '--index': 0 } as any}>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-primary animate-float">
-                {dataLoading ? (
-                  <div className="loading-shimmer w-8 h-8 rounded mx-auto"></div>
-                ) : (
-                  userStats?.gamificationPoints || 0
-                )}
-              </div>
+              <div className="text-2xl font-bold text-primary animate-float">{user?.gamificationPoints || 0}</div>
               <div className="text-sm text-muted-foreground">{t('game.points', 'Points')}</div>
             </CardContent>
           </Card>
-          <Card className="text-center hover-scale hover-lift animate-bounce-in" style={{ '--index': 1 } as any}>
+          <Card className="text-center hover-scale animate-bounce-in" style={{ '--index': 1 } as any}>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-accent animate-pulse">
-                {dataLoading ? (
-                  <div className="loading-shimmer w-8 h-8 rounded mx-auto"></div>
-                ) : (
-                  userStats?.scanStreak || 0
-                )}
-              </div>
+              <div className="text-2xl font-bold text-accent animate-pulse">{user?.scanStreak || 0}</div>
               <div className="text-sm text-muted-foreground">{t('game.streak', 'Day Streak')}</div>
             </CardContent>
           </Card>
-          <Card className="text-center hover-scale hover-lift animate-bounce-in" style={{ '--index': 2 } as any}>
+          <Card className="text-center hover-scale animate-bounce-in" style={{ '--index': 2 } as any}>
             <CardContent className="p-4">
               <Badge variant="secondary" className="text-xs animate-wiggle">
-                {userStats?.currentTier || 'Curious Scout'}
+                {user?.currentTier || 'Curious Scout'}
               </Badge>
             </CardContent>
           </Card>
