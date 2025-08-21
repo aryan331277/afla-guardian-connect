@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User } from '@/lib/database';
 import { authService } from '@/lib/auth';
 import { t } from '@/lib/i18n';
@@ -17,14 +17,17 @@ import {
   Droplets, 
   Leaf, 
   RefreshCw, 
-  AlertTriangle,
-  CheckCircle,
-  WifiOff,
+  Settings,
   Scan,
   BarChart3,
-  Settings
+  MessageCircle,
+  Bot,
+  User as UserIcon
 } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
+import FarmerInsights from '@/components/FarmerInsights';
+import CommunityFeed from '@/components/CommunityFeed';
+import AIAssistant from '@/components/AIAssistant';
 
 const FarmerDashboard = () => {
   const navigate = useNavigate();
@@ -112,20 +115,23 @@ const FarmerDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
-      <header className="bg-card/80 backdrop-blur-sm border-b sticky top-0 z-50">
+      <header className="bg-card/95 backdrop-blur-lg border-b border-border/50 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">AG</span>
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-primary-foreground font-bold text-lg">AG</span>
                 </div>
-                <h1 className="text-xl font-bold text-foreground">AflaGuard Pro</h1>
+                <div>
+                  <h1 className="text-xl font-bold text-foreground">AflaGuard Pro</h1>
+                  <p className="text-xs text-muted-foreground">Agricultural Intelligence Platform</p>
+                </div>
               </div>
               {user && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
                   {user.currentTier}
                 </Badge>
               )}
@@ -137,7 +143,7 @@ const FarmerDashboard = () => {
                 size="sm"
                 onClick={refresh}
                 disabled={dataLoading}
-                className="hover:bg-muted"
+                className="hover:bg-muted/50"
               >
                 <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
               </Button>
@@ -145,17 +151,17 @@ const FarmerDashboard = () => {
                 variant="ghost"
                 size="sm"
                 onClick={toggleTheme}
-                className="hover:bg-muted"
+                className="hover:bg-muted/50"
               >
                 {getThemeIcon()}
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate('/settings')}
-                className="hover:bg-muted"
+                onClick={() => navigate('/profile')}
+                className="hover:bg-muted/50"
               >
-                <Settings className="w-4 h-4" />
+                <UserIcon className="w-4 h-4" />
               </Button>
               <LogoutButton />
             </div>
@@ -164,237 +170,265 @@ const FarmerDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Location Status */}
+        {/* Location & Weather Summary */}
         <div className="mb-8">
-          <Card className="border-l-4 border-l-primary">
+          <Card className="border-primary/20 bg-gradient-to-r from-card to-primary/5">
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="grid md:grid-cols-3 gap-6">
                 <div className="flex items-center space-x-3">
-                  <MapPin className="w-5 h-5 text-primary" />
+                  <MapPin className="w-6 h-6 text-primary" />
                   <div>
-                    <h3 className="font-medium">Location Status</h3>
+                    <h3 className="font-semibold">Current Location</h3>
                     {location ? (
                       <p className="text-sm text-muted-foreground">
-                        {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
-                        <span className="ml-2 text-xs">
-                          (±{location.accuracy.toFixed(0)}m accuracy)
-                        </span>
+                        GPS: {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
                       </p>
                     ) : (
-                      <p className="text-sm text-destructive">Location not available</p>
+                      <p className="text-sm text-destructive">Location unavailable</p>
                     )}
                   </div>
                 </div>
-                {hasData && <CheckCircle className="w-5 h-5 text-green-500" />}
+                
+                <div className="flex items-center space-x-3">
+                  <Thermometer className="w-6 h-6 text-blue-500" />
+                  <div>
+                    <h3 className="font-semibold">Weather</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {weather ? `${weather.temperature}°C, ${weather.humidity}% humidity` : 'Loading...'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3">
+                  <Droplets className="w-6 h-6 text-cyan-500" />
+                  <div>
+                    <h3 className="font-semibold">Soil Moisture</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {soilMoisture ? `${soilMoisture.moistureLevel}% - ${soilMoisture.status}` : 'Loading...'}
+                    </p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Error Handling */}
-        {dataError && (
-          <Alert className="mb-8 border-destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription className="flex items-center justify-between">
-              <span>{dataError}</span>
-              {canRetry && (
-                <Button variant="outline" size="sm" onClick={retry}>
-                  Retry
-                </Button>
-              )}
-            </AlertDescription>
-          </Alert>
-        )}
+        {/* Main Dashboard Tabs */}
+        <Tabs defaultValue="insights" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 bg-muted/50">
+            <TabsTrigger value="insights" className="flex items-center gap-2">
+              <Leaf className="w-4 h-4" />
+              <span className="hidden sm:inline">Insights</span>
+            </TabsTrigger>
+            <TabsTrigger value="community" className="flex items-center gap-2">
+              <MessageCircle className="w-4 h-4" />
+              <span className="hidden sm:inline">Community</span>
+            </TabsTrigger>
+            <TabsTrigger value="assistant" className="flex items-center gap-2">
+              <Bot className="w-4 h-4" />
+              <span className="hidden sm:inline">AI Assistant</span>
+            </TabsTrigger>
+            <TabsTrigger value="tools" className="flex items-center gap-2">
+              <Scan className="w-4 h-4" />
+              <span className="hidden sm:inline">Tools</span>
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Permission Status */}
-        {permissionStatus === 'denied' && (
-          <Alert className="mb-8 border-yellow-500">
-            <WifiOff className="h-4 w-4" />
-            <AlertDescription>
-              Location access is required for accurate agricultural data. Please enable location permissions in your browser settings.
-            </AlertDescription>
-          </Alert>
-        )}
+          <TabsContent value="insights" className="space-y-6">
+            <FarmerInsights />
+          </TabsContent>
 
-        {/* Data Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-          {/* Weather Card */}
-          <Card className="hover:shadow-lg transition-shadow duration-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-base">
-                <div className="flex items-center space-x-2">
-                  <Thermometer className="w-5 h-5 text-blue-500" />
-                  <span>Weather Conditions</span>
-                </div>
-                {weather && <span className="text-2xl">{weather.icon}</span>}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {dataLoading && !weather ? (
-                <div className="space-y-2">
-                  <div className="h-4 bg-muted animate-pulse rounded"></div>
-                  <div className="h-4 bg-muted animate-pulse rounded w-3/4"></div>
-                </div>
-              ) : weather ? (
-                <>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Temperature</span>
-                    <span className="font-medium">{weather.temperature}°C</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Humidity</span>
-                    <span className="font-medium">{weather.humidity}%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Rainfall</span>
-                    <span className="font-medium">{weather.rainfall}mm</span>
-                  </div>
-                  <div className="pt-2 border-t">
-                    <p className="text-xs text-muted-foreground">{weather.description}</p>
-                  </div>
-                </>
-              ) : (
-                <p className="text-sm text-muted-foreground">Weather data unavailable</p>
-              )}
-            </CardContent>
-          </Card>
+          <TabsContent value="community" className="space-y-6">
+            <CommunityFeed />
+          </TabsContent>
 
-          {/* NDVI Card */}
-          <Card className="hover:shadow-lg transition-shadow duration-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-base">
-                <div className="flex items-center space-x-2">
-                  <Leaf className="w-5 h-5 text-green-500" />
-                  <span>Vegetation Index</span>
-                </div>
-                {ndvi && (
-                  <Badge 
-                    variant="outline" 
-                    className={`${getStatusColor(ndvi.interpretation)} text-white border-none`}
-                  >
-                    {ndvi.interpretation}
-                  </Badge>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {dataLoading && !ndvi ? (
-                <div className="space-y-2">
-                  <div className="h-4 bg-muted animate-pulse rounded"></div>
-                  <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
-                </div>
-              ) : ndvi ? (
-                <>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">NDVI Value</span>
-                    <span className="font-medium text-lg">{ndvi.value}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Cloud Cover</span>
-                    <span className="font-medium">{ndvi.cloudCover}%</span>
-                  </div>
-                  <div className="pt-2 border-t">
-                    <p className="text-xs text-muted-foreground">
-                      Data from {new Date(ndvi.date).toLocaleDateString()}
-                    </p>
-                  </div>
-                </>
-              ) : (
-                <p className="text-sm text-muted-foreground">NDVI data unavailable</p>
-              )}
-            </CardContent>
-          </Card>
+          <TabsContent value="assistant" className="space-y-6">
+            <AIAssistant />
+          </TabsContent>
 
-          {/* Soil Moisture Card */}
-          <Card className="hover:shadow-lg transition-shadow duration-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-base">
-                <div className="flex items-center space-x-2">
-                  <Droplets className="w-5 h-5 text-blue-600" />
-                  <span>Soil Moisture</span>
-                </div>
-                {soilMoisture && (
-                  <Badge 
-                    variant="outline" 
-                    className={`${getStatusColor(soilMoisture.status)} text-white border-none`}
-                  >
-                    {soilMoisture.status}
-                  </Badge>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {dataLoading && !soilMoisture ? (
-                <div className="space-y-2">
-                  <div className="h-4 bg-muted animate-pulse rounded"></div>
-                  <div className="h-4 bg-muted animate-pulse rounded w-4/5"></div>
-                </div>
-              ) : soilMoisture ? (
-                <>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Moisture Level</span>
-                    <span className="font-medium">{soilMoisture.moistureLevel}%</span>
+          <TabsContent value="tools" className="space-y-6">
+            {/* Quick Action Tools */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer group">
+                <CardContent 
+                  className="p-6 text-center"
+                  onClick={() => handleNavigate('/scan', 'Crop Scanner')}
+                >
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+                    <Scan className="w-8 h-8 text-primary" />
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Soil Temperature</span>
-                    <span className="font-medium">{soilMoisture.temperature}°C</span>
-                  </div>
-                  <div className="pt-2 border-t">
-                    <p className="text-xs text-muted-foreground">{soilMoisture.recommendation}</p>
-                  </div>
-                </>
-              ) : (
-                <p className="text-sm text-muted-foreground">Soil moisture data unavailable</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                  <h3 className="font-semibold mb-2">Scan Crops</h3>
+                  <p className="text-sm text-muted-foreground">AI-powered crop analysis and disease detection</p>
+                </CardContent>
+              </Card>
 
-        {/* Action Buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Button
-            size="lg"
-            onClick={() => handleNavigate('/scan', 'Crop Scanner')}
-            className="h-16 flex items-center space-x-3 bg-primary hover:bg-primary/90"
-          >
-            <Scan className="w-6 h-6" />
-            <div className="text-left">
-              <div className="font-medium">Scan Crops</div>
-              <div className="text-xs opacity-90">AI-powered analysis</div>
+              <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer group">
+                <CardContent 
+                  className="p-6 text-center"
+                  onClick={() => handleNavigate('/insights-history', 'Data Insights')}
+                >
+                  <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-500/20 transition-colors">
+                    <BarChart3 className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <h3 className="font-semibold mb-2">View Analytics</h3>
+                  <p className="text-sm text-muted-foreground">Historical data and insights dashboard</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer group">
+                <CardContent 
+                  className="p-6 text-center"
+                  onClick={() => handleNavigate('/community', 'Community Forum')}
+                >
+                  <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-500/20 transition-colors">
+                    <MessageCircle className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Forum</h3>
+                  <p className="text-sm text-muted-foreground">Connect with other farmers and experts</p>
+                </CardContent>
+              </Card>
             </div>
-          </Button>
 
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => handleNavigate('/insights-history', 'Data Insights')}
-            className="h-16 flex items-center space-x-3"
-          >
-            <BarChart3 className="w-6 h-6" />
-            <div className="text-left">
-              <div className="font-medium">View Insights</div>
-              <div className="text-xs opacity-75">Historical data</div>
-            </div>
-          </Button>
+            {/* Environmental Data Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {/* Weather Card */}
+              <Card className="hover:shadow-lg transition-shadow duration-200">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center justify-between text-base">
+                    <div className="flex items-center space-x-2">
+                      <Thermometer className="w-5 h-5 text-blue-500" />
+                      <span>Weather Conditions</span>
+                    </div>
+                    {weather && <span className="text-2xl">{weather.icon}</span>}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {dataLoading && !weather ? (
+                    <div className="space-y-2">
+                      <div className="h-4 bg-muted animate-pulse rounded"></div>
+                      <div className="h-4 bg-muted animate-pulse rounded w-3/4"></div>
+                    </div>
+                  ) : weather ? (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Temperature</span>
+                        <span className="font-medium">{weather.temperature}°C</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Humidity</span>
+                        <span className="font-medium">{weather.humidity}%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Rainfall</span>
+                        <span className="font-medium">{weather.rainfall}mm</span>
+                      </div>
+                      <div className="pt-2 border-t">
+                        <p className="text-xs text-muted-foreground">{weather.description}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Weather data unavailable</p>
+                  )}
+                </CardContent>
+              </Card>
 
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => handleNavigate('/profile', 'Profile Settings')}
-            className="h-16 flex items-center space-x-3"
-          >
-            <Settings className="w-6 h-6" />
-            <div className="text-left">
-              <div className="font-medium">Settings</div>
-              <div className="text-xs opacity-75">Manage preferences</div>
+              {/* NDVI Card */}
+              <Card className="hover:shadow-lg transition-shadow duration-200">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center justify-between text-base">
+                    <div className="flex items-center space-x-2">
+                      <Leaf className="w-5 h-5 text-green-500" />
+                      <span>Vegetation Index</span>
+                    </div>
+                    {ndvi && (
+                      <Badge 
+                        variant="outline" 
+                        className={`${getStatusColor(ndvi.interpretation)} text-white border-none`}
+                      >
+                        {ndvi.interpretation}
+                      </Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {dataLoading && !ndvi ? (
+                    <div className="space-y-2">
+                      <div className="h-4 bg-muted animate-pulse rounded"></div>
+                      <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
+                    </div>
+                  ) : ndvi ? (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">NDVI Value</span>
+                        <span className="font-medium text-lg">{ndvi.value}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Cloud Cover</span>
+                        <span className="font-medium">{ndvi.cloudCover}%</span>
+                      </div>
+                      <div className="pt-2 border-t">
+                        <p className="text-xs text-muted-foreground">
+                          Data from {new Date(ndvi.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">NDVI data unavailable</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Soil Moisture Card */}
+              <Card className="hover:shadow-lg transition-shadow duration-200">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center justify-between text-base">
+                    <div className="flex items-center space-x-2">
+                      <Droplets className="w-5 h-5 text-blue-600" />
+                      <span>Soil Moisture</span>
+                    </div>
+                    {soilMoisture && (
+                      <Badge 
+                        variant="outline" 
+                        className={`${getStatusColor(soilMoisture.status)} text-white border-none`}
+                      >
+                        {soilMoisture.status}
+                      </Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {dataLoading && !soilMoisture ? (
+                    <div className="space-y-2">
+                      <div className="h-4 bg-muted animate-pulse rounded"></div>
+                      <div className="h-4 bg-muted animate-pulse rounded w-4/5"></div>
+                    </div>
+                  ) : soilMoisture ? (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Moisture Level</span>
+                        <span className="font-medium">{soilMoisture.moistureLevel}%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Soil Temperature</span>
+                        <span className="font-medium">{soilMoisture.temperature}°C</span>
+                      </div>
+                      <div className="pt-2 border-t">
+                        <p className="text-xs text-muted-foreground">{soilMoisture.recommendation}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Soil moisture data unavailable</p>
+                  )}
+                </CardContent>
+              </Card>
             </div>
-          </Button>
-        </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Data Source Info */}
-        <div className="mt-8 pt-6 border-t">
+        <div className="mt-8 pt-6 border-t border-border/50">
           <p className="text-xs text-muted-foreground text-center">
-            Data refreshed every 5 minutes • Location accuracy: ±{location?.accuracy.toFixed(0) || 'Unknown'}m
+            Data refreshed every 5 minutes • Location accuracy: ±{location?.accuracy.toFixed(0) || 'Unknown'}m • Powered by AI
           </p>
         </div>
       </main>

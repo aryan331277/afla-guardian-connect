@@ -7,13 +7,195 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
   }
   public: {
     Tables: {
+      ai_conversations: {
+        Row: {
+          farmer_id: string
+          id: string
+          last_message: string | null
+          messages: Json | null
+          session_start: string | null
+        }
+        Insert: {
+          farmer_id: string
+          id?: string
+          last_message?: string | null
+          messages?: Json | null
+          session_start?: string | null
+        }
+        Update: {
+          farmer_id?: string
+          id?: string
+          last_message?: string | null
+          messages?: Json | null
+          session_start?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_conversations_farmer_id_fkey"
+            columns: ["farmer_id"]
+            isOneToOne: false
+            referencedRelation: "farmer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_posts: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string | null
+          id: string
+          is_pinned: boolean | null
+          likes_count: number | null
+          replies_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          likes_count?: number | null
+          replies_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          likes_count?: number | null
+          replies_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "farmer_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      farmer_insights: {
+        Row: {
+          created_at: string | null
+          farmer_id: string
+          fertilization_status:
+            | Database["public"]["Enums"]["health_rating"]
+            | null
+          id: string
+          measurement_date: string | null
+          notes: string | null
+          pest_status: Database["public"]["Enums"]["health_rating"] | null
+          recommendations: string[] | null
+          soil_health: Database["public"]["Enums"]["health_rating"] | null
+          water_availability:
+            | Database["public"]["Enums"]["health_rating"]
+            | null
+        }
+        Insert: {
+          created_at?: string | null
+          farmer_id: string
+          fertilization_status?:
+            | Database["public"]["Enums"]["health_rating"]
+            | null
+          id?: string
+          measurement_date?: string | null
+          notes?: string | null
+          pest_status?: Database["public"]["Enums"]["health_rating"] | null
+          recommendations?: string[] | null
+          soil_health?: Database["public"]["Enums"]["health_rating"] | null
+          water_availability?:
+            | Database["public"]["Enums"]["health_rating"]
+            | null
+        }
+        Update: {
+          created_at?: string | null
+          farmer_id?: string
+          fertilization_status?:
+            | Database["public"]["Enums"]["health_rating"]
+            | null
+          id?: string
+          measurement_date?: string | null
+          notes?: string | null
+          pest_status?: Database["public"]["Enums"]["health_rating"] | null
+          recommendations?: string[] | null
+          soil_health?: Database["public"]["Enums"]["health_rating"] | null
+          water_availability?:
+            | Database["public"]["Enums"]["health_rating"]
+            | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "farmer_insights_farmer_id_fkey"
+            columns: ["farmer_id"]
+            isOneToOne: false
+            referencedRelation: "farmer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      farmer_profiles: {
+        Row: {
+          created_at: string | null
+          farm_size_hectares: number | null
+          genotype: Database["public"]["Enums"]["genotype_category"] | null
+          id: string
+          location_coordinates: unknown | null
+          main_crops: string[] | null
+          soil_type: string | null
+          updated_at: string | null
+          user_id: string
+          water_source: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          farm_size_hectares?: number | null
+          genotype?: Database["public"]["Enums"]["genotype_category"] | null
+          id?: string
+          location_coordinates?: unknown | null
+          main_crops?: string[] | null
+          soil_type?: string | null
+          updated_at?: string | null
+          user_id: string
+          water_source?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          farm_size_hectares?: number | null
+          genotype?: Database["public"]["Enums"]["genotype_category"] | null
+          id?: string
+          location_coordinates?: unknown | null
+          main_crops?: string[] | null
+          soil_type?: string | null
+          updated_at?: string | null
+          user_id?: string
+          water_source?: string | null
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "farmer_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "farmer_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       farmer_users: {
         Row: {
           created_at: string
@@ -46,6 +228,81 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      post_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "farmer_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_replies: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string | null
+          id: string
+          post_id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          post_id: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_replies_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "farmer_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_replies_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -114,7 +371,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      genotype_category:
+        | "drought_resistant"
+        | "high_yield"
+        | "pest_resistant"
+        | "early_maturing"
+        | "traditional"
+      health_rating: "excellent" | "average" | "poor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -241,6 +504,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      genotype_category: [
+        "drought_resistant",
+        "high_yield",
+        "pest_resistant",
+        "early_maturing",
+        "traditional",
+      ],
+      health_rating: ["excellent", "average", "poor"],
+    },
   },
 } as const
