@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ttsService } from '@/lib/tts';
 import { authService } from '@/lib/auth';
-import { Droplets, Leaf, Bug, Sprout, RefreshCw, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useLocationData } from '@/hooks/useLocationData';
+import { Droplets, Leaf, Bug, Sprout, RefreshCw, TrendingUp, TrendingDown, Minus, Plus, Save } from 'lucide-react';
 
 interface FarmerInsight {
   id: string;
@@ -32,7 +34,15 @@ const FarmerInsights = () => {
   const [insights, setInsights] = useState<FarmerInsight | null>(null);
   const [profile, setProfile] = useState<FarmerProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingValues, setEditingValues] = useState({
+    soil_health: 'average' as 'excellent' | 'average' | 'poor',
+    water_availability: 'average' as 'excellent' | 'average' | 'poor',
+    pest_status: 'average' as 'excellent' | 'average' | 'poor',
+    fertilization_status: 'average' as 'excellent' | 'average' | 'poor'
+  });
   const { toast } = useToast();
+  const { location, weather, ndvi, soilMoisture } = useLocationData();
 
   useEffect(() => {
     loadData();
@@ -84,19 +94,46 @@ const FarmerInsights = () => {
         return;
       }
 
-      // Simulate generating new insights based on current conditions
+      // Generate insights based on location data and environmental factors
+      let recommendations = [
+        'Apply organic compost to improve soil structure',
+        'Monitor moisture levels daily during dry season',
+        'Consider companion planting to reduce pest pressure',
+        'Test soil pH levels before next fertilizer application'
+      ];
+
+      // Add location-based recommendations
+      if (weather) {
+        if (weather.humidity > 70) {
+          recommendations.push('High humidity detected - monitor for fungal diseases');
+        }
+        if (weather.temperature > 30) {
+          recommendations.push('High temperatures - ensure adequate irrigation');
+        }
+        if (weather.rainfall > 20) {
+          recommendations.push('Heavy rainfall expected - improve drainage');
+        }
+      }
+
+      if (ndvi) {
+        if (ndvi.value < 0.3) {
+          recommendations.push('Low vegetation health detected - consider fertilization');
+        } else if (ndvi.value > 0.7) {
+          recommendations.push('Excellent vegetation health - maintain current practices');
+        }
+      }
+
+      if (soilMoisture) {
+        recommendations.push(soilMoisture.recommendation);
+      }
+
       const newInsight = {
         farmer_id: profile.id,
-        soil_health: ['excellent', 'average', 'poor'][Math.floor(Math.random() * 3)] as 'excellent' | 'average' | 'poor',
-        water_availability: ['excellent', 'average', 'poor'][Math.floor(Math.random() * 3)] as 'excellent' | 'average' | 'poor',
-        pest_status: ['excellent', 'average', 'poor'][Math.floor(Math.random() * 3)] as 'excellent' | 'average' | 'poor',
-        fertilization_status: ['excellent', 'average', 'poor'][Math.floor(Math.random() * 3)] as 'excellent' | 'average' | 'poor',
-        recommendations: [
-          'Apply organic compost to improve soil structure',
-          'Monitor moisture levels daily during dry season',
-          'Consider companion planting to reduce pest pressure',
-          'Test soil pH levels before next fertilizer application'
-        ].slice(0, Math.floor(Math.random() * 3) + 1)
+        soil_health: editingValues.soil_health,
+        water_availability: editingValues.water_availability,
+        pest_status: editingValues.pest_status,
+        fertilization_status: editingValues.fertilization_status,
+        recommendations: recommendations.slice(0, 6) // Limit to 6 recommendations
       };
 
       const { data, error } = await supabase
@@ -108,12 +145,13 @@ const FarmerInsights = () => {
       if (error) throw error;
 
       setInsights(data);
+      setIsEditing(false);
       toast({
         title: "Insights Updated",
-        description: "New genotype-based insights have been generated.",
+        description: "New insights generated with location data and your inputs.",
       });
 
-      await ttsService.speak("Your insights have been updated with new recommendations", 'en');
+      await ttsService.speak("Your insights have been updated with new recommendations based on your location and environmental data", 'en');
     } catch (error) {
       console.error('Error generating insights:', error);
       toast({
@@ -124,6 +162,22 @@ const FarmerInsights = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleStartEditing = () => {
+    if (insights) {
+      setEditingValues({
+        soil_health: insights.soil_health,
+        water_availability: insights.water_availability,
+        pest_status: insights.pest_status,
+        fertilization_status: insights.fertilization_status
+      });
+    }
+    setIsEditing(true);
+  };
+
+  const handleSaveEdits = async () => {
+    await generateNewInsights();
   };
 
   const updateGenotype = async (newGenotype: string) => {
@@ -210,7 +264,7 @@ const FarmerInsights = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Crop Genotype</label>
               <Select value={profile?.genotype || 'traditional'} onValueChange={updateGenotype}>
@@ -227,13 +281,35 @@ const FarmerInsights = () => {
               </Select>
             </div>
             <div className="flex items-end">
+              {!isEditing ? (
+                <Button 
+                  onClick={handleStartEditing} 
+                  variant="outline"
+                  className="w-full"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Status Updates
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleSaveEdits} 
+                  disabled={isLoading}
+                  className="w-full"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Save & Generate
+                </Button>
+              )}
+            </div>
+            <div className="flex items-end">
               <Button 
                 onClick={generateNewInsights} 
-                disabled={isLoading}
+                disabled={isLoading || isEditing}
+                variant="outline"
                 className="w-full"
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                Generate New Insights
+                Auto Generate
               </Button>
             </div>
           </div>
@@ -241,71 +317,147 @@ const FarmerInsights = () => {
       </Card>
 
       {/* Health Status Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
-              <Droplets className="w-6 h-6 text-blue-600" />
-              {getStatusIcon(insights?.soil_health || 'average')}
-            </div>
-            <h3 className="font-semibold mb-1">Soil Health</h3>
-            <Badge 
-              variant="outline" 
-              className={`${getStatusColor(insights?.soil_health || 'average')} text-white border-none`}
-            >
-              {insights?.soil_health || 'Average'}
-            </Badge>
-          </CardContent>
-        </Card>
+      {isEditing ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Update Farm Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Soil Health</label>
+                <Select value={editingValues.soil_health} onValueChange={(value: any) => setEditingValues(prev => ({...prev, soil_health: value}))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="excellent">Excellent</SelectItem>
+                    <SelectItem value="average">Average</SelectItem>
+                    <SelectItem value="poor">Poor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
-              <Droplets className="w-6 h-6 text-cyan-600" />
-              {getStatusIcon(insights?.water_availability || 'average')}
-            </div>
-            <h3 className="font-semibold mb-1">Water Availability</h3>
-            <Badge 
-              variant="outline" 
-              className={`${getStatusColor(insights?.water_availability || 'average')} text-white border-none`}
-            >
-              {insights?.water_availability || 'Average'}
-            </Badge>
-          </CardContent>
-        </Card>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Water Availability</label>
+                <Select value={editingValues.water_availability} onValueChange={(value: any) => setEditingValues(prev => ({...prev, water_availability: value}))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="excellent">Excellent</SelectItem>
+                    <SelectItem value="average">Average</SelectItem>
+                    <SelectItem value="poor">Poor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
-              <Bug className="w-6 h-6 text-orange-600" />
-              {getStatusIcon(insights?.pest_status || 'average')}
-            </div>
-            <h3 className="font-semibold mb-1">Pest Status</h3>
-            <Badge 
-              variant="outline" 
-              className={`${getStatusColor(insights?.pest_status || 'average')} text-white border-none`}
-            >
-              {insights?.pest_status || 'Average'}
-            </Badge>
-          </CardContent>
-        </Card>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Pest Status</label>
+                <Select value={editingValues.pest_status} onValueChange={(value: any) => setEditingValues(prev => ({...prev, pest_status: value}))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="excellent">Excellent (No Pests)</SelectItem>
+                    <SelectItem value="average">Average (Minor Issues)</SelectItem>
+                    <SelectItem value="poor">Poor (Major Infestation)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
-              <Sprout className="w-6 h-6 text-green-600" />
-              {getStatusIcon(insights?.fertilization_status || 'average')}
+              <div>
+                <label className="text-sm font-medium mb-2 block">Fertilization Status</label>
+                <Select value={editingValues.fertilization_status} onValueChange={(value: any) => setEditingValues(prev => ({...prev, fertilization_status: value}))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="excellent">Excellent</SelectItem>
+                    <SelectItem value="average">Average</SelectItem>
+                    <SelectItem value="poor">Poor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <h3 className="font-semibold mb-1">Fertilization</h3>
-            <Badge 
-              variant="outline" 
-              className={`${getStatusColor(insights?.fertilization_status || 'average')} text-white border-none`}
-            >
-              {insights?.fertilization_status || 'Average'}
-            </Badge>
+
+            <div className="flex gap-2 mt-6">
+              <Button onClick={() => setIsEditing(false)} variant="outline" className="flex-1">
+                Cancel
+              </Button>
+              <Button onClick={handleSaveEdits} disabled={isLoading} className="flex-1">
+                {isLoading ? 'Generating...' : 'Save & Generate Insights'}
+              </Button>
+            </div>
           </CardContent>
         </Card>
-      </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="hover:shadow-md transition-shadow">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <Droplets className="w-6 h-6 text-blue-600" />
+                {getStatusIcon(insights?.soil_health || 'average')}
+              </div>
+              <h3 className="font-semibold mb-1">Soil Health</h3>
+              <Badge 
+                variant="outline" 
+                className={`${getStatusColor(insights?.soil_health || 'average')} text-white border-none`}
+              >
+                {insights?.soil_health || 'Average'}
+              </Badge>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-md transition-shadow">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <Droplets className="w-6 h-6 text-cyan-600" />
+                {getStatusIcon(insights?.water_availability || 'average')}
+              </div>
+              <h3 className="font-semibold mb-1">Water Availability</h3>
+              <Badge 
+                variant="outline" 
+                className={`${getStatusColor(insights?.water_availability || 'average')} text-white border-none`}
+              >
+                {insights?.water_availability || 'Average'}
+              </Badge>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-md transition-shadow">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <Bug className="w-6 h-6 text-orange-600" />
+                {getStatusIcon(insights?.pest_status || 'average')}
+              </div>
+              <h3 className="font-semibold mb-1">Pest Status</h3>
+              <Badge 
+                variant="outline" 
+                className={`${getStatusColor(insights?.pest_status || 'average')} text-white border-none`}
+              >
+                {insights?.pest_status || 'Average'}
+              </Badge>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-md transition-shadow">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <Sprout className="w-6 h-6 text-green-600" />
+                {getStatusIcon(insights?.fertilization_status || 'average')}
+              </div>
+              <h3 className="font-semibold mb-1">Fertilization</h3>
+              <Badge 
+                variant="outline" 
+                className={`${getStatusColor(insights?.fertilization_status || 'average')} text-white border-none`}
+              >
+                {insights?.fertilization_status || 'Average'}
+              </Badge>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Recommendations */}
       {insights?.recommendations && insights.recommendations.length > 0 && (

@@ -22,7 +22,10 @@ import {
   BarChart3,
   MessageCircle,
   Bot,
-  User as UserIcon
+  User as UserIcon,
+  Sun,
+  Moon,
+  Palette
 } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
 import FarmerInsights from '@/components/FarmerInsights';
@@ -90,9 +93,9 @@ const FarmerDashboard = () => {
 
   const getThemeIcon = () => {
     switch (theme) {
-      case 'light': return <Thermometer className="w-4 h-4" />;
-      case 'dark': return <Droplets className="w-4 h-4" />;
-      default: return <Leaf className="w-4 h-4" />;
+      case 'dark': return <Moon className="w-4 h-4" />;
+      case 'colorblind': return <Palette className="w-4 h-4" />;
+      default: return <Sun className="w-4 h-4" />;
     }
   };
 
