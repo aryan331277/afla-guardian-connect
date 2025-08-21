@@ -43,9 +43,9 @@ const RoleSelection = () => {
     
     // Speak the role confirmation
     const roleText = roles.find(r => r.role === selectedRole)?.title || selectedRole;
-    await ttsService.speak(`You selected ${roleText}. Proceeding to phone verification.`, 'en');
+    await ttsService.speak(`You selected ${roleText}. Proceeding to authentication.`, 'en');
     
-    navigate('/auth');
+    navigate('/phone-auth');
   };
 
   const handleSpeak = async (text: string) => {

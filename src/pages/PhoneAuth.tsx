@@ -350,7 +350,7 @@ const PhoneAuth = () => {
           <div className="mt-6 text-center">
             <Button
               variant="link"
-              onClick={() => navigate('/role')}
+              onClick={() => navigate('/role-selection')}
               className="text-sm text-muted-foreground hover:text-primary"
             >
               ← Back to Role Selection

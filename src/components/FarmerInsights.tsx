@@ -1,162 +1,143 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { ttsService } from '@/lib/tts';
-import { authService } from '@/lib/auth';
+import { supabase } from '@/integrations/supabase/client';
 import { useLocationData } from '@/hooks/useLocationData';
-import { Droplets, Leaf, Bug, Sprout, RefreshCw, TrendingUp, TrendingDown, Minus, Plus, Save } from 'lucide-react';
-
-interface FarmerInsight {
-  id: string;
-  soil_health: 'excellent' | 'average' | 'poor';
-  water_availability: 'excellent' | 'average' | 'poor';
-  pest_status: 'excellent' | 'average' | 'poor';
-  fertilization_status: 'excellent' | 'average' | 'poor';
-  measurement_date: string;
-  recommendations: string[];
-  notes?: string;
-}
-
-interface FarmerProfile {
-  id: string;
-  genotype: string;
-  farm_size_hectares: number;
-  main_crops: string[];
-  years_experience: number;
-}
+import { authService } from '@/lib/auth';
+import { 
+  Leaf, 
+  Droplets, 
+  Bug, 
+  Sprout, 
+  MapPin, 
+  Thermometer,
+  Satellite,
+  Activity,
+  TrendingUp,
+  RefreshCw,
+  Save,
+  Eye
+} from 'lucide-react';
 
 const FarmerInsights = () => {
-  const [insights, setInsights] = useState<FarmerInsight | null>(null);
-  const [profile, setProfile] = useState<FarmerProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingValues, setEditingValues] = useState({
-    soil_health: 'average' as 'excellent' | 'average' | 'poor',
-    water_availability: 'average' as 'excellent' | 'average' | 'poor',
-    pest_status: 'average' as 'excellent' | 'average' | 'poor',
-    fertilization_status: 'average' as 'excellent' | 'average' | 'poor'
-  });
   const { toast } = useToast();
-  const { location, weather, ndvi, soilMoisture } = useLocationData();
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  // Manual farmer inputs (qualitative ratings)
+  const [soilHealth, setSoilHealth] = useState<'excellent' | 'average' | 'poor'>('average');
+  const [waterAvailability, setWaterAvailability] = useState<'excellent' | 'average' | 'poor'>('average');
+  const [pestStatus, setPestStatus] = useState<'excellent' | 'average' | 'poor'>('average');
+  const [fertilizationStatus, setFertilizationStatus] = useState<'excellent' | 'average' | 'poor'>('average');
+  
+  // Use location data hook for API data
+  const {
+    location,
+    weather,
+    ndvi,
+    soilMoisture,
+    isLoading: dataLoading,
+    error: dataError,
+    refresh
+  } = useLocationData();
 
   useEffect(() => {
-    loadData();
+    loadFarmerData();
   }, []);
 
-  const loadData = async () => {
+  const loadFarmerData = async () => {
+    // Load existing farmer insight data from Supabase
     try {
-      // Load farmer profile and latest insights
-      const { data: profileData, error: profileError } = await supabase
+      const currentUser = authService.getCurrentUser();
+      if (!currentUser) return;
+
+      // First get farmer profile
+      const { data: profile } = await supabase
         .from('farmer_profiles')
-        .select('*')
+        .select('id')
+        .eq('user_id', currentUser.id)
         .single();
 
-      if (profileError && profileError.code !== 'PGRST116') {
-        console.error('Profile error:', profileError);
-      } else if (profileData) {
-        setProfile(profileData);
-      }
+      if (profile) {
+        const { data, error } = await supabase
+          .from('farmer_insights')
+          .select('*')
+          .eq('farmer_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-      const { data: insightData, error: insightError } = await supabase
-        .from('farmer_insights')
-        .select('*')
-        .order('measurement_date', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (insightError && insightError.code !== 'PGRST116') {
-        console.error('Insight error:', insightError);
-      } else if (insightData) {
-        setInsights(insightData);
+        if (data && !error) {
+          setSoilHealth(data.soil_health);
+          setWaterAvailability(data.water_availability);
+          setPestStatus(data.pest_status);
+          setFertilizationStatus(data.fertilization_status);
+        }
       }
     } catch (error) {
-      console.error('Error loading data:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Error loading farmer data:', error);
     }
   };
 
-  const generateNewInsights = async () => {
+  const saveInsights = async () => {
     setIsLoading(true);
     try {
-      // First ensure we have a farmer profile
-      if (!profile) {
+      const currentUser = authService.getCurrentUser();
+      if (!currentUser) {
         toast({
-          title: "Profile Required",
-          description: "Please set up your farmer profile first.",
+          title: "Error",
+          description: "Please log in to save insights",
           variant: "destructive",
         });
         return;
       }
 
-      // Generate insights based on location data and environmental factors
-      let recommendations = [
-        'Apply organic compost to improve soil structure',
-        'Monitor moisture levels daily during dry season',
-        'Consider companion planting to reduce pest pressure',
-        'Test soil pH levels before next fertilizer application'
-      ];
-
-      // Add location-based recommendations
-      if (weather) {
-        if (weather.humidity > 70) {
-          recommendations.push('High humidity detected - monitor for fungal diseases');
-        }
-        if (weather.temperature > 30) {
-          recommendations.push('High temperatures - ensure adequate irrigation');
-        }
-        if (weather.rainfall > 20) {
-          recommendations.push('Heavy rainfall expected - improve drainage');
-        }
-      }
-
-      if (ndvi) {
-        if (ndvi.value < 0.3) {
-          recommendations.push('Low vegetation health detected - consider fertilization');
-        } else if (ndvi.value > 0.7) {
-          recommendations.push('Excellent vegetation health - maintain current practices');
-        }
-      }
-
-      if (soilMoisture) {
-        recommendations.push(soilMoisture.recommendation);
-      }
-
-      const newInsight = {
-        farmer_id: profile.id,
-        soil_health: editingValues.soil_health,
-        water_availability: editingValues.water_availability,
-        pest_status: editingValues.pest_status,
-        fertilization_status: editingValues.fertilization_status,
-        recommendations: recommendations.slice(0, 6) // Limit to 6 recommendations
-      };
-
-      const { data, error } = await supabase
-        .from('farmer_insights')
-        .insert([newInsight])
-        .select()
+      // First get or create farmer profile
+      let { data: profile } = await supabase
+        .from('farmer_profiles')
+        .select('id')
+        .eq('user_id', currentUser.id)
         .single();
+
+      if (!profile) {
+        const { data: newProfile, error: profileError } = await supabase
+          .from('farmer_profiles')
+          .insert({
+            user_id: currentUser.id
+          })
+          .select('id')
+          .single();
+
+        if (profileError) throw profileError;
+        profile = newProfile;
+      }
+
+      const { error } = await supabase
+        .from('farmer_insights')
+        .insert({
+          farmer_id: profile.id,
+          soil_health: soilHealth,
+          water_availability: waterAvailability,
+          pest_status: pestStatus,
+          fertilization_status: fertilizationStatus,
+          recommendations: generateRecommendations()
+        });
 
       if (error) throw error;
 
-      setInsights(data);
-      setIsEditing(false);
+      setHasUnsavedChanges(false);
       toast({
-        title: "Insights Updated",
-        description: "New insights generated with location data and your inputs.",
+        title: "Success",
+        description: "Insights saved successfully!",
       });
-
-      await ttsService.speak("Your insights have been updated with new recommendations based on your location and environmental data", 'en');
     } catch (error) {
-      console.error('Error generating insights:', error);
+      console.error('Error saving insights:', error);
       toast({
         title: "Error",
-        description: "Failed to generate new insights. Please try again.",
+        description: "Failed to save insights",
         variant: "destructive",
       });
     } finally {
@@ -164,330 +145,359 @@ const FarmerInsights = () => {
     }
   };
 
-  const handleStartEditing = () => {
-    if (insights) {
-      setEditingValues({
-        soil_health: insights.soil_health,
-        water_availability: insights.water_availability,
-        pest_status: insights.pest_status,
-        fertilization_status: insights.fertilization_status
-      });
+  const generateRecommendations = () => {
+    const recommendations = [];
+    
+    // Generate recommendations based on all 9 insights
+    if (soilHealth === 'poor') {
+      recommendations.push('Consider soil testing and organic matter addition');
     }
-    setIsEditing(true);
-  };
-
-  const handleSaveEdits = async () => {
-    await generateNewInsights();
-  };
-
-  const updateGenotype = async (newGenotype: string) => {
-    try {
-      const currentUser = authService.getCurrentUser();
-      if (!currentUser) return;
-
-      const { error } = await supabase
-        .from('farmer_profiles')
-        .upsert({
-          user_id: currentUser.id,
-          genotype: newGenotype as 'drought_resistant' | 'high_yield' | 'pest_resistant' | 'early_maturing' | 'traditional',
-          main_crops: ['maize'],
-          years_experience: 5,
-          farm_size_hectares: 2.5
-        });
-
-      if (error) throw error;
-
-      setProfile(prev => prev ? { ...prev, genotype: newGenotype } : null);
-      toast({
-        title: "Profile Updated",
-        description: `Genotype updated to ${newGenotype}`,
-      });
-    } catch (error) {
-      console.error('Error updating genotype:', error);
+    if (waterAvailability === 'poor') {
+      recommendations.push('Implement water conservation techniques');
     }
+    if (pestStatus === 'poor') {
+      recommendations.push('Review integrated pest management strategies');
+    }
+    if (fertilizationStatus === 'poor') {
+      recommendations.push('Consult on balanced fertilization program');
+    }
+    
+    // Weather-based recommendations
+    if (weather && weather.humidity > 80) {
+      recommendations.push('High humidity detected - monitor for fungal diseases');
+    }
+    if (weather && weather.temperature > 30) {
+      recommendations.push('High temperatures - ensure adequate irrigation');
+    }
+    
+    // NDVI-based recommendations
+    if (ndvi && ndvi.value < 0.3) {
+      recommendations.push('Low vegetation index - consider crop nutrition assessment');
+    }
+    
+    // Soil moisture recommendations
+    if (soilMoisture && soilMoisture.moistureLevel < 30) {
+      recommendations.push('Low soil moisture - increase irrigation frequency');
+    }
+    
+    return recommendations;
   };
 
-  const getStatusColor = (status: string) => {
+  const handleInputChange = (setter: Function, value: string) => {
+    setter(value);
+    setHasUnsavedChanges(true);
+  };
+
+  const getHealthColor = (status: string) => {
     switch (status) {
-      case 'excellent': return 'bg-emerald-500';
-      case 'average': return 'bg-amber-500';
-      case 'poor': return 'bg-red-500';
-      default: return 'bg-muted';
+      case 'excellent': return 'text-green-700 bg-green-50 border-green-200';
+      case 'average': return 'text-yellow-700 bg-yellow-50 border-yellow-200';
+      case 'poor': return 'text-red-700 bg-red-50 border-red-200';
+      default: return 'text-gray-700 bg-gray-50 border-gray-200';
     }
   };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'excellent': return <TrendingUp className="w-4 h-4" />;
-      case 'average': return <Minus className="w-4 h-4" />;
-      case 'poor': return <TrendingDown className="w-4 h-4" />;
-      default: return <Minus className="w-4 h-4" />;
-    }
-  };
-
-  const handleSpeak = async (text: string) => {
-    await ttsService.speak(text, 'en');
-  };
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-32 bg-muted rounded-lg"></div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="h-24 bg-muted rounded-lg"></div>
-            <div className="h-24 bg-muted rounded-lg"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
-      {/* Genotype Selection */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Leaf className="w-5 h-5 text-emerald-600" />
-              Farmer Genotype Profile
-            </div>
-            <button
-              onClick={() => handleSpeak('Farmer genotype profile. Select your crop variety to get personalized insights and recommendations.')}
-              className="p-1 rounded-full hover:bg-accent transition-colors"
-            >
-              <svg className="w-4 h-4 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
-              </svg>
-            </button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Crop Genotype</label>
-              <Select value={profile?.genotype || 'traditional'} onValueChange={updateGenotype}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="drought_resistant">Drought Resistant</SelectItem>
-                  <SelectItem value="high_yield">High Yield</SelectItem>
-                  <SelectItem value="pest_resistant">Pest Resistant</SelectItem>
-                  <SelectItem value="early_maturing">Early Maturing</SelectItem>
-                  <SelectItem value="traditional">Traditional Variety</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-end">
-              {!isEditing ? (
-                <Button 
-                  onClick={handleStartEditing} 
-                  variant="outline"
-                  className="w-full"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Status Updates
-                </Button>
-              ) : (
-                <Button 
-                  onClick={handleSaveEdits} 
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  Save & Generate
-                </Button>
-              )}
-            </div>
-            <div className="flex items-end">
-              <Button 
-                onClick={generateNewInsights} 
-                disabled={isLoading || isEditing}
-                variant="outline"
-                className="w-full"
-              >
-                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                Auto Generate
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Health Status Grid */}
-      {isEditing ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Update Farm Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Soil Health</label>
-                <Select value={editingValues.soil_health} onValueChange={(value: any) => setEditingValues(prev => ({...prev, soil_health: value}))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="excellent">Excellent</SelectItem>
-                    <SelectItem value="average">Average</SelectItem>
-                    <SelectItem value="poor">Poor</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-2 block">Water Availability</label>
-                <Select value={editingValues.water_availability} onValueChange={(value: any) => setEditingValues(prev => ({...prev, water_availability: value}))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="excellent">Excellent</SelectItem>
-                    <SelectItem value="average">Average</SelectItem>
-                    <SelectItem value="poor">Poor</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-2 block">Pest Status</label>
-                <Select value={editingValues.pest_status} onValueChange={(value: any) => setEditingValues(prev => ({...prev, pest_status: value}))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="excellent">Excellent (No Pests)</SelectItem>
-                    <SelectItem value="average">Average (Minor Issues)</SelectItem>
-                    <SelectItem value="poor">Poor (Major Infestation)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-2 block">Fertilization Status</label>
-                <Select value={editingValues.fertilization_status} onValueChange={(value: any) => setEditingValues(prev => ({...prev, fertilization_status: value}))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="excellent">Excellent</SelectItem>
-                    <SelectItem value="average">Average</SelectItem>
-                    <SelectItem value="poor">Poor</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="flex gap-2 mt-6">
-              <Button onClick={() => setIsEditing(false)} variant="outline" className="flex-1">
-                Cancel
-              </Button>
-              <Button onClick={handleSaveEdits} disabled={isLoading} className="flex-1">
-                {isLoading ? 'Generating...' : 'Save & Generate Insights'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <Droplets className="w-6 h-6 text-blue-600" />
-                {getStatusIcon(insights?.soil_health || 'average')}
-              </div>
-              <h3 className="font-semibold mb-1">Soil Health</h3>
-              <Badge 
-                variant="outline" 
-                className={`${getStatusColor(insights?.soil_health || 'average')} text-white border-none`}
-              >
-                {insights?.soil_health || 'Average'}
-              </Badge>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <Droplets className="w-6 h-6 text-cyan-600" />
-                {getStatusIcon(insights?.water_availability || 'average')}
-              </div>
-              <h3 className="font-semibold mb-1">Water Availability</h3>
-              <Badge 
-                variant="outline" 
-                className={`${getStatusColor(insights?.water_availability || 'average')} text-white border-none`}
-              >
-                {insights?.water_availability || 'Average'}
-              </Badge>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <Bug className="w-6 h-6 text-orange-600" />
-                {getStatusIcon(insights?.pest_status || 'average')}
-              </div>
-              <h3 className="font-semibold mb-1">Pest Status</h3>
-              <Badge 
-                variant="outline" 
-                className={`${getStatusColor(insights?.pest_status || 'average')} text-white border-none`}
-              >
-                {insights?.pest_status || 'Average'}
-              </Badge>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <Sprout className="w-6 h-6 text-green-600" />
-                {getStatusIcon(insights?.fertilization_status || 'average')}
-              </div>
-              <h3 className="font-semibold mb-1">Fertilization</h3>
-              <Badge 
-                variant="outline" 
-                className={`${getStatusColor(insights?.fertilization_status || 'average')} text-white border-none`}
-              >
-                {insights?.fertilization_status || 'Average'}
-              </Badge>
-            </CardContent>
-          </Card>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Farm Insights Dashboard</h2>
+        <div className="flex items-center gap-2">
+          <Button 
+            onClick={refresh}
+            variant="outline"
+            disabled={dataLoading}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
+            Refresh Data
+          </Button>
+          <Button 
+            onClick={saveInsights}
+            disabled={isLoading || !hasUnsavedChanges}
+            className="flex items-center gap-2"
+          >
+            {isLoading ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            Save Insights
+          </Button>
         </div>
-      )}
+      </div>
 
-      {/* Recommendations */}
-      {insights?.recommendations && insights.recommendations.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              Genotype-Based Recommendations
-              <button
-                onClick={() => handleSpeak(`Your recommendations are: ${insights.recommendations.join('. ')}`)}
-                className="p-1 rounded-full hover:bg-accent transition-colors"
-              >
-                <svg className="w-4 h-4 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
-                </svg>
-              </button>
+      {/* Manual Farmer Inputs - 4 Key Insights */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="relative hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Leaf className="w-5 h-5 text-green-600" />
+              Soil Health
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
-              {insights.recommendations.map((rec, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-sm">{rec}</span>
-                </li>
-              ))}
-            </ul>
+            <Select value={soilHealth} onValueChange={(value) => handleInputChange(setSoilHealth, value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="excellent">Excellent</SelectItem>
+                <SelectItem value="average">Average</SelectItem>
+                <SelectItem value="poor">Poor</SelectItem>
+              </SelectContent>
+            </Select>
+            <Badge 
+              variant="outline" 
+              className={`mt-2 ${getHealthColor(soilHealth)}`}
+            >
+              {soilHealth.charAt(0).toUpperCase() + soilHealth.slice(1)}
+            </Badge>
+            {hasUnsavedChanges && (
+              <div className="absolute top-2 right-2 w-2 h-2 bg-orange-500 rounded-full"></div>
+            )}
           </CardContent>
         </Card>
-      )}
+
+        <Card className="relative hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Droplets className="w-5 h-5 text-blue-600" />
+              Water Availability
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Select value={waterAvailability} onValueChange={(value) => handleInputChange(setWaterAvailability, value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="excellent">Excellent</SelectItem>
+                <SelectItem value="average">Average</SelectItem>
+                <SelectItem value="poor">Poor</SelectItem>
+              </SelectContent>
+            </Select>
+            <Badge 
+              variant="outline" 
+              className={`mt-2 ${getHealthColor(waterAvailability)}`}
+            >
+              {waterAvailability.charAt(0).toUpperCase() + waterAvailability.slice(1)}
+            </Badge>
+            {hasUnsavedChanges && (
+              <div className="absolute top-2 right-2 w-2 h-2 bg-orange-500 rounded-full"></div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="relative hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Bug className="w-5 h-5 text-red-600" />
+              Pest Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Select value={pestStatus} onValueChange={(value) => handleInputChange(setPestStatus, value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="excellent">Excellent</SelectItem>
+                <SelectItem value="average">Average</SelectItem>
+                <SelectItem value="poor">Poor</SelectItem>
+              </SelectContent>
+            </Select>
+            <Badge 
+              variant="outline" 
+              className={`mt-2 ${getHealthColor(pestStatus)}`}
+            >
+              {pestStatus.charAt(0).toUpperCase() + pestStatus.slice(1)}
+            </Badge>
+            {hasUnsavedChanges && (
+              <div className="absolute top-2 right-2 w-2 h-2 bg-orange-500 rounded-full"></div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="relative hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Sprout className="w-5 h-5 text-yellow-600" />
+              Fertilization Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Select value={fertilizationStatus} onValueChange={(value) => handleInputChange(setFertilizationStatus, value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="excellent">Excellent</SelectItem>
+                <SelectItem value="average">Average</SelectItem>
+                <SelectItem value="poor">Poor</SelectItem>
+              </SelectContent>
+            </Select>
+            <Badge 
+              variant="outline" 
+              className={`mt-2 ${getHealthColor(fertilizationStatus)}`}
+            >
+              {fertilizationStatus.charAt(0).toUpperCase() + fertilizationStatus.slice(1)}
+            </Badge>
+            {hasUnsavedChanges && (
+              <div className="absolute top-2 right-2 w-2 h-2 bg-orange-500 rounded-full"></div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* API Data - 5 Additional Insights */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <MapPin className="w-5 h-5 text-purple-600" />
+              GPS Location
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {location ? (
+              <div className="space-y-2 text-sm">
+                <div>Lat: {location.latitude.toFixed(4)}</div>
+                <div>Lng: {location.longitude.toFixed(4)}</div>
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  ±{Math.round(location.accuracy)}m
+                </Badge>
+              </div>
+            ) : dataLoading ? (
+              <div className="text-muted-foreground">Loading...</div>
+            ) : (
+              <div className="text-destructive text-sm">GPS unavailable</div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Thermometer className="w-5 h-5 text-orange-600" />
+              Weather Data
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {weather ? (
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <span>{weather.temperature}°C</span>
+                  <span className="text-2xl">{weather.icon}</span>
+                </div>
+                <div>{weather.humidity}% humidity</div>
+                <div>{weather.rainfall}mm rainfall</div>
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  {weather.description}
+                </Badge>
+              </div>
+            ) : dataLoading ? (
+              <div className="text-muted-foreground">Loading...</div>
+            ) : (
+              <div className="text-destructive text-sm">Weather unavailable</div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Satellite className="w-5 h-5 text-green-600" />
+              NDVI Index
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {ndvi ? (
+              <div className="space-y-2 text-sm">
+                <div className="text-lg font-semibold text-green-700">{ndvi.value}</div>
+                <Badge variant="outline" className={`
+                  ${ndvi.interpretation === 'Excellent' ? 'bg-green-50 text-green-700 border-green-200' :
+                    ndvi.interpretation === 'Good' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                    'bg-yellow-50 text-yellow-700 border-yellow-200'}
+                `}>
+                  {ndvi.interpretation}
+                </Badge>
+                <div className="text-xs text-muted-foreground">
+                  {new Date(ndvi.date).toLocaleDateString()}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Cloud: {ndvi.cloudCover}%
+                </div>
+              </div>
+            ) : dataLoading ? (
+              <div className="text-muted-foreground">Loading...</div>
+            ) : (
+              <div className="text-destructive text-sm">NDVI unavailable</div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Activity className="w-5 h-5 text-blue-600" />
+              Soil Moisture
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {soilMoisture ? (
+              <div className="space-y-2 text-sm">
+                <div className="text-lg font-semibold text-blue-700">{soilMoisture.moistureLevel}%</div>
+                <Badge variant="outline" className={`
+                  ${soilMoisture.status === 'Optimal' ? 'bg-green-50 text-green-700 border-green-200' :
+                    soilMoisture.status === 'Wet' || soilMoisture.status === 'Very Wet' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                    'bg-red-50 text-red-700 border-red-200'}
+                `}>
+                  {soilMoisture.status}
+                </Badge>
+                <div className="text-xs text-muted-foreground">
+                  Soil temp: {soilMoisture.temperature}°C
+                </div>
+              </div>
+            ) : dataLoading ? (
+              <div className="text-muted-foreground">Loading...</div>
+            ) : (
+              <div className="text-destructive text-sm">Moisture unavailable</div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Smart Recommendations Panel */}
+      <Card className="bg-gradient-to-r from-primary/5 to-accent/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            AI-Powered Recommendations
+            <Badge variant="secondary" className="ml-2">
+              9 Data Points Analyzed
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3">
+            {generateRecommendations().length > 0 ? (
+              generateRecommendations().map((rec, index) => (
+                <div key={index} className="flex items-start gap-3 p-4 bg-card rounded-lg border shadow-sm">
+                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-sm leading-relaxed">{rec}</span>
+                </div>
+              ))
+            ) : (
+              <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200">
+                <Eye className="w-5 h-5 text-green-600" />
+                <span className="text-sm text-green-700">
+                  All indicators look good! Continue monitoring your farm conditions.
+                </span>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

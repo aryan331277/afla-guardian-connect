@@ -46,10 +46,10 @@ const AppContent = () => {
         <Routes>
           <Route path="/" element={<LogoScreen />} />
           <Route path="/language" element={<LanguageSelection />} />
+          <Route path="/role-selection" element={<RoleSelection />} />
           <Route path="/privacy-agreement" element={<PrivacyAgreement />} />
-          <Route path="/auth" element={<PhoneAuth />} />
+          <Route path="/phone-auth" element={<PhoneAuth />} />
           <Route path="/splash" element={<SplashScreen />} />
-          <Route path="/role" element={<RoleSelection />} />
           <Route path="/farmer" element={<AuthGuard requiredRole="farmer"><FarmerDashboard /></AuthGuard>} />
           <Route path="/profile" element={<AuthGuard><FarmerProfile /></AuthGuard>} />
           <Route path="/scan-history" element={<AuthGuard><ScanHistory /></AuthGuard>} />
