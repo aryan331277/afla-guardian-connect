@@ -8,6 +8,8 @@ import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
 import { DatabaseService } from '@/lib/database';
 import { useToast } from '@/hooks/use-toast';
+import { useRealTimeData } from '@/hooks/useRealTimeData';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Bot, 
   Scan, 
@@ -30,8 +32,10 @@ const ScanWizard = () => {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const { fieldData, isLoading: dataLoading, error: dataError, refetch } = useRealTimeData();
   const [scanData, setScanData] = useState({
-    location: { lat: -1.2921, lng: 36.8219 }, // Nairobi coordinates
+    location: { lat: -1.2921, lng: 36.8219 },
     weather: { temp: 24, humidity: 65, condition: 'Partly Cloudy' },
     soil: { ph: 6.5, moisture: 45, nutrients: 'Medium' },
     ndvi: 0.65,
@@ -41,6 +45,19 @@ const ScanWizard = () => {
     insects: '',
     soilph: ''
   });
+
+  useEffect(() => {
+    // Update scan data when field data is available
+    if (fieldData) {
+      setScanData(prev => ({
+        ...prev,
+        location: fieldData.location,
+        weather: fieldData.weather,
+        soil: fieldData.soil,
+        ndvi: fieldData.ndvi
+      }));
+    }
+  }, [fieldData]);
 
   useEffect(() => {
     // Simulate progress updates
@@ -57,15 +74,55 @@ const ScanWizard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const mockApiFeatures = [
-    { icon: MapPin, name: t('scan.gpsLocation', 'GPS Location'), value: 'Nairobi, Kenya', status: 'completed' },
-    { icon: Cloud, name: t('scan.weatherData', 'Weather Data'), value: '24°C, 65% humidity', status: 'completed' },
-    { icon: Beaker, name: t('scan.soilAnalysis', 'Soil Analysis'), value: 'pH 6.5, Medium nutrients', status: 'completed' },
-    { icon: Leaf, name: t('scan.ndviIndex', 'NDVI Index'), value: '0.65 - Healthy vegetation', status: 'completed' },
-    { icon: Thermometer, name: t('scan.temperatureMap', 'Temperature Map'), value: t('scan.fetching', 'Fetching...'), status: 'loading' },
-    { icon: Droplets, name: t('scan.moistureLevels', 'Moisture Levels'), value: t('scan.analyzing', 'Analyzing...'), status: 'loading' },
-    { icon: Bug, name: t('scan.pestDetection', 'Pest Detection'), value: t('scan.scanning', 'Scanning...'), status: 'loading' },
-    { icon: Sprout, name: t('scan.growthPrediction', 'Growth Prediction'), value: t('scan.calculating', 'Calculating...'), status: 'loading' }
+  const realTimeFeatures = [
+    { 
+      icon: MapPin, 
+      name: t('scan.gpsLocation', 'GPS Location'), 
+      value: fieldData?.location?.address || `${fieldData?.location?.lat?.toFixed(4)}, ${fieldData?.location?.lng?.toFixed(4)}` || 'Fetching...', 
+      status: fieldData?.location ? 'completed' : 'loading' 
+    },
+    { 
+      icon: Cloud, 
+      name: t('scan.weatherData', 'Weather Data'), 
+      value: fieldData?.weather ? `${Math.round(fieldData.weather.temp)}°C, ${fieldData.weather.humidity}% humidity` : 'Fetching...', 
+      status: fieldData?.weather ? 'completed' : 'loading' 
+    },
+    { 
+      icon: Beaker, 
+      name: t('scan.soilAnalysis', 'Soil Analysis'), 
+      value: fieldData?.soil ? `pH ${fieldData.soil.ph}, ${fieldData.soil.nutrients} nutrients` : 'Analyzing...', 
+      status: fieldData?.soil ? 'completed' : 'loading' 
+    },
+    { 
+      icon: Leaf, 
+      name: t('scan.ndviIndex', 'NDVI Index'), 
+      value: fieldData?.ndvi ? `${fieldData.ndvi.toFixed(2)} - ${fieldData.ndvi > 0.6 ? 'Healthy' : fieldData.ndvi > 0.3 ? 'Moderate' : 'Poor'} vegetation` : 'Calculating...', 
+      status: fieldData?.ndvi ? 'completed' : 'loading' 
+    },
+    { 
+      icon: Thermometer, 
+      name: t('scan.temperatureMap', 'Temperature Map'), 
+      value: fieldData?.soil?.temperature ? `${fieldData.soil.temperature}°C soil temp` : t('scan.fetching', 'Fetching...'), 
+      status: fieldData?.soil?.temperature ? 'completed' : 'loading' 
+    },
+    { 
+      icon: Droplets, 
+      name: t('scan.moistureLevels', 'Moisture Levels'), 
+      value: fieldData?.soil?.moisture ? `${fieldData.soil.moisture}% moisture` : t('scan.analyzing', 'Analyzing...'), 
+      status: fieldData?.soil?.moisture ? 'completed' : 'loading' 
+    },
+    { 
+      icon: Bug, 
+      name: t('scan.pestDetection', 'Pest Detection'), 
+      value: fieldData?.pestRisk ? `${fieldData.pestRisk.level} risk (${Math.round(fieldData.pestRisk.confidence * 100)}%)` : t('scan.scanning', 'Scanning...'), 
+      status: fieldData?.pestRisk ? 'completed' : 'loading' 
+    },
+    { 
+      icon: Sprout, 
+      name: t('scan.growthPrediction', 'Growth Prediction'), 
+      value: fieldData?.growthPrediction ? `${fieldData.growthPrediction.expectedYield}% yield expected` : t('scan.calculating', 'Calculating...'), 
+      status: fieldData?.growthPrediction ? 'completed' : 'loading' 
+    }
   ];
 
   const handleAssessment = (field: string, value: string) => {
@@ -74,20 +131,60 @@ const ScanWizard = () => {
   };
 
   const handleSubmit = async () => {
-    setIsLoading(true);
-    const analysis = generateAnalysis(scanData);
+    setAnalysisLoading(true);
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Save scan result using localStorage for now
-    localStorage.setItem('lastScanResult', JSON.stringify({
-      ...scanData,
-      analysis,
-      timestamp: new Date().toISOString()
-    }));
+    try {
+      // Call aflatoxin analysis API
+      const { data: aflatoxinAnalysis, error } = await supabase.functions.invoke('analyze-aflatoxin', {
+        body: {
+          fieldData: scanData,
+          userAssessment: {
+            genotype: scanData.genotype,
+            fertilization: scanData.fertilization,
+            irrigation: scanData.irrigation,
+            insects: scanData.insects,
+            soilHealth: scanData.soilph
+          }
+        }
+      });
 
-    navigate('/scan-results', { state: { scanData, analysis } });
+      if (error) throw error;
+
+      const analysis = {
+        ...aflatoxinAnalysis,
+        ...generateAnalysis(scanData),
+        mlPrediction: aflatoxinAnalysis?.riskPrediction || null
+      };
+      
+      // Save scan result
+      localStorage.setItem('lastScanResult', JSON.stringify({
+        ...scanData,
+        analysis,
+        timestamp: new Date().toISOString(),
+        realTimeData: fieldData
+      }));
+
+      navigate('/scan-results', { state: { scanData, analysis } });
+    } catch (error) {
+      console.error('Analysis error:', error);
+      toast({
+        title: "Analysis Error",
+        description: "Failed to complete analysis. Using offline mode.",
+        variant: "destructive",
+      });
+      
+      // Fallback to local analysis
+      const analysis = generateAnalysis(scanData);
+      localStorage.setItem('lastScanResult', JSON.stringify({
+        ...scanData,
+        analysis,
+        timestamp: new Date().toISOString()
+      }));
+      
+      navigate('/scan-results', { state: { scanData, analysis } });
+    } finally {
+      setAnalysisLoading(false);
+    }
   };
 
   const generateAnalysis = (data: typeof scanData) => {
@@ -153,19 +250,30 @@ const ScanWizard = () => {
             <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-4 rounded-lg animate-slide-in-right">
               <p className="text-sm font-medium mb-2">{t('scan.aiGreeting', 'Hello! I\'m your AI farming assistant.')}</p>
               <p className="text-xs text-muted-foreground">
-                {t('scan.aiDescription', 'I\'ll help analyze your field and provide expert recommendations based on 15+ parameters.')}
+                {t('scan.aiDescription', 'I\'ll help analyze your field and provide expert recommendations based on real-time data.')}
               </p>
+              {dataError && (
+                <Badge variant="outline" className="mt-2 text-xs">
+                  Offline Mode - Limited Data
+                </Badge>
+              )}
             </div>
             
             <div className="space-y-3">
               <div className="bg-accent/5 p-3 rounded-lg animate-fade-in" style={{ '--index': 1 } as any}>
                 <p className="text-sm">
-                  {t('scan.aiAdvice1', 'Your soil pH of 6.5 is optimal for most crops. Great work!')}
+                  {fieldData?.soil?.ph 
+                    ? `Your soil pH of ${fieldData.soil.ph} is ${fieldData.soil.ph > 6.0 && fieldData.soil.ph < 7.5 ? 'optimal' : 'needs adjustment'} for most crops.`
+                    : t('scan.aiAdvice1', 'Analyzing your soil conditions for optimal recommendations...')
+                  }
                 </p>
               </div>
               <div className="bg-primary/5 p-3 rounded-lg animate-fade-in" style={{ '--index': 2 } as any}>
                 <p className="text-sm">
-                  {t('scan.aiAdvice2', 'Weather conditions are favorable. Consider adjusting irrigation based on humidity levels.')}
+                  {fieldData?.weather 
+                    ? `Current temperature is ${Math.round(fieldData.weather.temp)}°C with ${fieldData.weather.humidity}% humidity - ${fieldData.weather.humidity > 70 ? 'reduce irrigation' : 'monitor irrigation needs'}.`
+                    : t('scan.aiAdvice2', 'Fetching weather data to optimize your farming strategy...')
+                  }
                 </p>
               </div>
             </div>
@@ -200,7 +308,7 @@ const ScanWizard = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-3 mb-6">
-              {mockApiFeatures.map((feature, index) => (
+              {realTimeFeatures.map((feature, index) => (
                 <div 
                   key={index}
                   className={`p-3 rounded-lg border transition-all duration-500 hover-scale animate-fade-in ${
@@ -331,20 +439,20 @@ const ScanWizard = () => {
             )}
 
             {step > 5 && (
-              <Button
+            <Button
                 onClick={handleSubmit}
-                disabled={isLoading}
+                disabled={analysisLoading || dataLoading}
                 className="w-full bg-gradient-to-r from-success to-success/80 hover:from-success/90 hover:to-success text-white hover-glow animate-scale-in"
               >
-                {isLoading ? (
+                {analysisLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    {t('scan.analyzing', 'Analyzing...')}
+                    {t('scan.analyzing', 'Running ML Analysis...')}
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 mr-2" />
-                    {t('scan.complete', 'Complete Analysis')}
+                    {t('scan.complete', 'Complete AI Analysis')}
                   </>
                 )}
               </Button>

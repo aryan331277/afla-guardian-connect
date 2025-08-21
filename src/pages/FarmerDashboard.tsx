@@ -8,7 +8,8 @@ import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
-import { MessageCircle, Scan, Users, Crown, Settings, Sun, Moon, Palette, User as ProfileIcon } from 'lucide-react';
+import { useRealTimeData } from '@/hooks/useRealTimeData';
+import { MessageCircle, Scan, Users, Crown, Settings, Sun, Moon, Palette, User as ProfileIcon, RefreshCw, Zap } from 'lucide-react';
 
 const FarmerDashboard = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const FarmerDashboard = () => {
   const { theme, toggleTheme } = useTheme();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { fieldData, userStats, isLoading: dataLoading, error: dataError, refetch, retryCount } = useRealTimeData();
 
   useEffect(() => {
     loadUserData();
@@ -80,7 +82,14 @@ const FarmerDashboard = () => {
                 </svg>
               </button>
             </h1>
-            <p className="text-muted-foreground">Welcome back, {user?.currentTier || 'Farmer'}!</p>
+            <p className="text-muted-foreground">
+              Welcome back, {userStats?.tier || user?.currentTier || 'Farmer'}!
+              {dataError && (
+                <span className="ml-2 text-warning text-sm">
+                  (Offline mode - {retryCount > 0 ? `Retrying ${retryCount}/${3}` : 'Limited features'})
+                </span>
+              )}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -90,6 +99,16 @@ const FarmerDashboard = () => {
               className="p-2 hover-scale"
             >
               <ProfileIcon className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={refetch}
+              disabled={dataLoading}
+              className="p-2 hover-scale relative"
+            >
+              <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
+              {dataError && <div className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full"></div>}
             </Button>
             <Button
               variant="ghost"
@@ -108,20 +127,32 @@ const FarmerDashboard = () => {
         <div className="grid grid-cols-3 gap-4 mb-6 stagger-animation">
           <Card className="text-center hover-scale animate-bounce-in" style={{ '--index': 0 } as any}>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-primary animate-float">{user?.gamificationPoints || 0}</div>
-              <div className="text-sm text-muted-foreground">{t('game.points', 'Points')}</div>
+              <div className="text-2xl font-bold text-primary animate-float">
+                {dataLoading ? (
+                  <div className="animate-pulse bg-muted rounded h-8 w-16"></div>
+                ) : (
+                  userStats?.totalPoints || user?.gamificationPoints || 0
+                )}
+              </div>
+            <div className="text-sm text-muted-foreground">{t('game.points', 'Points')}</div>
             </CardContent>
           </Card>
           <Card className="text-center hover-scale animate-bounce-in" style={{ '--index': 1 } as any}>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-accent animate-pulse">{user?.scanStreak || 0}</div>
+              <div className="text-2xl font-bold text-accent animate-pulse">
+                {dataLoading ? (
+                  <div className="animate-pulse bg-muted rounded h-8 w-16"></div>
+                ) : (
+                  userStats?.scanStreak || user?.scanStreak || 0
+                )}
+              </div>
               <div className="text-sm text-muted-foreground">{t('game.streak', 'Day Streak')}</div>
             </CardContent>
           </Card>
           <Card className="text-center hover-scale animate-bounce-in" style={{ '--index': 2 } as any}>
             <CardContent className="p-4">
               <Badge variant="secondary" className="text-xs animate-wiggle">
-                {user?.currentTier || 'Curious Scout'}
+                {dataLoading ? "Loading..." : (userStats?.tier || user?.currentTier || 'Curious Scout')}
               </Badge>
             </CardContent>
           </Card>
