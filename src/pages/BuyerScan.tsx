@@ -162,19 +162,22 @@ const BuyerScan = () => {
       const currentUser = authService.getCurrentUser();
       if (!currentUser) return;
 
-      // TODO: Re-enable after types are updated
       // Save to buyer scans table
-      console.log('Would save scan results:', {
-        buyer_id: currentUser.id,
-        aflatoxin_detected: aflatoxinPresent,
-        confidence_score: confidence,
-        risk_score: riskScore,
-        risk_level: riskLevel,
-        storage_condition: answers.storage,
-        transport_condition: answers.transport,
-        environment_condition: answers.environment,
-        image_data: capturedImage
-      });
+      const { data, error } = await supabase
+        .from('buyer_scans')
+        .insert({
+          buyer_id: currentUser.id,
+          aflatoxin_detected: aflatoxinPresent,
+          confidence_score: confidence,
+          risk_score: riskScore,
+          risk_level: riskLevel,
+          storage_condition: answers.storage,
+          transport_condition: answers.transport,
+          environment_condition: answers.environment,
+          image_data: capturedImage
+        });
+
+      if (error) throw error;
 
       // Update gamification points
       await updateBuyerPoints(currentUser.id, scanResults?.points || 1);
@@ -186,8 +189,14 @@ const BuyerScan = () => {
 
   const updateBuyerPoints = async (buyerId: string, points: number) => {
     try {
-      // TODO: Re-enable after types are updated
-      console.log('Would update buyer points:', { buyerId, points });
+      const { error } = await supabase.rpc('update_buyer_gamification', {
+        buyer_id: buyerId,
+        points_to_add: points
+      });
+
+      if (error) {
+        console.error('Gamification update error:', error);
+      }
     } catch (error) {
       console.error('Error updating points:', error);
     }
