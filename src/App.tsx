@@ -65,7 +65,7 @@ const AppContent = () => {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <AdBanner />
+        
       </BrowserRouter>
     </div>
   );
