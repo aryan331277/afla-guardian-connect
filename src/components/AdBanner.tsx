@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DatabaseService } from '@/lib/database';
+// Removed DatabaseService import - not needed for current implementation
 import { X } from 'lucide-react';
 
 const AdBanner = () => {
@@ -12,11 +12,10 @@ const AdBanner = () => {
 
   const checkUpgradeStatus = async () => {
     try {
-      const user = await DatabaseService.getCurrentUser();
-      if (user?.hasUpgraded) {
-        setHasUpgraded(true);
-        setShowAd(false);
-      }
+      // For now, assume all users see ads since upgrade feature not implemented
+      // In future, this could check authService for user upgrade status
+      setHasUpgraded(false);
+      setShowAd(true);
     } catch (error) {
       console.error('Error checking upgrade status:', error);
     }

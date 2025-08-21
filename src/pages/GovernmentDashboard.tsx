@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatabaseService, User, RiskLevel } from '@/lib/database';
+import { User, RiskLevel } from '@/lib/database';
+import { authService } from '@/lib/auth';
 import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
 import { useTheme } from '@/hooks/useTheme';
@@ -56,16 +57,28 @@ const GovernmentDashboard = () => {
 
   const loadUserData = async () => {
     try {
-      const userData = await DatabaseService.getCurrentUser();
-      if (!userData || userData.role !== 'government') {
-        navigate('/language');
-        return;
+      // AuthGuard already ensures user is authenticated with correct role
+      const currentUser = authService.getCurrentUser();
+      if (currentUser) {
+        // Convert FarmerUser to User format for compatibility
+        const userData: User = {
+          phone: currentUser.phone_number,
+          role: currentUser.role as any,
+          language: 'en' as any,
+          theme: 'light' as any,
+          hasUpgraded: false,
+          createdAt: new Date(currentUser.created_at),
+          lastSeen: new Date(),
+          gamificationPoints: 0,
+          scanStreak: 0,
+          currentTier: 'Government Official',
+          badges: []
+        };
+        
+        setUser(userData);
       }
-      setUser(userData);
-      await DatabaseService.updateUserActivity(userData.id!);
     } catch (error) {
       console.error('Error loading user data:', error);
-      navigate('/language');
     } finally {
       setIsLoading(false);
     }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { db, DatabaseService } from '@/lib/database';
+import { authService } from '@/lib/auth';
 
 const SplashScreen = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ const SplashScreen = () => {
     // Check if user exists after 2 seconds
     const timer = setTimeout(async () => {
       try {
-        const user = await DatabaseService.getCurrentUser();
+        const user = await authService.checkSession();
         if (user) {
           // User exists, go to their dashboard
           navigate(`/${user.role}`);

@@ -26,6 +26,7 @@ import Chat from "./pages/Chat";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 import AdBanner from "./components/AdBanner";
+import AuthGuard from "./components/AuthGuard";
 
 const queryClient = new QueryClient();
 
@@ -49,18 +50,18 @@ const AppContent = () => {
           <Route path="/auth" element={<PhoneAuth />} />
           <Route path="/splash" element={<SplashScreen />} />
           <Route path="/role" element={<RoleSelection />} />
-          <Route path="/farmer" element={<FarmerDashboard />} />
-          <Route path="/profile" element={<FarmerProfile />} />
-          <Route path="/scan-history" element={<ScanHistory />} />
-          <Route path="/insights-history" element={<InsightsHistory />} />
-          <Route path="/buyer" element={<BuyerDashboard />} />
-          <Route path="/government" element={<GovernmentDashboard />} />
-          <Route path="/scan" element={<ScanWizard />} />
-          <Route path="/scan-results" element={<ScanResults />} />
-          <Route path="/buyer-scan" element={<BuyerScan />} />
-          <Route path="/community" element={<Community />} />
-          <Route path="/upgrade" element={<UpgradePlan />} />
-          <Route path="/chat" element={<Chat />} />
+          <Route path="/farmer" element={<AuthGuard requiredRole="farmer"><FarmerDashboard /></AuthGuard>} />
+          <Route path="/profile" element={<AuthGuard><FarmerProfile /></AuthGuard>} />
+          <Route path="/scan-history" element={<AuthGuard><ScanHistory /></AuthGuard>} />
+          <Route path="/insights-history" element={<AuthGuard><InsightsHistory /></AuthGuard>} />
+          <Route path="/buyer" element={<AuthGuard requiredRole="buyer"><BuyerDashboard /></AuthGuard>} />
+          <Route path="/government" element={<AuthGuard requiredRole="government"><GovernmentDashboard /></AuthGuard>} />
+          <Route path="/scan" element={<AuthGuard><ScanWizard /></AuthGuard>} />
+          <Route path="/scan-results" element={<AuthGuard><ScanResults /></AuthGuard>} />
+          <Route path="/buyer-scan" element={<AuthGuard><BuyerScan /></AuthGuard>} />
+          <Route path="/community" element={<AuthGuard><Community /></AuthGuard>} />
+          <Route path="/upgrade" element={<AuthGuard><UpgradePlan /></AuthGuard>} />
+          <Route path="/chat" element={<AuthGuard><Chat /></AuthGuard>} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

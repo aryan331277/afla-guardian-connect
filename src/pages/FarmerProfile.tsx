@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { DatabaseService, User } from '@/lib/database';
+import { User } from '@/lib/database';
 import { authService, FarmerUser } from '@/lib/auth';
 import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
@@ -24,16 +24,28 @@ const FarmerProfile = () => {
 
   const loadUserData = async () => {
     try {
-      const userData = await DatabaseService.getCurrentUser();
+      // AuthGuard already ensures user is authenticated
       const authUser = authService.getCurrentUser();
       
-      if (!userData || !authUser) {
-        navigate('/auth');
-        return;
+      if (authUser) {
+        // Convert FarmerUser to User format for compatibility
+        const userData: User = {
+          phone: authUser.phone_number,
+          role: authUser.role as any,
+          language: 'en' as any,
+          theme: 'light' as any,
+          hasUpgraded: false,
+          createdAt: new Date(authUser.created_at),
+          lastSeen: new Date(),
+          gamificationPoints: 0,
+          scanStreak: 0,
+          currentTier: 'Curious Scout',
+          badges: []
+        };
+        
+        setUser(userData);
+        setFarmerUser(authUser);
       }
-      
-      setUser(userData);
-      setFarmerUser(authUser);
     } catch (error) {
       console.error('Error loading user data:', error);
       navigate('/auth');
