@@ -2,44 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
-/* AflaGuard Design System - Female-focused agricultural protection app */
+/* AflaGuard Pro - Professional Agricultural Intelligence Platform */
 
 @layer base {
   :root {
-    /* Core AflaGuard brand colors */
-    --background: 118 25% 97%;
-    --foreground: 139 30% 15%;
+    /* Professional dark navy theme */
+    --background: 210 20% 98%;
+    --foreground: 210 15% 12%;
 
-    /* Agricultural green primary palette */
-    --primary: 139 60% 35%;
-    --primary-foreground: 118 25% 97%;
-    --primary-light: 139 50% 55%;
-    --primary-dark: 139 70% 25%;
+    /* Primary deep forest green */
+    --primary: 158 64% 30%;
+    --primary-foreground: 0 0% 98%;
+    --primary-light: 158 50% 45%;
+    --primary-dark: 158 75% 20%;
 
-    /* Secondary earth tones */
-    --secondary: 25 30% 85%;
-    --secondary-foreground: 139 30% 15%;
+    /* Professional gray secondary */
+    --secondary: 210 15% 85%;
+    --secondary-foreground: 210 15% 12%;
 
-    /* Accent colors - warm feminine touch */
-    --accent: 340 50% 65%;
-    --accent-foreground: 118 25% 97%;
+    /* Gold accent for premium feel */
+    --accent: 45 90% 55%;
+    --accent-foreground: 210 15% 12%;
 
-    /* UI elements */
-    --card: 118 25% 99%;
-    --card-foreground: 139 30% 15%;
+    /* Professional UI elements */
+    --card: 0 0% 100%;
+    --card-foreground: 210 15% 12%;
     
-    --popover: 118 25% 99%;
-    --popover-foreground: 139 30% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 15% 12%;
 
-    --muted: 118 15% 92%;
-    --muted-foreground: 139 20% 45%;
+    --muted: 210 15% 95%;
+    --muted-foreground: 210 10% 50%;
 
-    --destructive: 0 65% 55%;
-    --destructive-foreground: 118 25% 97%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 118 20% 88%;
-    --input: 118 20% 88%;
-    --ring: 139 60% 35%;
+    --border: 210 20% 90%;
+    --input: 210 20% 96%;
+    --ring: 158 64% 30%;
 
     /* Gamification colors */
     --success: 139 60% 45%;
@@ -76,35 +76,35 @@
   }
 
   .dark {
-    --background: 139 15% 8%;
-    --foreground: 118 25% 95%;
+    --background: 210 30% 8%;
+    --foreground: 210 10% 95%;
 
-    --primary: 139 50% 55%;
-    --primary-foreground: 139 15% 8%;
-    --primary-light: 139 40% 65%;
-    --primary-dark: 139 60% 45%;
+    --primary: 158 45% 45%;
+    --primary-foreground: 210 30% 8%;
+    --primary-light: 158 35% 55%;
+    --primary-dark: 158 55% 35%;
 
-    --secondary: 25 15% 20%;
-    --secondary-foreground: 118 25% 95%;
+    --secondary: 210 20% 15%;
+    --secondary-foreground: 210 10% 95%;
 
-    --accent: 340 40% 55%;
-    --accent-foreground: 139 15% 8%;
+    --accent: 45 80% 60%;
+    --accent-foreground: 210 30% 8%;
 
-    --card: 139 15% 12%;
-    --card-foreground: 118 25% 95%;
+    --card: 210 25% 12%;
+    --card-foreground: 210 10% 95%;
 
-    --popover: 139 15% 12%;
-    --popover-foreground: 118 25% 95%;
+    --popover: 210 25% 12%;
+    --popover-foreground: 210 10% 95%;
 
-    --muted: 139 10% 18%;
-    --muted-foreground: 118 15% 65%;
+    --muted: 210 20% 18%;
+    --muted-foreground: 210 10% 65%;
 
-    --destructive: 0 55% 50%;
-    --destructive-foreground: 118 25% 95%;
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 210 10% 95%;
 
-    --border: 139 10% 22%;
-    --input: 139 10% 22%;
-    --ring: 139 50% 55%;
+    --border: 210 20% 22%;
+    --input: 210 20% 22%;
+    --ring: 158 45% 45%;
 
     --success: 139 50% 50%;
     --warning: 45 75% 60%;

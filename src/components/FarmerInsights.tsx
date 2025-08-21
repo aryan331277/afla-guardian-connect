@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocationData } from '@/hooks/useLocationData';
 import { authService } from '@/lib/auth';
+import RiskAnalysis from './RiskAnalysis';
 import { 
   Leaf, 
   Droplets, 
@@ -26,6 +27,7 @@ const FarmerInsights = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showRiskAnalysis, setShowRiskAnalysis] = useState(false);
   
   // Manual farmer inputs (qualitative ratings)
   const [soilHealth, setSoilHealth] = useState<'excellent' | 'average' | 'poor'>('average');
@@ -197,16 +199,36 @@ const FarmerInsights = () => {
     }
   };
 
+  if (showRiskAnalysis) {
+    return (
+      <RiskAnalysis
+        insights={{
+          soilHealth,
+          waterAvailability,
+          pestStatus,
+          fertilizationStatus,
+          gpsLocation: location ? { latitude: location.latitude, longitude: location.longitude } : undefined,
+          weather: weather ? { temperature: weather.temperature, humidity: weather.humidity } : undefined,
+          ndvi: ndvi ? { value: typeof ndvi.value === 'string' ? parseFloat(ndvi.value) : ndvi.value } : undefined,
+          soilMoisture: soilMoisture ? { moistureLevel: soilMoisture.moistureLevel } : undefined
+        }}
+        onClose={() => setShowRiskAnalysis(false)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Farm Insights Dashboard</h2>
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
+          Farm Intelligence Dashboard
+        </h2>
         <div className="flex items-center gap-2">
           <Button 
             onClick={refresh}
             variant="outline"
             disabled={dataLoading}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 hover:bg-primary/5 border-primary/20"
           >
             <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
             Refresh Data
@@ -214,7 +236,7 @@ const FarmerInsights = () => {
           <Button 
             onClick={saveInsights}
             disabled={isLoading || !hasUnsavedChanges}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary shadow-lg"
           >
             {isLoading ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
@@ -222,6 +244,13 @@ const FarmerInsights = () => {
               <Save className="w-4 h-4" />
             )}
             Save Insights
+          </Button>
+          <Button 
+            onClick={() => setShowRiskAnalysis(true)}
+            className="flex items-center gap-2 bg-gradient-to-r from-accent to-accent/80 text-accent-foreground hover:from-accent/90 hover:to-accent/70 shadow-lg font-semibold"
+          >
+            <Activity className="w-4 h-4" />
+            Analyse Risk
           </Button>
         </div>
       </div>

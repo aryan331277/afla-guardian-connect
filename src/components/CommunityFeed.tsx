@@ -222,95 +222,123 @@ const CommunityFeed = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
-              Community Forum
+      {/* Professional Header */}
+      <Card className="bg-gradient-to-r from-primary/10 via-card to-accent/10 border-primary/20 shadow-lg">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-dark rounded-xl flex items-center justify-center shadow-lg">
+                <Users className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
+                  Professional Network
+                </h2>
+                <p className="text-sm text-muted-foreground font-medium">Agricultural Intelligence Community</p>
+              </div>
             </div>
             <Button 
-              size="sm" 
               onClick={() => setShowNewPost(true)}
-              className="hover:scale-105 transition-transform"
+              className="flex items-center gap-2 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary shadow-lg"
             >
-              <Plus className="w-4 h-4 mr-1" />
-              New Post
+              <Plus className="w-4 h-4" />
+              Share Insight
             </Button>
-          </CardTitle>
-        </CardHeader>
-        {!showNewPost && (
-          <CardContent>
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="font-bold text-primary">2.3k</p>
-                <p className="text-xs text-muted-foreground">Active Today</p>
+          </div>
+
+          {!showNewPost && (
+            <div className="grid grid-cols-4 gap-4 text-center">
+              <div className="p-3 bg-gradient-to-br from-card to-primary/5 rounded-lg border border-primary/20 shadow-sm">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Users className="w-4 h-4 text-primary" />
+                  <span className="font-bold text-primary">2.3k</span>
+                </div>
+                <p className="text-xs text-muted-foreground font-medium">Active Today</p>
               </div>
-              <div>
-                <p className="font-bold text-primary">15k</p>
-                <p className="text-xs text-muted-foreground">Posts</p>
+              <div className="p-3 bg-gradient-to-br from-card to-blue-500/5 rounded-lg border border-blue-200 shadow-sm">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <MessageCircle className="w-4 h-4 text-blue-600" />
+                  <span className="font-bold text-blue-600">487</span>
+                </div>
+                <p className="text-xs text-muted-foreground font-medium">New Posts</p>
               </div>
-              <div>
-                <p className="font-bold text-primary">8.9k</p>
-                <p className="text-xs text-muted-foreground">Solutions</p>
+              <div className="p-3 bg-gradient-to-br from-card to-red-500/5 rounded-lg border border-red-200 shadow-sm">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Heart className="w-4 h-4 text-red-500" />
+                  <span className="font-bold text-red-500">1.2k</span>
+                </div>
+                <p className="text-xs text-muted-foreground font-medium">Interactions</p>
+              </div>
+              <div className="p-3 bg-gradient-to-br from-card to-green-500/5 rounded-lg border border-green-200 shadow-sm">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <TrendingUp className="w-4 h-4 text-green-600" />
+                  <span className="font-bold text-green-600">95%</span>
+                </div>
+                <p className="text-xs text-muted-foreground font-medium">Success Rate</p>
               </div>
             </div>
-          </CardContent>
-        )}
+          )}
+        </CardContent>
       </Card>
 
-      {/* New Post Form */}
+      {/* Professional New Post Form */}
       {showNewPost && (
-        <Card className="border-primary/20">
-          <CardHeader>
+        <Card className="border-primary/20 shadow-xl bg-gradient-to-br from-card to-primary/5">
+          <CardHeader className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-t-lg">
             <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Share with the Community
-              <button
-                onClick={() => handleSpeak('Share your farming experience, ask questions, or give advice to help other farmers.')}
-                className="p-1 rounded-full hover:bg-accent transition-colors"
-              >
-                <svg className="w-4 h-4 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
-                </svg>
-              </button>
+              <MessageCircle className="w-5 h-5 text-primary" />
+              <span className="bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
+                Share Professional Insight
+              </span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 p-6">
             <Textarea
-              placeholder="Share your farming experience, ask questions, or give advice..."
+              placeholder="Share your agricultural expertise, insights, or questions with the professional community..."
               value={newPostContent}
               onChange={(e) => setNewPostContent(e.target.value)}
-              className="min-h-[100px]"
+              className="min-h-[120px] resize-none border-primary/20 focus:border-primary/40 shadow-sm"
             />
-            <div className="flex gap-2">
-              <Button onClick={createPost} className="hover:scale-105 transition-transform">
-                Post
-              </Button>
-              <Button variant="outline" onClick={() => setShowNewPost(false)}>
-                Cancel
-              </Button>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground font-medium">
+                Sharing with {posts.length > 0 ? '2,300+' : '2,299'} agricultural professionals
+              </p>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowNewPost(false)}
+                  className="border-primary/20 hover:bg-primary/5"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={createPost}
+                  className="flex items-center gap-2 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary shadow-lg"
+                >
+                  <Plus className="w-4 h-4" />
+                  Share Insight
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Posts Feed */}
+      {/* Professional Posts Feed */}
       <div className="space-y-4">
         {posts.map((post) => (
-          <Card key={post.id} className="hover:shadow-md transition-shadow">
+          <Card key={post.id} className="hover:shadow-xl transition-all duration-300 border-primary/20 bg-gradient-to-br from-card to-primary/5">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-bold text-primary">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-dark rounded-full flex items-center justify-center shadow-md">
+                    <span className="text-sm font-bold text-primary-foreground">
                       {post.author?.full_name?.charAt(0) || 'F'}
                     </span>
                   </div>
                   <div>
-                    <p className="font-medium text-sm">{post.author?.full_name || 'Farmer'}</p>
-                    <p className="text-xs text-muted-foreground">{formatTime(post.created_at)}</p>
+                    <p className="font-semibold text-sm">{post.author?.full_name || 'Agricultural Professional'}</p>
+                    <p className="text-xs text-muted-foreground font-medium">{formatTime(post.created_at)}</p>
                   </div>
                 </div>
                 {post.is_owner && (
@@ -318,7 +346,7 @@ const CommunityFeed = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => deletePost(post.id)}
-                    className="text-destructive hover:bg-destructive/10"
+                    className="text-destructive hover:bg-destructive/10 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -326,22 +354,22 @@ const CommunityFeed = () => {
               </div>
             </CardHeader>
             <CardContent className="pt-0">
-              <p className="text-sm mb-4">{post.content}</p>
+              <p className="text-sm mb-4 leading-relaxed">{post.content}</p>
               <div className="flex items-center gap-4">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => toggleLike(post.id)}
-                  className={`hover:scale-105 transition-transform ${post.is_liked ? 'text-red-500' : 'text-muted-foreground'}`}
+                  className={`hover:scale-105 transition-all duration-200 ${post.is_liked ? 'text-red-500 bg-red-50' : 'text-muted-foreground hover:text-red-500'}`}
                 >
                   <Heart className={`w-4 h-4 mr-1 ${post.is_liked ? 'fill-current' : ''}`} />
-                  {post.likes_count}
+                  <span className="font-medium">{post.likes_count}</span>
                 </Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:scale-105 transition-transform">
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:scale-105 transition-all duration-200 hover:text-blue-500">
                   <MessageCircle className="w-4 h-4 mr-1" />
-                  {post.replies_count}
+                  <span className="font-medium">{post.replies_count}</span>
                 </Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:scale-105 transition-transform">
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:scale-105 transition-all duration-200 hover:text-green-500">
                   <Share className="w-4 h-4 mr-1" />
                   Share
                 </Button>
@@ -351,12 +379,15 @@ const CommunityFeed = () => {
         ))}
       </div>
 
-      {/* View More Button */}
-      <Card className="border-dashed">
+      {/* Professional View More Button */}
+      <Card className="border-dashed border-primary/30 bg-gradient-to-r from-primary/5 to-accent/5">
         <CardContent className="p-6 text-center">
-          <Button variant="outline" className="w-full hover:scale-105 transition-transform">
+          <Button 
+            variant="outline" 
+            className="w-full hover:scale-105 transition-all duration-300 border-primary/30 hover:bg-primary/10 hover:border-primary/50"
+          >
             <TrendingUp className="w-4 h-4 mr-2" />
-            View More Posts
+            Explore More Professional Insights
             <ChevronRight className="w-4 h-4 ml-2" />
           </Button>
         </CardContent>
