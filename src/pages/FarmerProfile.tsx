@@ -8,7 +8,7 @@ import { User } from '@/lib/database';
 import { authService, FarmerUser } from '@/lib/auth';
 import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
-import { useRealTimeData } from '@/hooks/useRealTimeData';
+// Removed useRealTimeData import - using location-based data now
 import { ArrowLeft, User as UserIcon, Phone, Calendar, Trophy, Scan, MessageSquare, Edit, RefreshCw } from 'lucide-react';
 
 const FarmerProfile = () => {
@@ -16,7 +16,7 @@ const FarmerProfile = () => {
   const [user, setUser] = useState<User | null>(null);
   const [farmerUser, setFarmerUser] = useState<FarmerUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { userStats, isLoading: statsLoading, error: statsError, refetch } = useRealTimeData();
+  // TODO: Replace with location-based stats when needed
 
   useEffect(() => {
     loadUserData();
@@ -121,7 +121,7 @@ const FarmerProfile = () => {
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-primary">{farmerUser?.full_name}</h2>
                 <Badge variant="secondary" className="mt-1">
-                  {userStats?.tier || user?.currentTier || 'Curious Scout'}
+                  {user?.currentTier || 'Professional Farmer'}
                 </Badge>
                 <div className="flex items-center gap-2 mt-2 text-muted-foreground">
                   <Phone className="w-4 h-4" />
@@ -129,17 +129,6 @@ const FarmerProfile = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={refetch}
-                  disabled={statsLoading}
-                  className="relative"
-                >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${statsLoading ? 'animate-spin' : ''}`} />
-                  Sync
-                  {statsError && <div className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full"></div>}
-                </Button>
                 <Button variant="outline" size="sm">
                   <Edit className="w-4 h-4 mr-2" />
                   Edit
@@ -155,11 +144,7 @@ const FarmerProfile = () => {
             <CardContent className="p-4">
               <Trophy className="w-8 h-8 mx-auto mb-2 text-primary animate-bounce" />
               <div className="text-2xl font-bold text-primary animate-pulse">
-                {statsLoading ? (
-                  <div className="animate-pulse bg-muted rounded h-8 w-16"></div>
-                ) : (
-                  userStats?.totalPoints || user?.gamificationPoints || 0
-                )}
+                {user?.gamificationPoints || 0}
               </div>
               <div className="text-sm text-muted-foreground">Total Points</div>
             </CardContent>
@@ -169,11 +154,7 @@ const FarmerProfile = () => {
             <CardContent className="p-4">
               <Scan className="w-8 h-8 mx-auto mb-2 text-accent animate-bounce" style={{ animationDelay: '100ms' }} />
               <div className="text-2xl font-bold text-accent animate-pulse">
-                {statsLoading ? (
-                  <div className="animate-pulse bg-muted rounded h-8 w-16"></div>
-                ) : (
-                  userStats?.scanStreak || user?.scanStreak || 0
-                )}
+                {user?.scanStreak || 0}
               </div>
               <div className="text-sm text-muted-foreground">Day Streak</div>
             </CardContent>
@@ -216,13 +197,7 @@ const FarmerProfile = () => {
                 <span>Past Scans</span>
               </div>
               <div className="text-right">
-                <div className="font-semibold">
-                  {statsLoading ? (
-                    <div className="animate-pulse bg-muted rounded h-5 w-8"></div>
-                  ) : (
-                    userStats?.totalScans || 0
-                  )}
-                </div>
+                <div className="font-semibold">0</div>
                 <div className="text-sm text-muted-foreground">Total scans</div>
               </div>
             </div>
@@ -233,13 +208,7 @@ const FarmerProfile = () => {
                 <span>Community Contributions</span>
               </div>
               <div className="text-right">
-                <div className="font-semibold">
-                  {statsLoading ? (
-                    <div className="animate-pulse bg-muted rounded h-5 w-8"></div>
-                  ) : (
-                    userStats?.communityPosts || 0
-                  )}
-                </div>
+                <div className="font-semibold">0</div>
                 <div className="text-sm text-muted-foreground">Posts & comments</div>
               </div>
             </div>
@@ -250,13 +219,7 @@ const FarmerProfile = () => {
                 <span>Insights Generated</span>
               </div>
               <div className="text-right">
-                <div className="font-semibold">
-                  {statsLoading ? (
-                    <div className="animate-pulse bg-muted rounded h-5 w-8"></div>
-                  ) : (
-                    userStats?.insightsGenerated || 0
-                  )}
-                </div>
+                <div className="font-semibold">0</div>
                 <div className="text-sm text-muted-foreground">AI insights received</div>
               </div>
             </div>

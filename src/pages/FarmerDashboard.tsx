@@ -3,14 +3,27 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { User } from '@/lib/database';
 import { authService } from '@/lib/auth';
 import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
-import { useRealTimeData } from '@/hooks/useRealTimeData';
-import { MessageCircle, Scan, Users, Crown, Settings, Sun, Moon, Palette, User as ProfileIcon, RefreshCw, Zap } from 'lucide-react';
+import { useLocationData } from '@/hooks/useLocationData';
+import { 
+  MapPin, 
+  Thermometer, 
+  Droplets, 
+  Leaf, 
+  RefreshCw, 
+  AlertTriangle,
+  CheckCircle,
+  WifiOff,
+  Scan,
+  BarChart3,
+  Settings
+} from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
 
 const FarmerDashboard = () => {
@@ -19,7 +32,20 @@ const FarmerDashboard = () => {
   const { theme, toggleTheme } = useTheme();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { fieldData, userStats, isLoading: dataLoading, error: dataError, refetch, retryCount } = useRealTimeData();
+  
+  const {
+    location,
+    weather,
+    ndvi,
+    soilMoisture,
+    isLoading: dataLoading,
+    error: dataError,
+    permissionStatus,
+    retry,
+    refresh,
+    canRetry,
+    hasData
+  } = useLocationData();
 
   useEffect(() => {
     loadUserData();
@@ -41,7 +67,7 @@ const FarmerDashboard = () => {
           lastSeen: new Date(),
           gamificationPoints: 0,
           scanStreak: 0,
-          currentTier: 'Curious Scout',
+          currentTier: 'Professional Farmer',
           badges: []
         };
         
@@ -59,15 +85,21 @@ const FarmerDashboard = () => {
     navigate(path);
   };
 
-  const handleSpeak = async (text: string) => {
-    await ttsService.speak(text, user?.language || 'en');
-  };
-
   const getThemeIcon = () => {
     switch (theme) {
-      case 'dark': return <Moon className="w-4 h-4" />;
-      case 'colorblind': return <Palette className="w-4 h-4" />;
-      default: return <Sun className="w-4 h-4" />;
+      case 'light': return <Thermometer className="w-4 h-4" />;
+      case 'dark': return <Droplets className="w-4 h-4" />;
+      default: return <Leaf className="w-4 h-4" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'excellent': case 'optimal': return 'bg-green-500';
+      case 'good': case 'favorable': return 'bg-blue-500';
+      case 'fair': case 'moderate': return 'bg-yellow-500';
+      case 'poor': case 'dry': case 'very dry': return 'bg-orange-500';
+      default: return 'bg-red-500';
     }
   };
 
@@ -80,197 +112,292 @@ const FarmerDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
       {/* Header */}
-      <div className="bg-card border-b p-4 animate-slide-in">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-primary flex items-center gap-2 animate-fade-in">
-              {t('dashboard.title', 'Dashboard')}
-              <button
-                onClick={() => handleSpeak('Welcome to your farmer dashboard')}
-                className="p-1 rounded-full hover:bg-accent transition-colors"
-              >
-                <svg className="w-5 h-5 text-voice-inactive" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
-                </svg>
-              </button>
-            </h1>
-            <p className="text-muted-foreground">
-              Welcome back, {userStats?.tier || user?.currentTier || 'Farmer'}!
-              {dataError && (
-                <span className="ml-2 text-warning text-sm">
-                  (Offline mode - {retryCount > 0 ? `Retrying ${retryCount}/${3}` : 'Limited features'})
-                </span>
+      <header className="bg-card/80 backdrop-blur-sm border-b sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-sm">AG</span>
+                </div>
+                <h1 className="text-xl font-bold text-foreground">AflaGuard Pro</h1>
+              </div>
+              {user && (
+                <Badge variant="outline" className="text-xs">
+                  {user.currentTier}
+                </Badge>
               )}
-            </p>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={refresh}
+                disabled={dataLoading}
+                className="hover:bg-muted"
+              >
+                <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleTheme}
+                className="hover:bg-muted"
+              >
+                {getThemeIcon()}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/settings')}
+                className="hover:bg-muted"
+              >
+                <Settings className="w-4 h-4" />
+              </Button>
+              <LogoutButton />
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/profile')}
-              className="p-2 hover-scale"
-            >
-              <ProfileIcon className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={refetch}
-              disabled={dataLoading}
-              className="p-2 hover-scale relative"
-            >
-              <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
-              {dataError && <div className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full"></div>}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleTheme}
-              className="p-2 hover-scale"
-            >
-              {getThemeIcon()}
-            </Button>
-            <LogoutButton />
-          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Gamification Stats */}
-      <div className="p-4">
-        <div className="grid grid-cols-3 gap-4 mb-6 stagger-animation">
-          <Card className="text-center hover-scale animate-bounce-in" style={{ '--index': 0 } as any}>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-primary animate-float">
-                {dataLoading ? (
-                  <div className="animate-pulse bg-muted rounded h-8 w-16"></div>
-                ) : (
-                  userStats?.totalPoints || user?.gamificationPoints || 0
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Location Status */}
+        <div className="mb-8">
+          <Card className="border-l-4 border-l-primary">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <MapPin className="w-5 h-5 text-primary" />
+                  <div>
+                    <h3 className="font-medium">Location Status</h3>
+                    {location ? (
+                      <p className="text-sm text-muted-foreground">
+                        {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+                        <span className="ml-2 text-xs">
+                          (±{location.accuracy.toFixed(0)}m accuracy)
+                        </span>
+                      </p>
+                    ) : (
+                      <p className="text-sm text-destructive">Location not available</p>
+                    )}
+                  </div>
+                </div>
+                {hasData && <CheckCircle className="w-5 h-5 text-green-500" />}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Error Handling */}
+        {dataError && (
+          <Alert className="mb-8 border-destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription className="flex items-center justify-between">
+              <span>{dataError}</span>
+              {canRetry && (
+                <Button variant="outline" size="sm" onClick={retry}>
+                  Retry
+                </Button>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Permission Status */}
+        {permissionStatus === 'denied' && (
+          <Alert className="mb-8 border-yellow-500">
+            <WifiOff className="h-4 w-4" />
+            <AlertDescription>
+              Location access is required for accurate agricultural data. Please enable location permissions in your browser settings.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Data Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+          {/* Weather Card */}
+          <Card className="hover:shadow-lg transition-shadow duration-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between text-base">
+                <div className="flex items-center space-x-2">
+                  <Thermometer className="w-5 h-5 text-blue-500" />
+                  <span>Weather Conditions</span>
+                </div>
+                {weather && <span className="text-2xl">{weather.icon}</span>}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {dataLoading && !weather ? (
+                <div className="space-y-2">
+                  <div className="h-4 bg-muted animate-pulse rounded"></div>
+                  <div className="h-4 bg-muted animate-pulse rounded w-3/4"></div>
+                </div>
+              ) : weather ? (
+                <>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Temperature</span>
+                    <span className="font-medium">{weather.temperature}°C</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Humidity</span>
+                    <span className="font-medium">{weather.humidity}%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Rainfall</span>
+                    <span className="font-medium">{weather.rainfall}mm</span>
+                  </div>
+                  <div className="pt-2 border-t">
+                    <p className="text-xs text-muted-foreground">{weather.description}</p>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">Weather data unavailable</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* NDVI Card */}
+          <Card className="hover:shadow-lg transition-shadow duration-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between text-base">
+                <div className="flex items-center space-x-2">
+                  <Leaf className="w-5 h-5 text-green-500" />
+                  <span>Vegetation Index</span>
+                </div>
+                {ndvi && (
+                  <Badge 
+                    variant="outline" 
+                    className={`${getStatusColor(ndvi.interpretation)} text-white border-none`}
+                  >
+                    {ndvi.interpretation}
+                  </Badge>
                 )}
-              </div>
-            <div className="text-sm text-muted-foreground">{t('game.points', 'Points')}</div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {dataLoading && !ndvi ? (
+                <div className="space-y-2">
+                  <div className="h-4 bg-muted animate-pulse rounded"></div>
+                  <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
+                </div>
+              ) : ndvi ? (
+                <>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">NDVI Value</span>
+                    <span className="font-medium text-lg">{ndvi.value}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Cloud Cover</span>
+                    <span className="font-medium">{ndvi.cloudCover}%</span>
+                  </div>
+                  <div className="pt-2 border-t">
+                    <p className="text-xs text-muted-foreground">
+                      Data from {new Date(ndvi.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">NDVI data unavailable</p>
+              )}
             </CardContent>
           </Card>
-          <Card className="text-center hover-scale animate-bounce-in" style={{ '--index': 1 } as any}>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-accent animate-pulse">
-                {dataLoading ? (
-                  <div className="animate-pulse bg-muted rounded h-8 w-16"></div>
-                ) : (
-                  userStats?.scanStreak || user?.scanStreak || 0
+
+          {/* Soil Moisture Card */}
+          <Card className="hover:shadow-lg transition-shadow duration-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between text-base">
+                <div className="flex items-center space-x-2">
+                  <Droplets className="w-5 h-5 text-blue-600" />
+                  <span>Soil Moisture</span>
+                </div>
+                {soilMoisture && (
+                  <Badge 
+                    variant="outline" 
+                    className={`${getStatusColor(soilMoisture.status)} text-white border-none`}
+                  >
+                    {soilMoisture.status}
+                  </Badge>
                 )}
-              </div>
-              <div className="text-sm text-muted-foreground">{t('game.streak', 'Day Streak')}</div>
-            </CardContent>
-          </Card>
-          <Card className="text-center hover-scale animate-bounce-in" style={{ '--index': 2 } as any}>
-            <CardContent className="p-4">
-              <Badge variant="secondary" className="text-xs animate-wiggle">
-                {dataLoading ? "Loading..." : (userStats?.tier || user?.currentTier || 'Curious Scout')}
-              </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {dataLoading && !soilMoisture ? (
+                <div className="space-y-2">
+                  <div className="h-4 bg-muted animate-pulse rounded"></div>
+                  <div className="h-4 bg-muted animate-pulse rounded w-4/5"></div>
+                </div>
+              ) : soilMoisture ? (
+                <>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Moisture Level</span>
+                    <span className="font-medium">{soilMoisture.moistureLevel}%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Soil Temperature</span>
+                    <span className="font-medium">{soilMoisture.temperature}°C</span>
+                  </div>
+                  <div className="pt-2 border-t">
+                    <p className="text-xs text-muted-foreground">{soilMoisture.recommendation}</p>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">Soil moisture data unavailable</p>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Main Action Buttons */}
-        <div className="space-y-4 stagger-animation">
-          {/* AI-Powered Field Analysis - Combined Chat + Scan */}
+        {/* Action Buttons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Button
-            onClick={() => handleNavigate('/scan', 'AI Field Analysis')}
-            className="w-full h-48 text-left p-6 bg-gradient-to-br from-primary via-accent to-primary-light hover:from-primary-dark hover:via-accent/90 hover:to-primary text-primary-foreground hover-glow animate-fade-in transform transition-all duration-500 hover:scale-105 hover:shadow-2xl"
-            variant="default"
-            style={{ '--index': 0 } as any}
+            size="lg"
+            onClick={() => handleNavigate('/scan', 'Crop Scanner')}
+            className="h-16 flex items-center space-x-3 bg-primary hover:bg-primary/90"
           >
-            <div className="flex items-center w-full h-full">
-              <div className="flex flex-col items-center mr-6 animate-bounce">
-                <MessageCircle className="w-8 h-8 mb-2 animate-pulse" />
-                <Scan className="w-10 h-10 animate-spin" style={{ animationDuration: '3s' }} />
-              </div>
-              <div className="flex-1">
-                <div className="text-2xl font-bold mb-3 animate-slide-in-right">
-                  {t('dashboard.aiFieldAnalysis', 'AI-Powered Field Analysis')}
-                </div>
-                <div className="text-base opacity-95 mb-2 animate-fade-in" style={{ '--index': 1 } as any}>
-                  {t('dashboard.aiScanDescription', 'Chat with AI + Complete 15-feature field scan')}
-                </div>
-                <div className="text-sm opacity-90 mb-2 animate-fade-in" style={{ '--index': 2 } as any}>
-                  {t('dashboard.aiFeatures', 'GPS • Weather • Soil • Crop • AI Recommendations')}
-                </div>
-                <div className="text-xs opacity-75 animate-fade-in" style={{ '--index': 3 } as any}>
-                  {t('dashboard.aiPromise', 'Get expert advice and comprehensive field insights')}
-                </div>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSpeak('AI-Powered Field Analysis. Chat with AI assistant and complete comprehensive 15-feature analysis of your field including GPS, weather, soil and crop assessment with expert recommendations');
-                }}
-                className="p-3 rounded-full hover:bg-white/20 transition-all duration-300 self-start animate-bounce"
-                style={{ animationDelay: '0.5s' }}
-              >
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
-                </svg>
-              </button>
+            <Scan className="w-6 h-6" />
+            <div className="text-left">
+              <div className="font-medium">Scan Crops</div>
+              <div className="text-xs opacity-90">AI-powered analysis</div>
             </div>
           </Button>
 
-          {/* Community - 20% height */}
           <Button
-            onClick={() => handleNavigate('/community', 'Community Forum')}
-            className="w-full h-20 text-left p-4 bg-gradient-to-r from-success/90 to-success/70 hover:from-success hover:to-success/80 text-white hover-glow animate-fade-in"
-            variant="secondary"
-            style={{ '--index': 2 } as any}
+            variant="outline"
+            size="lg"
+            onClick={() => handleNavigate('/insights-history', 'Data Insights')}
+            className="h-16 flex items-center space-x-3"
           >
-            <div className="flex items-center w-full">
-              <Users className="w-6 h-6 mr-3" />
-              <div className="flex-1">
-                <div className="text-lg font-semibold">{t('dashboard.community', 'Community')}</div>
-                <div className="text-sm opacity-90">Connect with local farmers</div>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSpeak('Community forum. Connect and share with local farmers in your area');
-                }}
-                className="p-2 rounded-full hover:bg-white/20 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
-                </svg>
-              </button>
+            <BarChart3 className="w-6 h-6" />
+            <div className="text-left">
+              <div className="font-medium">View Insights</div>
+              <div className="text-xs opacity-75">Historical data</div>
             </div>
           </Button>
 
-          {/* Upgrade Plan - 15% height */}
           <Button
-            onClick={() => handleNavigate('/upgrade', 'Premium Upgrade')}
-            className="w-full h-16 text-left p-4 bg-gradient-to-r from-warning/90 to-warning/70 hover:from-warning hover:to-warning/80 text-warning-foreground hover-glow animate-fade-in"
-            variant="secondary"
-            style={{ '--index': 3 } as any}
+            variant="outline"
+            size="lg"
+            onClick={() => handleNavigate('/profile', 'Profile Settings')}
+            className="h-16 flex items-center space-x-3"
           >
-            <div className="flex items-center w-full">
-              <Crown className="w-5 h-5 mr-3" />
-              <div className="flex-1">
-                <div className="font-semibold">{t('dashboard.upgrade', 'Upgrade Plan')}</div>
-                <div className="text-xs opacity-90">1000 KES - Remove ads & get expert support</div>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSpeak('Upgrade to premium plan for 1000 Kenya shillings. Remove advertisements and get expert support');
-                }}
-                className="p-1 rounded-full hover:bg-white/20 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
-                </svg>
-              </button>
+            <Settings className="w-6 h-6" />
+            <div className="text-left">
+              <div className="font-medium">Settings</div>
+              <div className="text-xs opacity-75">Manage preferences</div>
             </div>
           </Button>
         </div>
-      </div>
+
+        {/* Data Source Info */}
+        <div className="mt-8 pt-6 border-t">
+          <p className="text-xs text-muted-foreground text-center">
+            Data refreshed every 5 minutes • Location accuracy: ±{location?.accuracy.toFixed(0) || 'Unknown'}m
+          </p>
+        </div>
+      </main>
     </div>
   );
 };

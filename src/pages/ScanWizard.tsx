@@ -8,7 +8,7 @@ import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
 import { DatabaseService } from '@/lib/database';
 import { useToast } from '@/hooks/use-toast';
-import { useRealTimeData } from '@/hooks/useRealTimeData';
+// Removed useRealTimeData import - using location-based data now
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Bot, 
@@ -33,7 +33,7 @@ const ScanWizard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [analysisLoading, setAnalysisLoading] = useState(false);
-  const { fieldData, isLoading: dataLoading, error: dataError, refetch } = useRealTimeData();
+  // TODO: Integrate with location-based environmental data when needed
   const [scanData, setScanData] = useState({
     location: { lat: -1.2921, lng: 36.8219 },
     weather: { temp: 24, humidity: 65, condition: 'Partly Cloudy' },
@@ -46,18 +46,14 @@ const ScanWizard = () => {
     soilph: ''
   });
 
+  // TODO: Remove this when real location data is integrated
+  const fieldData = null;
+  const dataLoading = false;
+  const dataError = null;
+
   useEffect(() => {
-    // Update scan data when field data is available
-    if (fieldData) {
-      setScanData(prev => ({
-        ...prev,
-        location: fieldData.location,
-        weather: fieldData.weather,
-        soil: fieldData.soil,
-        ndvi: fieldData.ndvi
-      }));
-    }
-  }, [fieldData]);
+    // Placeholder for location-based data integration
+  }, []);
 
   useEffect(() => {
     // Simulate progress updates
