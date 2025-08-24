@@ -110,30 +110,37 @@ const GovernmentDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 p-4">
-      {/* Professional Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 pb-20">
+      {/* Header */}
+      <div className="bg-card border-b p-4">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
-              Government Analytics
+            <h1 className="text-2xl font-bold text-primary flex items-center gap-2">
+              {t('gov.analytics', 'Analytics Dashboard')}
+              <button
+                onClick={() => handleSpeak('Government analytics dashboard. Monitor regional aflatoxin contamination levels and agricultural data.')}
+                className="p-1 rounded-full hover:bg-accent transition-colors"
+              >
+                <svg className="w-5 h-5 text-voice-inactive" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
+                </svg>
+              </button>
             </h1>
-            <p className="text-muted-foreground font-medium">National Agricultural Intelligence Dashboard</p>
+            <p className="text-muted-foreground">Regional contamination monitoring & insights</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={toggleTheme}
-              className="border-primary/20 hover:bg-primary/5"
+              className="p-2"
             >
               {getThemeIcon()}
             </Button>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={() => navigate('/privacy')}
-              className="border-primary/20 hover:bg-primary/5"
             >
               <Settings className="w-4 h-4" />
             </Button>
@@ -141,18 +148,15 @@ const GovernmentDashboard = () => {
         </div>
       </div>
 
-      <div className="space-y-6">
-        {/* Professional Filters */}
-        <Card className="bg-gradient-to-r from-card to-primary/5 border-primary/20 shadow-lg">
-          <CardContent className="p-6">
-            <h3 className="text-lg font-bold mb-4 bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
-              Analytics Filters
-            </h3>
+      <div className="p-4 space-y-6">
+        {/* Filters */}
+        <Card>
+          <CardContent className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-sm font-semibold mb-2 block text-foreground">Region</label>
+                <label className="text-sm font-medium mb-2 block">{t('gov.region', 'Region')}</label>
                 <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                  <SelectTrigger className="border-primary/20 focus:border-primary/40">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -168,9 +172,9 @@ const GovernmentDashboard = () => {
               </div>
               
               <div>
-                <label className="text-sm font-semibold mb-2 block text-foreground">Time Period</label>
+                <label className="text-sm font-medium mb-2 block">{t('gov.season', 'Season')}</label>
                 <Select value={selectedSeason} onValueChange={setSelectedSeason}>
-                  <SelectTrigger className="border-primary/20 focus:border-primary/40">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -183,9 +187,9 @@ const GovernmentDashboard = () => {
               </div>
               
               <div>
-                <label className="text-sm font-semibold mb-2 block text-foreground">Risk Level</label>
+                <label className="text-sm font-medium mb-2 block">{t('gov.contamination', 'Contamination Level')}</label>
                 <Select value={selectedContamination} onValueChange={setSelectedContamination}>
-                  <SelectTrigger className="border-primary/20 focus:border-primary/40">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -202,37 +206,37 @@ const GovernmentDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Professional Key Metrics */}
+        {/* Key Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-card to-primary/5 border-primary/20 shadow-lg hover:shadow-xl transition-shadow">
-            <CardContent className="p-6 text-center">
-              <TrendingUp className="w-8 h-8 mx-auto mb-3 text-primary" />
-              <div className="text-3xl font-bold text-primary">{analyticsData.totalScans.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground font-medium">Total Assessments</div>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <TrendingUp className="w-8 h-8 mx-auto mb-2 text-primary" />
+              <div className="text-2xl font-bold">{analyticsData.totalScans.toLocaleString()}</div>
+              <div className="text-sm text-muted-foreground">Total Scans</div>
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-br from-card to-blue-500/5 border-blue-200 shadow-lg hover:shadow-xl transition-shadow">
-            <CardContent className="p-6 text-center">
-              <Users className="w-8 h-8 mx-auto mb-3 text-blue-600" />
-              <div className="text-3xl font-bold text-blue-600">{analyticsData.totalFarmers.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground font-medium">Active Farmers</div>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Users className="w-8 h-8 mx-auto mb-2 text-accent" />
+              <div className="text-2xl font-bold">{analyticsData.totalFarmers.toLocaleString()}</div>
+              <div className="text-sm text-muted-foreground">Active Farmers</div>
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-br from-card to-orange-500/5 border-orange-200 shadow-lg hover:shadow-xl transition-shadow">
-            <CardContent className="p-6 text-center">
-              <AlertTriangle className="w-8 h-8 mx-auto mb-3 text-orange-600" />
-              <div className="text-3xl font-bold text-orange-600">{analyticsData.averageRisk.toFixed(1)}</div>
-              <div className="text-sm text-muted-foreground font-medium">Average Risk Score</div>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <AlertTriangle className="w-8 h-8 mx-auto mb-2 text-warning" />
+              <div className="text-2xl font-bold">{analyticsData.averageRisk.toFixed(1)}</div>
+              <div className="text-sm text-muted-foreground">Avg Risk Score</div>
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-br from-card to-red-500/5 border-red-200 shadow-lg hover:shadow-xl transition-shadow">
-            <CardContent className="p-6 text-center">
-              <MapPin className="w-8 h-8 mx-auto mb-3 text-red-600" />
-              <div className="text-3xl font-bold text-red-600">{analyticsData.highRiskAreas}</div>
-              <div className="text-sm text-muted-foreground font-medium">High Risk Areas</div>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <MapPin className="w-8 h-8 mx-auto mb-2 text-destructive" />
+              <div className="text-2xl font-bold">{analyticsData.highRiskAreas}</div>
+              <div className="text-sm text-muted-foreground">High Risk Areas</div>
             </CardContent>
           </Card>
         </div>
