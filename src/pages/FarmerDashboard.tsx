@@ -31,6 +31,7 @@ import LogoutButton from '@/components/LogoutButton';
 import FarmerInsights from '@/components/FarmerInsights';
 import CommunityFeed from '@/components/CommunityFeed';
 import AIAssistant from '@/components/AIAssistant';
+import AdBanner from '@/components/AdBanner';
 
 const FarmerDashboard = () => {
   const navigate = useNavigate();
@@ -173,48 +174,6 @@ const FarmerDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Location & Weather Summary */}
-        <div className="mb-8">
-          <Card className="border-primary/20 bg-gradient-to-r from-card to-primary/5">
-            <CardContent className="pt-6">
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="flex items-center space-x-3">
-                  <MapPin className="w-6 h-6 text-primary" />
-                  <div>
-                    <h3 className="font-semibold">Current Location</h3>
-                    {location ? (
-                      <p className="text-sm text-muted-foreground">
-                        GPS: {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-destructive">Location unavailable</p>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <Thermometer className="w-6 h-6 text-blue-500" />
-                  <div>
-                    <h3 className="font-semibold">Weather</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {weather ? `${weather.temperature}°C, ${weather.humidity}% humidity` : 'Loading...'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <Droplets className="w-6 h-6 text-cyan-500" />
-                  <div>
-                    <h3 className="font-semibold">Soil Moisture</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {soilMoisture ? `${soilMoisture.moistureLevel}% - ${soilMoisture.status}` : 'Loading...'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Main Dashboard Tabs */}
         <Tabs defaultValue="insights" className="space-y-6">
@@ -435,6 +394,8 @@ const FarmerDashboard = () => {
           </p>
         </div>
       </main>
+      
+      <AdBanner />
     </div>
   );
 };

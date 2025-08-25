@@ -455,6 +455,15 @@ export type Database = {
       }
     }
     Functions: {
+      get_safe_user_info: {
+        Args: { user_id_param: string }
+        Returns: {
+          created_at: string
+          full_name: string
+          id: string
+          role: string
+        }[]
+      }
       update_buyer_gamification: {
         Args: { buyer_id: string; points_to_add: number }
         Returns: undefined
