@@ -31,7 +31,7 @@ class AuthService {
     return AuthService.instance;
   }
 
-  async register(fullName: string, phoneNumber: string, password: string): Promise<{ user?: FarmerUser; error?: string }> {
+  async register(fullName: string, phoneNumber: string, password: string, role: string = 'farmer'): Promise<{ user?: FarmerUser; error?: string }> {
     try {
       // Format phone number
       const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+254${phoneNumber.replace(/^0/, '')}`;
@@ -45,7 +45,7 @@ class AuthService {
           full_name: fullName,
           phone_number: formattedPhone,
           password_hash: passwordHash,
-          role: 'farmer'
+          role: role
         })
         .select()
         .single();

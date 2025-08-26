@@ -144,10 +144,14 @@ const PhoneAuth = () => {
     try {
       console.log('Creating account for:', signupName);
       
+      // Get selected role from localStorage
+      const selectedRole = localStorage.getItem('aflaguard-role') || 'farmer';
+      
       const { user, error } = await authService.register(
         signupName.trim(), 
         signupPhone.trim(), 
-        signupPassword
+        signupPassword,
+        selectedRole
       );
 
       if (error) {
