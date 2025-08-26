@@ -1,133 +1,124 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Language } from '@/lib/database';
+import { I18nService, t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
-import { Volume2, Globe } from 'lucide-react';
 
 const LanguageSelection = () => {
   const navigate = useNavigate();
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>('en');
+  const [isPlaying, setIsPlaying] = useState<Language | null>(null);
 
   const languages = [
-    { code: 'en', name: 'English', flag: '🇺🇸', greeting: 'Welcome to AflaGuard' },
-    { code: 'sw', name: 'Kiswahili', flag: '🇰🇪', greeting: 'Karibu kwa AflaGuard' },
-    { code: 'fr', name: 'Français', flag: '🇫🇷', greeting: 'Bienvenue à AflaGuard' },
-    { code: 'es', name: 'Español', flag: '🇪🇸', greeting: 'Bienvenido a AflaGuard' }
+    { code: 'en' as Language, name: 'English', flag: '🇬🇧', greeting: 'Welcome to AflaGuard' },
+    { code: 'sw' as Language, name: 'Kiswahili', flag: '🇰🇪', greeting: 'Karibu AflaGuard' },
+    { code: 'ki' as Language, name: 'Gĩkũyũ', flag: '🇰🇪', greeting: 'Wamũkĩra AflaGuard' }
   ];
 
-  const handleLanguageSelect = (code: string) => {
-    setSelectedLanguage(code);
+  const handleLanguageSelect = (language: Language) => {
+    setSelectedLanguage(language);
+    I18nService.setLanguage(language);
   };
 
-  const handleContinue = async () => {
-    localStorage.setItem('aflaguard-language', selectedLanguage);
-    
-    // Speak confirmation in selected language
-    const selectedLang = languages.find(lang => lang.code === selectedLanguage);
-    if (selectedLang) {
-      await ttsService.speak(selectedLang.greeting, selectedLanguage as any);
+  const handleTestVoice = async (language: Language) => {
+    if (isPlaying) {
+      ttsService.stop();
+      setIsPlaying(null);
+      return;
     }
-    
-    navigate('/privacy-agreement');
+
+    setIsPlaying(language);
+    try {
+      // Use the localized greeting for that specific language
+      const greeting = languages.find(l => l.code === language)?.greeting || 'Hello';
+      console.log(`Testing voice for ${language}: "${greeting}"`);
+      
+      // The TTS service already handles language-specific voices
+      await ttsService.speak(greeting, language);
+    } catch (error) {
+      console.error('Voice test failed:', error);
+    } finally {
+      setIsPlaying(null);
+    }
   };
 
-  const handleSpeak = async (text: string) => {
-    await ttsService.speak(text, selectedLanguage as any);
+  const handleContinue = () => {
+    localStorage.setItem('aflaguard-language', selectedLanguage);
+    navigate('/role-selection');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 p-6 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-32 right-20 w-48 h-48 bg-primary/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-32 left-20 w-48 h-48 bg-accent/10 rounded-full blur-3xl animate-float" style={{animationDelay: '1.5s'}}></div>
-      </div>
-      
-      <div className="max-w-4xl mx-auto relative z-10">
-        {/* Header */}
-        <div className="text-center mb-12 pt-16 animate-slide-up">
-          <div className="w-20 h-20 mx-auto mb-8 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-xl animate-glow">
-            <Globe className="w-10 h-10 text-white" />
-          </div>
-          <h1 className="text-4xl font-bold text-gradient mb-4 flex items-center justify-center gap-3">
-            Select Your Language
-            <Button
-              variant="ghost"
-              onClick={() => handleSpeak('Select your preferred language')}
-              className="p-2 rounded-full hover:bg-primary/10 transition-colors"
-            >
-              <Volume2 className="w-5 h-5 text-primary" />
-            </Button>
-          </h1>
-          <p className="text-lg text-muted-foreground font-medium">
-            Choose your preferred language for the best experience
-          </p>
-        </div>
-
-        {/* Language Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center p-4 animate-fade-in">
+      <Card className="w-full max-w-md animate-bounce-in hover-scale hover-glow">
+        <CardHeader className="text-center animate-slide-in">
+          <CardTitle className="text-2xl text-primary animate-pulse">
+            {t('language.select', 'Select Your Language')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
           {languages.map((language, index) => (
-            <Card
+            <div
               key={language.code}
               className={`
-                cursor-pointer transition-all duration-300 hover:scale-105 group
+                border-2 rounded-lg p-4 cursor-pointer transition-all duration-300 transform hover:scale-105
+                animate-slide-in-right hover-glow
                 ${selectedLanguage === language.code 
-                  ? 'ring-4 ring-primary ring-opacity-50 shadow-xl bg-gradient-to-br from-primary/5 to-primary/10 border-primary/50' 
-                  : 'hover:shadow-lg hover:border-primary/30 bg-white/50 backdrop-blur-sm'
+                  ? 'border-primary bg-primary/10 animate-wiggle shadow-lg' 
+                  : 'border-border hover:border-primary/50 hover:shadow-md'
                 }
-                border-2 rounded-xl overflow-hidden animate-scale-in
               `}
-              style={{animationDelay: `${index * 0.1}s`}}
+              style={{ animationDelay: `${index * 0.1}s` }}
               onClick={() => handleLanguageSelect(language.code)}
             >
-              <CardContent className="p-6 text-center">
-                <div className={`
-                  text-4xl mb-4 transition-transform duration-300 group-hover:scale-110
-                  ${selectedLanguage === language.code ? 'animate-bounce' : ''}
-                `}>
-                  {language.flag}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl animate-float" style={{ animationDelay: `${index * 0.2}s` }}>
+                    {language.flag}
+                  </span>
+                  <span className="font-medium transition-colors duration-200">
+                    {language.name}
+                  </span>
                 </div>
-                <h3 className={`
-                  text-xl font-bold mb-3 transition-colors
-                  ${selectedLanguage === language.code ? 'text-primary' : 'text-foreground'}
-                `}>
-                  {language.name}
-                </h3>
-                <div className="flex items-center justify-center gap-2">
-                  <p className={`
-                    text-sm transition-colors
-                    ${selectedLanguage === language.code ? 'text-primary/80' : 'text-muted-foreground'}
-                  `}>
-                    {language.greeting}
-                  </p>
-                  <Button
-                    variant="ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSpeak(language.greeting);
-                    }}
-                    className="p-1 rounded-full hover:bg-primary/10 transition-colors"
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleTestVoice(language.code);
+                  }}
+                  className={`
+                    p-2 rounded-full transition-all duration-300 transform hover:scale-110
+                    ${isPlaying === language.code 
+                      ? 'bg-accent text-accent-foreground voice-active animate-pulse shadow-lg' 
+                      : 'hover:bg-muted hover:shadow-md'
+                    }
+                  `}
+                  aria-label={`Test ${language.name} voice`}
+                >
+                  <svg 
+                    className={`w-4 h-4 transition-transform duration-200 ${isPlaying === language.code ? 'animate-bounce' : ''}`} 
+                    fill="currentColor" 
+                    viewBox="0 0 20 20"
                   >
-                    <Volume2 className="w-3 h-3 text-primary" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                    <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
+                  </svg>
+                </button>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2 animate-fade-in">
+                {language.greeting}
+              </p>
+            </div>
           ))}
-        </div>
-
-        {/* Continue Button */}
-        <div className="text-center animate-slide-up" style={{animationDelay: '0.6s'}}>
+          
           <Button 
             onClick={handleContinue}
-            className="px-10 py-3 text-lg font-semibold bg-gradient-primary hover:shadow-xl hover:scale-105 transition-all duration-300 rounded-xl"
+            className="w-full mt-6 animate-scale-up hover:animate-wiggle"
             size="lg"
           >
-            Continue →
+            {t('action.continue', 'Continue')}
           </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

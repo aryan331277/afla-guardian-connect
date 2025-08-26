@@ -1,67 +1,70 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* AflaGuard Pro - Professional Agricultural Intelligence Platform */
+
 @layer base {
   :root {
-    /* Beautiful modern color palette */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* Professional dark navy theme */
+    --background: 210 20% 98%;
+    --foreground: 210 15% 12%;
+
+    /* Primary deep forest green */
+    --primary: 158 64% 30%;
+    --primary-foreground: 0 0% 98%;
+    --primary-light: 158 50% 45%;
+    --primary-dark: 158 75% 20%;
+
+    /* Professional gray secondary */
+    --secondary: 210 15% 85%;
+    --secondary-foreground: 210 15% 12%;
+
+    /* Gold accent for premium feel */
+    --accent: 45 90% 55%;
+    --accent-foreground: 210 15% 12%;
+
+    /* Professional UI elements */
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 210 15% 12%;
+    
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    
-    /* Primary: Modern blue-green gradient */
-    --primary: 142 76% 36%;
-    --primary-foreground: 0 0% 100%;
-    --primary-dark: 158 64% 28%;
-    --primary-light: 142 76% 46%;
-    --primary-glow: 142 76% 56%;
-    
-    /* Secondary: Warm orange accent */
-    --secondary: 24 100% 50%;
-    --secondary-foreground: 0 0% 100%;
-    
-    /* Accent: Purple for highlights */
-    --accent: 262 83% 58%;
-    --accent-foreground: 0 0% 100%;
-    
-    /* Muted colors */
-    --muted: 210 40% 98%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    
-    /* Border and input */
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 142 76% 36%;
-    
-    /* Destructive */
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    
-    /* Success */
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 100%;
-    
-    /* Warning */
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-    
-    /* Professional UI elements - keep existing */
-    --voice-active: 340 60% 65%;
-    --voice-inactive: 139 20% 75%;
-    --radius: 0.75rem;
-    
-    /* Aflatoxin risk colors - keep existing */
+    --popover-foreground: 210 15% 12%;
+
+    --muted: 210 15% 95%;
+    --muted-foreground: 210 10% 50%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 210 20% 90%;
+    --input: 210 20% 96%;
+    --ring: 158 64% 30%;
+
+    /* Gamification colors */
+    --success: 139 60% 45%;
+    --warning: 45 85% 55%;
+    --info: 200 70% 55%;
+
+    /* Color-blind friendly palette */
+    --cb-primary: 200 70% 45%;
+    --cb-secondary: 45 85% 55%;
+    --cb-accent: 280 50% 65%;
+
+    /* Aflatoxin risk colors */
     --risk-very-low: 139 60% 55%;
     --risk-low: 120 50% 65%;
     --risk-medium: 45 85% 65%;
     --risk-high: 25 80% 60%;
     --risk-very-high: 0 75% 60%;
-    
-    /* Sidebar - keep existing */
+
+    --radius: 0.75rem;
+
+    /* Female voice indicators */
+    --voice-active: 340 60% 65%;
+    --voice-inactive: 139 20% 75%;
+
+    /* Sidebar */
     --sidebar-background: 118 25% 98%;
     --sidebar-foreground: 139 30% 20%;
     --sidebar-primary: 139 60% 35%;
@@ -73,27 +76,40 @@
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 142 76% 46%;
-    --primary-foreground: 240 10% 3.9%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 142 76% 46%;
-    
-    /* Dark mode sidebar */
+    --background: 210 30% 8%;
+    --foreground: 210 10% 95%;
+
+    --primary: 158 45% 45%;
+    --primary-foreground: 210 30% 8%;
+    --primary-light: 158 35% 55%;
+    --primary-dark: 158 55% 35%;
+
+    --secondary: 210 20% 15%;
+    --secondary-foreground: 210 10% 95%;
+
+    --accent: 45 80% 60%;
+    --accent-foreground: 210 30% 8%;
+
+    --card: 210 25% 12%;
+    --card-foreground: 210 10% 95%;
+
+    --popover: 210 25% 12%;
+    --popover-foreground: 210 10% 95%;
+
+    --muted: 210 20% 18%;
+    --muted-foreground: 210 10% 65%;
+
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 210 10% 95%;
+
+    --border: 210 20% 22%;
+    --input: 210 20% 22%;
+    --ring: 158 45% 45%;
+
+    --success: 139 50% 50%;
+    --warning: 45 75% 60%;
+    --info: 200 60% 60%;
+
     --sidebar-background: 139 15% 10%;
     --sidebar-foreground: 118 25% 92%;
     --sidebar-primary: 139 50% 55%;
@@ -112,6 +128,7 @@
     --destructive: 280 50% 55%;
     --success: 280 30% 35%;
     --warning: 45 85% 55%;
+    --info: 200 70% 55%;
   }
 }
 
@@ -119,233 +136,195 @@
   * {
     @apply border-border;
   }
-  
+
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
-  /* Beautiful typography */
+
+  /* Female-friendly typography */
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold;
     letter-spacing: -0.025em;
   }
-}
 
-@layer utilities {
-  .font-inter {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  /* Smooth animations for farming interface */
+  * {
+    transition: all 0.2s ease-in-out;
   }
-  
-  .bg-gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+
+  /* Voice indicator pulse */
+  .voice-active {
+    animation: voice-pulse 1.5s ease-in-out infinite;
   }
-  
-  .bg-gradient-secondary {
-    background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--accent)));
+
+  @keyframes voice-pulse {
+    0%, 100% { 
+      opacity: 1; 
+      transform: scale(1);
+    }
+    50% { 
+      opacity: 0.7; 
+      transform: scale(1.05);
+    }
   }
-  
-  .text-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+
+  /* Gamification animations */
+  .badge-earn {
+    animation: badge-earn 0.8s ease-out;
   }
-  
-  .glass {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+
+  @keyframes badge-earn {
+    0% { 
+      transform: scale(0) rotate(180deg); 
+      opacity: 0; 
+    }
+    50% { 
+      transform: scale(1.2) rotate(360deg); 
+      opacity: 1; 
+    }
+    100% { 
+      transform: scale(1) rotate(360deg); 
+      opacity: 1; 
+    }
   }
-  
+
+  /* Interactive Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideIn {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes scaleUp {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes wiggle {
+    0%, 7%, 14%, 21% { transform: rotate(0deg); }
+    3.5% { transform: rotate(-5deg); }
+    10.5%, 17.5% { transform: rotate(5deg); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.5s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.5s ease-out;
+  }
+
+  .animate-bounce-in {
+    animation: bounceIn 0.8s ease-out;
+  }
+
+  .animate-scale-up {
+    animation: scaleUp 0.3s ease-out;
+  }
+
   .animate-float {
     animation: float 3s ease-in-out infinite;
   }
-  
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite alternate;
+
+  .animate-wiggle {
+    animation: wiggle 1s ease-in-out;
   }
-  
-  .animate-slide-up {
-    animation: slideUp 0.6s ease-out;
+
+  .animate-pulse {
+    animation: pulse 2s infinite;
   }
-  
-  .animate-scale-in {
-    animation: scaleIn 0.5s ease-out;
+
+  .hover-scale {
+    transition: transform 0.3s ease;
   }
-}
 
-/* Keep existing animations and add new ones */
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-}
-
-@keyframes glow {
-  from { box-shadow: 0 0 20px hsl(var(--primary) / 0.3); }
-  to { box-shadow: 0 0 30px hsl(var(--primary) / 0.6); }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-/* Keep all existing animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideIn {
-  from { transform: translateX(-100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes slideInRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes bounceIn {
-  0% { transform: scale(0.3); opacity: 0; }
-  50% { transform: scale(1.05); }
-  70% { transform: scale(0.9); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes scaleUp {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-@keyframes wiggle {
-  0%, 7%, 14%, 21% { transform: rotate(0deg); }
-  3.5% { transform: rotate(-5deg); }
-  10.5%, 17.5% { transform: rotate(5deg); }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-@keyframes voice-pulse {
-  0%, 100% { 
-    opacity: 1; 
-    transform: scale(1);
+  .hover-scale:hover {
+    transform: scale(1.02);
   }
-  50% { 
-    opacity: 0.7; 
-    transform: scale(1.05);
+
+  .hover-glow {
+    transition: box-shadow 0.3s ease;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+
+  .stagger-animation > * {
+    animation-delay: calc(var(--index, 0) * 0.1s);
+  }
+
+  /* Aflatoxin risk visualization */
+  .risk-indicator {
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    margin-right: 8px;
+  }
+
+  .risk-very-low { background-color: hsl(var(--risk-very-low)); }
+  .risk-low { background-color: hsl(var(--risk-low)); }
+  .risk-medium { background-color: hsl(var(--risk-medium)); }
+  .risk-high { background-color: hsl(var(--risk-high)); }
+  .risk-very-high { background-color: hsl(var(--risk-very-high)); }
+
+  /* Ad banner space */
+  .ad-banner {
+    height: 60px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+  }
+
+  /* PWA specific styles */
+  @media (display-mode: standalone) {
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
   }
 }
 
-@keyframes badge-earn {
-  0% { 
-    transform: scale(0) rotate(180deg); 
-    opacity: 0; 
+@layer base {
+  * {
+    @apply border-border;
   }
-  50% { 
-    transform: scale(1.2) rotate(360deg); 
-    opacity: 1; 
-  }
-  100% { 
-    transform: scale(1) rotate(360deg); 
-    opacity: 1; 
-  }
-}
 
-/* Animation classes */
-.animate-fade-in {
-  animation: fadeIn 0.6s ease-out;
-}
-
-.animate-slide-in {
-  animation: slideIn 0.5s ease-out;
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.5s ease-out;
-}
-
-.animate-bounce-in {
-  animation: bounceIn 0.8s ease-out;
-}
-
-.animate-scale-up {
-  animation: scaleUp 0.3s ease-out;
-}
-
-.animate-wiggle {
-  animation: wiggle 1s ease-in-out;
-}
-
-.animate-pulse {
-  animation: pulse 2s infinite;
-}
-
-.voice-active {
-  animation: voice-pulse 1.5s ease-in-out infinite;
-}
-
-.badge-earn {
-  animation: badge-earn 0.8s ease-out;
-}
-
-.hover-scale {
-  transition: transform 0.3s ease;
-}
-
-.hover-scale:hover {
-  transform: scale(1.02);
-}
-
-.hover-glow {
-  transition: box-shadow 0.3s ease;
-}
-
-.hover-glow:hover {
-  box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
-}
-
-.stagger-animation > * {
-  animation-delay: calc(var(--index, 0) * 0.1s);
-}
-
-/* Keep existing risk indicators and other utility styles */
-.risk-indicator {
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  display: inline-block;
-  margin-right: 8px;
-}
-
-.risk-very-low { background-color: hsl(var(--risk-very-low)); }
-.risk-low { background-color: hsl(var(--risk-low)); }
-.risk-medium { background-color: hsl(var(--risk-medium)); }
-.risk-high { background-color: hsl(var(--risk-high)); }
-.risk-very-high { background-color: hsl(var(--risk-very-high)); }
-
-.ad-banner {
-  height: 60px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-}
-
-/* PWA specific styles */
-@media (display-mode: standalone) {
   body {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
+    @apply bg-background text-foreground;
   }
 }

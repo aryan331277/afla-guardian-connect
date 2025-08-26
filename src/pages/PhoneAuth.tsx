@@ -197,206 +197,165 @@ const PhoneAuth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-float" style={{animationDelay: '1.5s'}}></div>
-      </div>
-      
-      <Card className="w-full max-w-md relative z-10 glass backdrop-blur-xl border-0 shadow-2xl animate-scale-in">
-        <CardHeader className="text-center pb-8 pt-8">
-          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-lg animate-glow">
-            <div className="text-3xl font-bold text-white">AG</div>
-          </div>
-          <CardTitle className="text-3xl font-bold text-gradient mb-2">
-            AflaGuard
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center p-4 animate-fade-in">
+      <Card className="w-full max-w-md animate-bounce-in hover-scale hover-glow">
+        <CardHeader className="text-center animate-slide-in">
+          <CardTitle className="text-2xl text-primary animate-pulse">
+            Welcome to AflaGuard
           </CardTitle>
-          <p className="text-lg text-muted-foreground font-medium">
-            Your Smart Agricultural Assistant
+          <p className="text-muted-foreground">
+            Your Agricultural Protection Assistant
           </p>
         </CardHeader>
-        
-        <CardContent className="space-y-6">
+        <CardContent>
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 h-12 rounded-xl">
-              <TabsTrigger 
-                value="login" 
-                onClick={resetForm}
-                className="rounded-lg font-semibold data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md transition-all"
-              >
-                Sign In
-              </TabsTrigger>
-              <TabsTrigger 
-                value="signup" 
-                onClick={resetForm}
-                className="rounded-lg font-semibold data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md transition-all"
-              >
-                Create Account
-              </TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 animate-scale-up">
+              <TabsTrigger value="login" onClick={resetForm}>Login</TabsTrigger>
+              <TabsTrigger value="signup" onClick={resetForm}>Sign Up</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="login" className="space-y-6 mt-8 animate-slide-up">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="login-name" className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    Full Name
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => speakText("Enter your full name")}
-                      className="p-1 h-auto hover:bg-primary/10 rounded-full"
-                    >
-                      <Volume2 className="h-3 w-3 text-primary" />
-                    </Button>
-                  </Label>
-                  <Input
-                    id="login-name"
-                    type="text"
-                    placeholder="John Doe"
-                    value={loginName}
-                    onChange={(e) => setLoginName(e.target.value)}
-                    disabled={loading}
-                    className="h-12 bg-background/50 border-2 border-border/50 focus:border-primary focus:bg-background transition-all rounded-xl text-base"
-                  />
+            <TabsContent value="login" className="space-y-4 animate-fade-in">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="login-name">Name</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => speakText("Enter your name")}
+                    className="p-1 h-auto"
+                  >
+                    <Volume2 className="h-3 w-3" />
+                  </Button>
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="login-password" className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    Password
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => speakText("Enter your password")}
-                      className="p-1 h-auto hover:bg-primary/10 rounded-full"
-                    >
-                      <Volume2 className="h-3 w-3 text-primary" />
-                    </Button>
-                  </Label>
-                  <Input
-                    id="login-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    disabled={loading}
-                    className="h-12 bg-background/50 border-2 border-border/50 focus:border-primary focus:bg-background transition-all rounded-xl text-base"
-                  />
+                <Input
+                  id="login-name"
+                  type="text"
+                  placeholder="Enter your name"
+                  value={loginName}
+                  onChange={(e) => setLoginName(e.target.value)}
+                  disabled={loading}
+                  className="transition-all duration-200 hover:border-primary/50"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="login-password">Password</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => speakText("Enter your password")}
+                    className="p-1 h-auto"
+                  >
+                    <Volume2 className="h-3 w-3" />
+                  </Button>
                 </div>
+                <Input
+                  id="login-password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  disabled={loading}
+                  className="transition-all duration-200 hover:border-primary/50"
+                />
               </div>
               
               <Button 
                 onClick={handleLogin}
                 disabled={loading}
-                className="w-full h-12 bg-gradient-primary hover:shadow-lg hover:scale-[1.02] transition-all rounded-xl text-base font-semibold"
+                className="w-full animate-scale-up hover:animate-wiggle"
                 size="lg"
               >
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Signing In...
-                  </div>
-                ) : (
-                  'Sign In'
-                )}
+                {loading ? 'Logging in...' : 'Login'}
               </Button>
             </TabsContent>
             
-            <TabsContent value="signup" className="space-y-6 mt-8 animate-slide-up">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-name" className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    Full Name
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => speakText("Enter your full name")}
-                      className="p-1 h-auto hover:bg-primary/10 rounded-full"
-                    >
-                      <Volume2 className="h-3 w-3 text-primary" />
-                    </Button>
-                  </Label>
-                  <Input
-                    id="signup-name"
-                    type="text"
-                    placeholder="John Doe"
-                    value={signupName}
-                    onChange={(e) => setSignupName(e.target.value)}
-                    disabled={loading}
-                    className="h-12 bg-background/50 border-2 border-border/50 focus:border-primary focus:bg-background transition-all rounded-xl text-base"
-                  />
+            <TabsContent value="signup" className="space-y-4 animate-fade-in">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="signup-name">Full Name</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => speakText("Enter your full name")}
+                    className="p-1 h-auto"
+                  >
+                    <Volume2 className="h-3 w-3" />
+                  </Button>
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="signup-phone" className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    Phone Number
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => speakText("Enter your phone number")}
-                      className="p-1 h-auto hover:bg-primary/10 rounded-full"
-                    >
-                      <Volume2 className="h-3 w-3 text-primary" />
-                    </Button>
-                  </Label>
-                  <Input
-                    id="signup-phone"
-                    type="tel"
-                    placeholder="+254712345678"
-                    value={signupPhone}
-                    onChange={(e) => setSignupPhone(e.target.value)}
-                    disabled={loading}
-                    className="h-12 bg-background/50 border-2 border-border/50 focus:border-primary focus:bg-background transition-all rounded-xl text-base"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password" className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    Create Password
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => speakText("Create a secure password")}
-                      className="p-1 h-auto hover:bg-primary/10 rounded-full"
-                    >
-                      <Volume2 className="h-3 w-3 text-primary" />
-                    </Button>
-                  </Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    placeholder="Minimum 6 characters"
-                    value={signupPassword}
-                    onChange={(e) => setSignupPassword(e.target.value)}
-                    disabled={loading}
-                    className="h-12 bg-background/50 border-2 border-border/50 focus:border-primary focus:bg-background transition-all rounded-xl text-base"
-                  />
-                </div>
+                <Input
+                  id="signup-name"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={signupName}
+                  onChange={(e) => setSignupName(e.target.value)}
+                  disabled={loading}
+                  className="transition-all duration-200 hover:border-primary/50"
+                />
               </div>
               
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="signup-phone">Phone Number</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => speakText("Enter your phone number")}
+                    className="p-1 h-auto"
+                  >
+                    <Volume2 className="h-3 w-3" />
+                  </Button>
+                </div>
+                <Input
+                  id="signup-phone"
+                  type="tel"
+                  placeholder="+254712345678 or 0712345678"
+                  value={signupPhone}
+                  onChange={(e) => setSignupPhone(e.target.value)}
+                  disabled={loading}
+                  className="transition-all duration-200 hover:border-primary/50"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="signup-password">Set Password</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => speakText("Create a secure password")}
+                    className="p-1 h-auto"
+                  >
+                    <Volume2 className="h-3 w-3" />
+                  </Button>
+                </div>
+                <Input
+                  id="signup-password"
+                  type="password"
+                  placeholder="Create a secure password (min 6 characters)"
+                  value={signupPassword}
+                  onChange={(e) => setSignupPassword(e.target.value)}
+                  disabled={loading}
+                  className="transition-all duration-200 hover:border-primary/50"
+                />
+              </div>
               <Button 
                 onClick={handleDirectSignup}
                 disabled={loading}
-                className="w-full h-12 bg-gradient-primary hover:shadow-lg hover:scale-[1.02] transition-all rounded-xl text-base font-semibold"
+                className="w-full animate-scale-up hover:animate-wiggle"
                 size="lg"
               >
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Creating Account...
-                  </div>
-                ) : (
-                  'Create Account'
-                )}
+                {loading ? 'Creating Account...' : 'Create Account'}
               </Button>
             </TabsContent>
           </Tabs>
           
-          <div className="text-center pt-4">
+          <div className="mt-6 text-center">
             <Button
-              variant="ghost"
+              variant="link"
               onClick={() => navigate('/role-selection')}
-              className="text-muted-foreground hover:text-primary transition-colors font-medium"
+              className="text-sm text-muted-foreground hover:text-primary"
             >
               ← Back to Role Selection
             </Button>

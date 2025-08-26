@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserRole } from '@/lib/database';
 import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
-import { Volume2 } from 'lucide-react';
 
 const RoleSelection = () => {
   const navigate = useNavigate();
@@ -54,91 +53,59 @@ const RoleSelection = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 p-6 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-20 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
-        <div className="absolute top-1/2 left-1/3 w-32 h-32 bg-secondary/10 rounded-full blur-2xl animate-float" style={{animationDelay: '1s'}}></div>
-      </div>
-      
-      <div className="max-w-6xl mx-auto relative z-10">
-        {/* Header */}
-        <div className="text-center mb-12 pt-8 animate-slide-up">
-          <div className="w-24 h-24 mx-auto mb-8 bg-gradient-primary rounded-3xl flex items-center justify-center shadow-2xl animate-glow">
-            <div className="text-4xl font-bold text-white">AG</div>
-          </div>
-          <h1 className="text-5xl font-bold text-gradient mb-4 flex items-center justify-center gap-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-accent/10 p-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8 pt-8">
+          <h1 className="text-3xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
             {t('role.select', 'Choose Your Role')}
-            <Button
-              variant="ghost"
+            <button
               onClick={() => handleSpeak(t('role.select', 'Choose Your Role'))}
-              className="p-3 rounded-full hover:bg-primary/10 transition-colors"
+              className="p-1 rounded-full hover:bg-accent transition-colors"
             >
-              <Volume2 className="w-6 h-6 text-primary" />
-            </Button>
+              <svg className="w-5 h-5 text-voice-inactive" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
+              </svg>
+            </button>
           </h1>
-          <p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
-            Select your role to access specialized features designed for your agricultural needs
-          </p>
         </div>
 
-        {/* Role Cards */}
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
-          {roles.map((role, index) => (
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {roles.map((role) => (
             <Card
               key={role.role}
               className={`
-                cursor-pointer transition-all duration-500 hover:scale-105 group
+                cursor-pointer transition-all hover:shadow-lg
                 ${selectedRole === role.role 
-                  ? 'ring-4 ring-primary ring-opacity-50 shadow-2xl bg-gradient-to-br from-primary/5 to-primary/10 border-primary/30' 
-                  : 'hover:shadow-xl hover:border-primary/30 bg-white/50 backdrop-blur-sm'
+                  ? 'border-primary bg-primary/5 ring-2 ring-primary/20' 
+                  : 'border-border hover:border-primary/50'
                 }
-                border-2 rounded-2xl overflow-hidden animate-scale-in
               `}
-              style={{animationDelay: `${index * 0.2}s`}}
               onClick={() => handleRoleSelect(role.role)}
             >
-              <CardHeader className="text-center pb-4 pt-8">
-                <div className={`
-                  text-6xl mb-6 transition-transform duration-300 group-hover:scale-110
-                  ${selectedRole === role.role ? 'animate-bounce' : ''}
-                `}>
-                  {role.icon}
-                </div>
-                <CardTitle className="flex items-center justify-center gap-3 text-2xl font-bold">
-                  <span className={selectedRole === role.role ? 'text-primary' : 'text-foreground'}>
-                    {role.title}
-                  </span>
-                  <Button
-                    variant="ghost"
+              <CardHeader className="text-center">
+                <div className="text-4xl mb-2">{role.icon}</div>
+                <CardTitle className="flex items-center justify-center gap-2">
+                  {role.title}
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleSpeak(role.title + '. ' + role.description);
                     }}
-                    className="p-2 rounded-full hover:bg-primary/10 transition-colors"
+                    className="p-1 rounded-full hover:bg-accent transition-colors"
                   >
-                    <Volume2 className="w-4 h-4 text-primary" />
-                  </Button>
+                    <svg className="w-4 h-4 text-voice-inactive" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
+                    </svg>
+                  </button>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="px-6 pb-8">
-                <p className="text-muted-foreground mb-6 text-base leading-relaxed">
-                  {role.description}
-                </p>
-                <ul className="space-y-3">
-                  {role.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center gap-3 text-sm">
-                      <div className={`
-                        w-2 h-2 rounded-full transition-colors
-                        ${selectedRole === role.role ? 'bg-primary' : 'bg-muted-foreground/50'}
-                      `}></div>
-                      <span className={`
-                        transition-colors font-medium
-                        ${selectedRole === role.role ? 'text-foreground' : 'text-muted-foreground'}
-                      `}>
-                        {feature}
-                      </span>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">{role.description}</p>
+                <ul className="space-y-2">
+                  {role.features.map((feature, index) => (
+                    <li key={index} className="flex items-center gap-2 text-sm">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                      {feature}
                     </li>
                   ))}
                 </ul>
@@ -147,14 +114,13 @@ const RoleSelection = () => {
           ))}
         </div>
 
-        {/* Continue Button */}
-        <div className="text-center animate-slide-up" style={{animationDelay: '0.8s'}}>
+        <div className="text-center">
           <Button 
             onClick={handleContinue}
-            className="px-12 py-4 text-lg font-semibold bg-gradient-primary hover:shadow-xl hover:scale-105 transition-all duration-300 rounded-2xl"
             size="lg"
+            className="px-8"
           >
-            {t('action.continue', 'Continue')} →
+            {t('action.continue', 'Continue')}
           </Button>
         </div>
       </div>
