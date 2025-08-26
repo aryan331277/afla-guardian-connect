@@ -8,7 +8,7 @@ interface AuthGuardProps {
   redirectTo?: string;
 }
 
-const AuthGuard = ({ children, requiredRole, redirectTo = '/auth' }: AuthGuardProps) => {
+const AuthGuard = ({ children, requiredRole, redirectTo = '/phone-auth' }: AuthGuardProps) => {
   const navigate = useNavigate();
   const [user, setUser] = useState<FarmerUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,7 +28,8 @@ const AuthGuard = ({ children, requiredRole, redirectTo = '/auth' }: AuthGuardPr
 
       // Check role if required
       if (requiredRole && currentUser.role !== requiredRole) {
-        navigate('/auth');
+        console.log(`User role ${currentUser.role} doesn't match required role ${requiredRole}`);
+        navigate('/phone-auth');
         return;
       }
 

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, RiskLevel } from '@/lib/database';
 import { authService } from '@/lib/auth';
+import { supabase } from '@/integrations/supabase/client';
 import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
 import { useTheme } from '@/hooks/useTheme';
@@ -20,12 +21,12 @@ const GovernmentDashboard = () => {
   const [selectedSeason, setSelectedSeason] = useState('current');
   const [selectedContamination, setSelectedContamination] = useState('all');
 
-  // Mock data for demonstration
-  const [analyticsData] = useState({
-    totalScans: 2547,
+  // Analytics data with state management for real-time updates
+  const [analyticsData, setAnalyticsData] = useState({
+    totalScans: 0,
     totalFarmers: 1823,
-    averageRisk: 2.3,
-    highRiskAreas: 12,
+    averageRisk: 0,
+    highRiskAreas: 0,
     regionData: [
       { name: 'Central', scans: 654, risk: 2.1, farmers: 445 },
       { name: 'Western', scans: 523, risk: 3.2, farmers: 398 },
@@ -53,6 +54,7 @@ const GovernmentDashboard = () => {
 
   useEffect(() => {
     loadUserData();
+    loadAnalyticsData();
   }, []);
 
   const loadUserData = async () => {
@@ -79,6 +81,39 @@ const GovernmentDashboard = () => {
       }
     } catch (error) {
       console.error('Error loading user data:', error);
+    }
+  };
+
+  const loadAnalyticsData = async () => {
+    try {
+      // Fetch real analytics data from buyer_scans
+      const { data: scanData, error } = await supabase
+        .from('buyer_scans')
+        .select('*');
+
+      if (error) {
+        console.error('Error loading analytics:', error);
+        setIsLoading(false);
+        return;
+      }
+
+      // Process data for analytics
+      const totalScans = scanData?.length || 0;
+      const averageRisk = scanData?.length 
+        ? scanData.reduce((sum, scan) => sum + scan.risk_score, 0) / scanData.length 
+        : 0;
+      const highRiskScans = scanData?.filter(scan => scan.risk_score >= 70).length || 0;
+
+      // Update analytics data with real data while keeping the structure
+      setAnalyticsData(prev => ({
+        ...prev,
+        totalScans,
+        averageRisk: Number(averageRisk.toFixed(1)),
+        highRiskAreas: highRiskScans
+      }));
+
+    } catch (error) {
+      console.error('Error loading analytics data:', error);
     } finally {
       setIsLoading(false);
     }

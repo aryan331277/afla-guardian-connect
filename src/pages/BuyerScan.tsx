@@ -19,7 +19,7 @@ const BuyerScan = () => {
   const { toast } = useToast();
   const webcamRef = useRef<Webcam>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [showCamera, setShowCamera] = useState(false);
+  const [showCamera, setShowCamera] = useState(true);
   const [currentStep, setCurrentStep] = useState<'camera' | 'questions' | 'analysis' | 'results'>('camera');
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
