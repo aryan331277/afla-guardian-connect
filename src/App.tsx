@@ -23,7 +23,6 @@ import BuyerScan from "./pages/BuyerScan";
 import Community from "./pages/Community";
 import UpgradePlan from "./pages/UpgradePlan";
 import Chat from "./pages/Chat";
-import ResellBadCorn from "./pages/ResellBadCorn";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 import AdBanner from "./components/AdBanner";
@@ -61,12 +60,12 @@ const AppContent = () => {
           <Route path="/scan-results" element={<AuthGuard><ScanResults /></AuthGuard>} />
           <Route path="/buyer-scan" element={<AuthGuard><BuyerScan /></AuthGuard>} />
           <Route path="/community" element={<AuthGuard><Community /></AuthGuard>} />
-          <Route path="/resell" element={<AuthGuard requiredRole="buyer"><ResellBadCorn /></AuthGuard>} />
           <Route path="/upgrade" element={<AuthGuard><UpgradePlan /></AuthGuard>} />
           <Route path="/chat" element={<AuthGuard><Chat /></AuthGuard>} />
           <Route path="/privacy" element={<Privacy />} />
-        <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
+        <AdBanner />
       </BrowserRouter>
     </div>
   );
