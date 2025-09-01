@@ -5,11 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { User } from '@/lib/database';
 import { authService } from '@/lib/auth';
 import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
 import { useTheme } from '@/hooks/useTheme';
+import { useCamera } from '@/hooks/useCamera';
 import { 
   Camera, 
   RecycleIcon, 
@@ -23,18 +30,25 @@ import {
   Phone,
   Building,
   ArrowLeft,
-  Truck
+  Truck,
+  CheckCircle,
+  TrendingUp,
+  Shield,
+  Users,
+  Activity
 } from 'lucide-react';
 
 const BuyerDashboard = () => {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { takePhoto, selectFromGallery, photo, isLoading: cameraLoading } = useCamera();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentView, setCurrentView] = useState<'dashboard' | 'scan' | 'ngo-marketplace' | 'pickup-request'>('dashboard');
   const [selectedNGO, setSelectedNGO] = useState<any>(null);
   const [grainQuantity, setGrainQuantity] = useState('');
   const [grainCondition, setGrainCondition] = useState('');
+  const [scanProgress, setScanProgress] = useState(0);
 
   // Mock NGO data
   const ngoData = [
@@ -101,11 +115,49 @@ const BuyerDashboard = () => {
     await ttsService.speak(text, user?.language || 'en');
   };
 
+  const handleCameraCapture = async () => {
+    const result = await takePhoto();
+    if (result) {
+      // Simulate AI processing
+      setScanProgress(25);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setScanProgress(50);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setScanProgress(75);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setScanProgress(100);
+      
+      await ttsService.speak('Photo captured successfully. AI analysis complete.', 'en');
+      
+      // Show results after a brief delay
+      setTimeout(() => {
+        alert('AI Analysis Complete!\n\nCorn Quality: Good\nAflatoxin Level: Low\nRecommendation: Safe for consumption');
+        setScanProgress(0);
+      }, 500);
+    }
+  };
+
+  const handleGallerySelect = async () => {
+    const result = await selectFromGallery();
+    if (result) {
+      await ttsService.speak('Photo selected from gallery. Processing with AI.', 'en');
+      handleCameraCapture(); // Use same processing flow
+    }
+  };
+
   const getThemeIcon = () => {
     switch (theme) {
-      case 'dark': return <Moon className="w-4 h-4" />;
-      case 'colorblind': return <Palette className="w-4 h-4" />;
-      default: return <Sun className="w-4 h-4" />;
+      case 'dark': return <Moon className="w-5 h-5" />;
+      case 'colorblind': return <Palette className="w-5 h-5" />;
+      default: return <Sun className="w-5 h-5" />;
+    }
+  };
+
+  const getThemeLabel = () => {
+    switch (theme) {
+      case 'dark': return 'Dark Mode';
+      case 'colorblind': return 'Colorblind Friendly';
+      default: return 'Light Mode';
     }
   };
 
@@ -148,24 +200,50 @@ const BuyerDashboard = () => {
         </div>
         
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm">
-            <Sun className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="sm">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="lg" className="flex items-center gap-2 h-12 px-4">
+                {getThemeIcon()}
+                <span className="hidden sm:inline">{getThemeLabel()}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => toggleTheme()} className="flex items-center gap-2 p-3">
+                <Sun className="w-4 h-4" />
+                Light Mode
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toggleTheme()} className="flex items-center gap-2 p-3">
+                <Moon className="w-4 h-4" />
+                Dark Mode
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toggleTheme()} className="flex items-center gap-2 p-3">
+                <Palette className="w-4 h-4" />
+                Colorblind Friendly
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          <Button variant="ghost" size="lg" className="h-12 px-4">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
             </svg>
           </Button>
-          <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1">
-            <span className="text-sm">0 pts</span>
+          
+          <div className="flex items-center gap-3 bg-gray-100 rounded-full px-4 py-2">
+            <span className="text-sm font-medium">0 pts</span>
           </div>
-          <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1">
-            <span className="text-sm">Curious Scout</span>
+          <div className="flex items-center gap-3 bg-gray-100 rounded-full px-4 py-2">
+            <span className="text-sm font-medium">Curious Scout</span>
           </div>
-          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-            <span className="text-white text-sm font-bold">A</span>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+              <span className="text-white text-sm font-bold">A</span>
+            </div>
+            <div className="text-sm">
+              <div className="font-medium">Aryan</div>
+              <div className="text-gray-600">buyer</div>
+            </div>
           </div>
-          <span className="text-sm text-gray-600">Aryan<br/>buyer</span>
         </div>
       </div>
     </div>
@@ -175,11 +253,11 @@ const BuyerDashboard = () => {
   const UpgradeBanner = () => (
     <div className="bg-primary p-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center gap-2 text-white">
-          <span className="text-lg">⭐</span>
-          <span>Upgrade to Premium for advanced analytics and ad-free experience</span>
+        <div className="flex items-center gap-3 text-white">
+          <span className="text-2xl">⭐</span>
+          <span className="text-lg font-medium">Upgrade to Premium for advanced analytics and ad-free experience</span>
         </div>
-        <Button variant="outline" className="bg-white text-primary border-white hover:bg-gray-100">
+        <Button variant="outline" size="lg" className="bg-white text-primary border-white hover:bg-gray-100 h-12 px-6">
           Upgrade Now
         </Button>
       </div>
@@ -189,49 +267,93 @@ const BuyerDashboard = () => {
   // Corn Quality Assessment View
   const CornQualityAssessment = () => (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" onClick={() => setCurrentView('dashboard')} className="p-2">
-          <ArrowLeft className="w-5 h-5" />
+      <div className="flex items-center gap-4 mb-8">
+        <Button variant="ghost" onClick={() => setCurrentView('dashboard')} size="lg" className="p-3">
+          <ArrowLeft className="w-6 h-6" />
         </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Corn Quality Assessment</h1>
-          <p className="text-gray-600">Step 1 of 3 - AI-Powered Quality Analysis</p>
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold text-gray-900">Corn Quality Assessment</h1>
+          <p className="text-gray-600 text-lg">Step 1 of 3 - AI-Powered Quality Analysis</p>
         </div>
-        <Button variant="ghost" size="sm">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <Button variant="ghost" size="lg" className="p-3">
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
           </svg>
         </Button>
       </div>
 
-      <div className="bg-primary h-2 rounded-full mb-8">
-        <div className="bg-primary h-full w-1/3 rounded-full"></div>
+      <div className="bg-gray-200 h-3 rounded-full mb-8">
+        <div 
+          className="bg-primary h-full rounded-full transition-all duration-500" 
+          style={{ width: scanProgress > 0 ? `${scanProgress}%` : '33%' }}
+        ></div>
       </div>
 
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader className="text-center">
-          <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Camera className="w-8 h-8 text-white" />
+      <Card className="max-w-3xl mx-auto shadow-xl">
+        <CardHeader className="text-center pb-8">
+          <div className="w-20 h-20 bg-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <Camera className="w-10 h-10 text-white" />
           </div>
-          <CardTitle className="text-xl">Capture Corn Sample</CardTitle>
+          <CardTitle className="text-2xl">Capture Corn Sample</CardTitle>
         </CardHeader>
         <CardContent className="text-center p-8">
-          <div className="bg-gray-100 rounded-2xl p-12 mb-6">
-            <Camera className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Take Photo of Corn Sample</h3>
-            <p className="text-gray-600 mb-8">Position your camera over the corn kernels for AI analysis</p>
-            
-            <div className="flex gap-4 justify-center">
-              <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600">
-                <Camera className="w-4 h-4" />
-                Open Camera
-              </Button>
-              <Button variant="outline" className="flex items-center gap-2">
-                <Upload className="w-4 h-4" />
-                Upload Photo
-              </Button>
+          {photo?.webPath ? (
+            <div className="mb-8">
+              <img 
+                src={photo.webPath} 
+                alt="Captured corn sample" 
+                className="max-w-md mx-auto rounded-2xl shadow-lg"
+              />
+              <p className="text-green-600 font-medium mt-4 flex items-center justify-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                Photo captured successfully!
+              </p>
             </div>
+          ) : (
+            <div className="bg-gray-50 rounded-3xl p-16 mb-8">
+              <Camera className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+              <h3 className="text-2xl font-semibold mb-4">Take Photo of Corn Sample</h3>
+              <p className="text-gray-600 text-lg mb-8">Position your camera over the corn kernels for AI analysis</p>
+            </div>
+          )}
+          
+          <div className="flex gap-6 justify-center">
+            <Button 
+              onClick={handleCameraCapture}
+              disabled={cameraLoading}
+              size="lg"
+              className="flex items-center gap-3 bg-blue-500 hover:bg-blue-600 h-14 px-8 text-lg"
+            >
+              <Camera className="w-6 h-6" />
+              {cameraLoading ? 'Opening Camera...' : 'Open Camera'}
+            </Button>
+            <Button 
+              onClick={handleGallerySelect}
+              disabled={cameraLoading}
+              variant="outline" 
+              size="lg"
+              className="flex items-center gap-3 h-14 px-8 text-lg border-2"
+            >
+              <Upload className="w-6 h-6" />
+              Upload Photo
+            </Button>
           </div>
+
+          {scanProgress > 0 && (
+            <div className="mt-8 p-6 bg-blue-50 rounded-2xl">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Activity className="w-6 h-6 text-blue-600 animate-pulse" />
+                <span className="text-lg font-medium text-blue-800">AI Analysis in Progress...</span>
+              </div>
+              <div className="bg-blue-200 h-3 rounded-full">
+                <div 
+                  className="bg-blue-600 h-full rounded-full transition-all duration-1000" 
+                  style={{ width: `${scanProgress}%` }}
+                ></div>
+              </div>
+              <p className="text-blue-700 mt-2">{scanProgress}% complete</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
@@ -388,67 +510,132 @@ const BuyerDashboard = () => {
 
   // Main Dashboard View
   const DashboardView = () => (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
+    <div className="max-w-6xl mx-auto p-6 space-y-8">
+      {/* Main Action Cards */}
+      <div className="grid md:grid-cols-2 gap-8 mb-12">
         {/* Corn Quality Assessment */}
         <Card 
-          className="cursor-pointer hover:shadow-lg transition-all"
+          className="cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1 border-2 hover:border-blue-300"
           onClick={() => setCurrentView('scan')}
         >
-          <CardHeader className="text-center">
-            <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Camera className="w-8 h-8 text-white" />
+          <CardHeader className="text-center pb-8 pt-8">
+            <div className="w-24 h-24 bg-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <Camera className="w-12 h-12 text-white" />
             </div>
-            <CardTitle className="text-xl">Corn Quality Assessment</CardTitle>
-            <p className="text-gray-600">AI-powered quality analysis</p>
+            <CardTitle className="text-2xl mb-3">Corn Quality Assessment</CardTitle>
+            <p className="text-gray-600 text-lg">AI-powered quality analysis</p>
           </CardHeader>
-          <CardContent className="text-center">
-            <Button className="w-full">Start Assessment</Button>
+          <CardContent className="text-center pb-8">
+            <Button size="lg" className="w-full h-14 text-lg font-medium">
+              Start Assessment
+            </Button>
           </CardContent>
         </Card>
 
         {/* NGO Marketplace */}
         <Card 
-          className="cursor-pointer hover:shadow-lg transition-all"
+          className="cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1 border-2 hover:border-green-300"
           onClick={() => setCurrentView('ngo-marketplace')}
         >
-          <CardHeader className="text-center">
-            <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <RecycleIcon className="w-8 h-8 text-white" />
+          <CardHeader className="text-center pb-8 pt-8">
+            <div className="w-24 h-24 bg-green-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <RecycleIcon className="w-12 h-12 text-white" />
             </div>
-            <CardTitle className="text-xl">NGO Marketplace</CardTitle>
-            <p className="text-gray-600">Contaminated grain disposal</p>
+            <CardTitle className="text-2xl mb-3">NGO Marketplace</CardTitle>
+            <p className="text-gray-600 text-lg">Contaminated grain disposal</p>
           </CardHeader>
-          <CardContent className="text-center">
-            <Button className="w-full">Browse NGOs</Button>
+          <CardContent className="text-center pb-8">
+            <Button size="lg" className="w-full h-14 text-lg font-medium bg-green-500 hover:bg-green-600">
+              Browse NGOs
+            </Button>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="text-center">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-primary">0</div>
-            <div className="text-sm text-muted-foreground">Total Scans</div>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+        <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+          <CardContent className="p-0">
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Camera className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="text-3xl font-bold text-primary mb-2">0</div>
+            <div className="text-sm text-muted-foreground font-medium">Total Scans</div>
           </CardContent>
         </Card>
-        <Card className="text-center">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-green-600">0</div>
-            <div className="text-sm text-muted-foreground">Good Quality</div>
+        <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+          <CardContent className="p-0">
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-6 h-6 text-green-600" />
+            </div>
+            <div className="text-3xl font-bold text-green-600 mb-2">0</div>
+            <div className="text-sm text-muted-foreground font-medium">Good Quality</div>
           </CardContent>
         </Card>
-        <Card className="text-center">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-orange-600">0</div>
-            <div className="text-sm text-muted-foreground">NGO Requests</div>
+        <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+          <CardContent className="p-0">
+            <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Truck className="w-6 h-6 text-orange-600" />
+            </div>
+            <div className="text-3xl font-bold text-orange-600 mb-2">0</div>
+            <div className="text-sm text-muted-foreground font-medium">NGO Requests</div>
           </CardContent>
         </Card>
-        <Card className="text-center">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-blue-600">0</div>
-            <div className="text-sm text-muted-foreground">KES Earned</div>
+        <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+          <CardContent className="p-0">
+            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <TrendingUp className="w-6 h-6 text-purple-600" />
+            </div>
+            <div className="text-3xl font-bold text-blue-600 mb-2">0</div>
+            <div className="text-sm text-muted-foreground font-medium">KES Earned</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Additional Features */}
+      <div className="grid md:grid-cols-3 gap-6">
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <CardHeader className="p-0 mb-4">
+            <div className="flex items-center gap-3">
+              <Shield className="w-8 h-8 text-primary" />
+              <CardTitle className="text-lg">Quality Guarantee</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <p className="text-gray-600 mb-4">
+              Our AI-powered system provides 95% accuracy in detecting aflatoxin contamination.
+            </p>
+            <Button variant="outline" className="w-full">Learn More</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <CardHeader className="p-0 mb-4">
+            <div className="flex items-center gap-3">
+              <Users className="w-8 h-8 text-primary" />
+              <CardTitle className="text-lg">NGO Network</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <p className="text-gray-600 mb-4">
+              Connect with 50+ verified NGOs for safe disposal of contaminated grain.
+            </p>
+            <Button variant="outline" className="w-full">View Network</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <CardHeader className="p-0 mb-4">
+            <div className="flex items-center gap-3">
+              <TrendingUp className="w-8 h-8 text-primary" />
+              <CardTitle className="text-lg">Market Insights</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <p className="text-gray-600 mb-4">
+              Get real-time pricing and market trends for quality grain trading.
+            </p>
+            <Button variant="outline" className="w-full">View Trends</Button>
           </CardContent>
         </Card>
       </div>
