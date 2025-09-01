@@ -40,7 +40,7 @@ import {
 
 const BuyerDashboard = () => {
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, setTheme: setSpecificTheme } = useTheme();
   const { takePhoto, selectFromGallery, photo, isLoading: cameraLoading } = useCamera();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,6 +49,9 @@ const BuyerDashboard = () => {
   const [grainQuantity, setGrainQuantity] = useState('');
   const [grainCondition, setGrainCondition] = useState('');
   const [scanProgress, setScanProgress] = useState(0);
+  const [transportCondition, setTransportCondition] = useState('');
+  const [storageCondition, setStorageCondition] = useState('');
+  const [showAssessmentQuestions, setShowAssessmentQuestions] = useState(false);
 
   // Mock NGO data
   const ngoData = [
@@ -166,6 +169,44 @@ const BuyerDashboard = () => {
     return parseInt(grainQuantity) * selectedNGO.price;
   };
 
+  const generateFinalAssessment = async () => {
+    setScanProgress(25);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setScanProgress(50);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setScanProgress(75);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setScanProgress(100);
+    
+    // Generate assessment based on image + transport + storage conditions
+    const assessmentResult = calculateQualityScore();
+    
+    setTimeout(() => {
+      alert(`AI Assessment Complete!\n\nOverall Quality: ${assessmentResult.grade}\nTransport: ${transportCondition}\nStorage: ${storageCondition}\n\nRecommendation: ${assessmentResult.recommendation}`);
+      setScanProgress(0);
+    }, 500);
+  };
+
+  const calculateQualityScore = () => {
+    const scores = {
+      'Poor': 1,
+      'Average': 2,
+      'Excellent': 3
+    };
+    
+    const transportScore = scores[transportCondition] || 0;
+    const storageScore = scores[storageCondition] || 0;
+    const avgScore = (transportScore + storageScore) / 2;
+    
+    if (avgScore >= 2.5) {
+      return { grade: 'Excellent', recommendation: 'Safe for consumption and market sale' };
+    } else if (avgScore >= 1.5) {
+      return { grade: 'Average', recommendation: 'Suitable for processing or feed use' };
+    } else {
+      return { grade: 'Poor', recommendation: 'Recommend disposal through NGO network' };
+    }
+  };
+
   const handleSendPickupRequest = async () => {
     if (!selectedNGO || !grainQuantity || !grainCondition) {
       await ttsService.speak('Please fill in all required fields', 'en');
@@ -208,15 +249,24 @@ const BuyerDashboard = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => toggleTheme()} className="flex items-center gap-2 p-3">
+              <DropdownMenuItem 
+                onClick={() => setSpecificTheme('light')}
+                className="flex items-center gap-2 p-3"
+              >
                 <Sun className="w-4 h-4" />
                 Light Mode
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => toggleTheme()} className="flex items-center gap-2 p-3">
+              <DropdownMenuItem 
+                onClick={() => setSpecificTheme('dark')}
+                className="flex items-center gap-2 p-3"
+              >
                 <Moon className="w-4 h-4" />
                 Dark Mode
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => toggleTheme()} className="flex items-center gap-2 p-3">
+              <DropdownMenuItem 
+                onClick={() => setSpecificTheme('colorblind')}
+                className="flex items-center gap-2 p-3"
+              >
                 <Palette className="w-4 h-4" />
                 Colorblind Friendly
               </DropdownMenuItem>
@@ -338,6 +388,74 @@ const BuyerDashboard = () => {
               Upload Photo
             </Button>
           </div>
+
+          {photo?.webPath && !showAssessmentQuestions && (
+            <div className="mt-8">
+              <Button 
+                onClick={() => setShowAssessmentQuestions(true)}
+                size="lg"
+                className="w-full h-14 bg-primary hover:bg-primary/90 text-lg"
+              >
+                Continue Assessment
+              </Button>
+            </div>
+          )}
+
+          {showAssessmentQuestions && (
+            <div className="mt-8 space-y-6">
+              <h3 className="text-xl font-semibold text-center mb-6">Quality Assessment Questions</h3>
+              
+              {/* Transport Condition */}
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700">
+                  How would you rate the transport conditions?
+                </label>
+                <div className="grid grid-cols-3 gap-3">
+                  {['Poor', 'Average', 'Excellent'].map((option) => (
+                    <Button
+                      key={option}
+                      variant={transportCondition === option ? "default" : "outline"}
+                      onClick={() => setTransportCondition(option)}
+                      className="h-12"
+                    >
+                      {option}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Storage Condition */}
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700">
+                  How would you rate the storage conditions?
+                </label>
+                <div className="grid grid-cols-3 gap-3">
+                  {['Poor', 'Average', 'Excellent'].map((option) => (
+                    <Button
+                      key={option}
+                      variant={storageCondition === option ? "default" : "outline"}
+                      onClick={() => setStorageCondition(option)}
+                      className="h-12"
+                    >
+                      {option}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {transportCondition && storageCondition && (
+                <div className="mt-6">
+                  <Button 
+                    onClick={generateFinalAssessment}
+                    size="lg"
+                    className="w-full h-14 bg-success hover:bg-success/90 text-lg"
+                  >
+                    Generate Final Assessment
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
 
           {scanProgress > 0 && (
             <div className="mt-8 p-6 bg-blue-50 rounded-2xl">

@@ -27,6 +27,12 @@ import {
   Moon,
   Palette
 } from 'lucide-react';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import LogoutButton from '@/components/LogoutButton';
 import FarmerInsights from '@/components/FarmerInsights';
 import CommunityFeed from '@/components/CommunityFeed';
@@ -35,7 +41,7 @@ import AIAssistant from '@/components/AIAssistant';
 const FarmerDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, setTheme: setSpecificTheme } = useTheme();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -150,14 +156,40 @@ const FarmerDashboard = () => {
               >
                 <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleTheme}
-                className="hover:bg-muted/50 p-2"
-              >
-                {getThemeIcon()}
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="hover:bg-muted/50 p-2"
+                  >
+                    {getThemeIcon()}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuItem 
+                    onClick={() => setSpecificTheme('light')}
+                    className="flex items-center gap-2"
+                  >
+                    <Sun className="w-4 h-4" />
+                    Light
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => setSpecificTheme('dark')}
+                    className="flex items-center gap-2"
+                  >
+                    <Moon className="w-4 h-4" />
+                    Dark
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => setSpecificTheme('colorblind')}
+                    className="flex items-center gap-2"
+                  >
+                    <Palette className="w-4 h-4" />
+                    Colorblind
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button
                 variant="ghost"
                 size="sm"
@@ -173,54 +205,6 @@ const FarmerDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {/* Location & Weather Summary */}
-        <div className="mb-6 sm:mb-8">
-          <Card className="border-border bg-card">
-            <CardContent className="p-4 sm:pt-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-sm sm:text-base">Location</h3>
-                    {location ? (
-                      <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                        {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
-                      </p>
-                    ) : (
-                      <p className="text-xs sm:text-sm text-destructive">Unavailable</p>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-info/10 rounded-lg flex items-center justify-center">
-                    <Thermometer className="w-5 h-5 text-info" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-sm sm:text-base">Weather</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      {weather ? `${weather.temperature}°C, ${weather.humidity}%` : 'Loading...'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3 sm:col-span-2 lg:col-span-1">
-                  <div className="w-10 h-10 bg-info/10 rounded-lg flex items-center justify-center">
-                    <Droplets className="w-5 h-5 text-info" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-sm sm:text-base">Soil Moisture</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      {soilMoisture ? `${soilMoisture.moistureLevel}% - ${soilMoisture.status}` : 'Loading...'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Main Dashboard Tabs */}
         <Tabs defaultValue="insights" className="space-y-4 sm:space-y-6">
