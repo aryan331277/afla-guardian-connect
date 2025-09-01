@@ -47,9 +47,22 @@ const RoleSelection = () => {
     
     // Speak the role confirmation
     const roleText = roles.find(r => r.role === selectedRole)?.title || selectedRole;
-    await ttsService.speak(`You selected ${roleText}. Proceeding to authentication.`, 'en');
+    await ttsService.speak(`You selected ${roleText}. Opening dashboard.`, 'en');
     
-    navigate('/phone-auth');
+    // Navigate directly to the appropriate dashboard
+    switch (selectedRole) {
+      case 'farmer':
+        navigate('/farmer');
+        break;
+      case 'buyer':
+        navigate('/buyer');
+        break;
+      case 'government':
+        navigate('/government');
+        break;
+      default:
+        navigate('/farmer');
+    }
   };
 
   const handleSpeak = async (text: string) => {
