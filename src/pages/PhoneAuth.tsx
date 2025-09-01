@@ -192,6 +192,25 @@ const PhoneAuth = () => {
     setSignupPassword('');
   };
 
+  const handleContinue = () => {
+    // Skip authentication and go directly to the selected role dashboard
+    const role = localStorage.getItem('aflaguard-role') || 'farmer';
+    
+    switch (role) {
+      case 'farmer':
+        navigate('/farmer');
+        break;
+      case 'buyer':
+        navigate('/buyer');
+        break;
+      case 'government':
+        navigate('/government');
+        break;
+      default:
+        navigate('/farmer');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 flex items-center justify-center">
       <div className="w-full max-w-md">
@@ -212,152 +231,21 @@ const PhoneAuth = () => {
         <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
           <CardHeader className="text-center pb-6">
             <CardTitle className="text-xl text-foreground">
-              Authentication
+              Ready to Get Started!
             </CardTitle>
+            <p className="text-muted-foreground">
+              Click below to access your dashboard
+            </p>
           </CardHeader>
           
-          <CardContent>
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-muted rounded-xl p-1">
-                <TabsTrigger value="login" onClick={resetForm} className="rounded-lg">Login</TabsTrigger>
-                <TabsTrigger value="signup" onClick={resetForm} className="rounded-lg">Sign Up</TabsTrigger>
-              </TabsList>
-            
-            <TabsContent value="login" className="space-y-6 mt-6">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="login-name" className="text-foreground">Name</Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => speakText("Enter your name")}
-                    className="p-1 h-auto"
-                  >
-                    <Volume2 className="h-3 w-3" />
-                  </Button>
-                </div>
-                <Input
-                  id="login-name"
-                  type="text"
-                  placeholder="Enter your name"
-                  value={loginName}
-                  onChange={(e) => setLoginName(e.target.value)}
-                  disabled={loading}
-                  className="h-12 border-2 border-gray-200 rounded-xl focus:border-primary"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="login-password" className="text-foreground">Password</Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => speakText("Enter your password")}
-                    className="p-1 h-auto"
-                  >
-                    <Volume2 className="h-3 w-3" />
-                  </Button>
-                </div>
-                <Input
-                  id="login-password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  disabled={loading}
-                  className="h-12 border-2 border-gray-200 rounded-xl focus:border-primary"
-                />
-              </div>
-              
-              <Button 
-                onClick={handleLogin}
-                disabled={loading}
-                className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl"
-                size="lg"
-              >
-                {loading ? 'Logging in...' : 'Login'}
-              </Button>
-            </TabsContent>
-            
-            <TabsContent value="signup" className="space-y-6 mt-6">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="signup-name" className="text-foreground">Full Name</Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => speakText("Enter your full name")}
-                    className="p-1 h-auto"
-                  >
-                    <Volume2 className="h-3 w-3" />
-                  </Button>
-                </div>
-                <Input
-                  id="signup-name"
-                  type="text"
-                  placeholder="Enter your full name"
-                  value={signupName}
-                  onChange={(e) => setSignupName(e.target.value)}
-                  disabled={loading}
-                  className="h-12 border-2 border-gray-200 rounded-xl focus:border-primary"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="signup-phone" className="text-foreground">Phone Number</Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => speakText("Enter your phone number")}
-                    className="p-1 h-auto"
-                  >
-                    <Volume2 className="h-3 w-3" />
-                  </Button>
-                </div>
-                <Input
-                  id="signup-phone"
-                  type="tel"
-                  placeholder="+254712345678 or 0712345678"
-                  value={signupPhone}
-                  onChange={(e) => setSignupPhone(e.target.value)}
-                  disabled={loading}
-                  className="h-12 border-2 border-gray-200 rounded-xl focus:border-primary"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="signup-password" className="text-foreground">Set Password</Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => speakText("Create a secure password")}
-                    className="p-1 h-auto"
-                  >
-                    <Volume2 className="h-3 w-3" />
-                  </Button>
-                </div>
-                <Input
-                  id="signup-password"
-                  type="password"
-                  placeholder="Create a secure password (min 6 characters)"
-                  value={signupPassword}
-                  onChange={(e) => setSignupPassword(e.target.value)}
-                  disabled={loading}
-                  className="h-12 border-2 border-gray-200 rounded-xl focus:border-primary"
-                />
-              </div>
-              <Button 
-                onClick={handleDirectSignup}
-                disabled={loading}
-                className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl"
-                size="lg"
-              >
-                {loading ? 'Creating Account...' : 'Create Account'}
-              </Button>
-            </TabsContent>
+          <CardContent className="text-center">
+            <Button 
+              onClick={handleContinue}
+              className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl"
+              size="lg"
+            >
+              Access Dashboard
+            </Button>
             
             <div className="mt-8 text-center">
               <Button
@@ -368,9 +256,8 @@ const PhoneAuth = () => {
                 ← Back to Role Selection
               </Button>
             </div>
-          </Tabs>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
