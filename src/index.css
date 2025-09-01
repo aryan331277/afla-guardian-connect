@@ -6,40 +6,40 @@
 
 @layer base {
   :root {
-    /* Professional dark navy theme */
-    --background: 210 20% 98%;
+    /* Clean modern background */
+    --background: 0 0% 100%;
     --foreground: 210 15% 12%;
 
-    /* Primary deep forest green */
-    --primary: 158 64% 30%;
+    /* Professional teal primary (matching reference) */
+    --primary: 178 60% 37%;
     --primary-foreground: 0 0% 98%;
-    --primary-light: 158 50% 45%;
-    --primary-dark: 158 75% 20%;
+    --primary-light: 178 50% 50%;
+    --primary-dark: 178 70% 25%;
 
-    /* Professional gray secondary */
-    --secondary: 210 15% 85%;
+    /* Modern gray secondary */
+    --secondary: 210 15% 95%;
     --secondary-foreground: 210 15% 12%;
 
-    /* Gold accent for premium feel */
-    --accent: 45 90% 55%;
+    /* Clean accent */
+    --accent: 210 15% 95%;
     --accent-foreground: 210 15% 12%;
 
-    /* Professional UI elements */
+    /* Modern UI elements */
     --card: 0 0% 100%;
     --card-foreground: 210 15% 12%;
     
     --popover: 0 0% 100%;
     --popover-foreground: 210 15% 12%;
 
-    --muted: 210 15% 95%;
-    --muted-foreground: 210 10% 50%;
+    --muted: 210 15% 96%;
+    --muted-foreground: 210 10% 45%;
 
-    --destructive: 0 75% 55%;
+    --destructive: 0 65% 55%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 210 20% 90%;
-    --input: 210 20% 96%;
-    --ring: 158 64% 30%;
+    --border: 210 15% 90%;
+    --input: 0 0% 100%;
+    --ring: 178 60% 37%;
 
     /* Gamification colors */
     --success: 139 60% 45%;
@@ -76,13 +76,13 @@
   }
 
   .dark {
-    --background: 210 30% 8%;
+    --background: 210 25% 8%;
     --foreground: 210 10% 95%;
 
-    --primary: 158 45% 45%;
-    --primary-foreground: 210 30% 8%;
-    --primary-light: 158 35% 55%;
-    --primary-dark: 158 55% 35%;
+    --primary: 178 55% 45%;
+    --primary-foreground: 210 25% 8%;
+    --primary-light: 178 45% 55%;
+    --primary-dark: 178 65% 35%;
 
     --secondary: 210 20% 15%;
     --secondary-foreground: 210 10% 95%;

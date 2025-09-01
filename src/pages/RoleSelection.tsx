@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserRole } from '@/lib/database';
 import { t } from '@/lib/i18n';
 import { ttsService } from '@/lib/tts';
+import { Wheat, Building2, Building } from 'lucide-react';
 
 const RoleSelection = () => {
   const navigate = useNavigate();
@@ -13,24 +14,27 @@ const RoleSelection = () => {
   const roles = [
     {
       role: 'farmer' as UserRole,
-      icon: '🌾',
+      icon: <Wheat className="w-8 h-8 text-white" />,
+      iconBg: 'bg-primary',
       title: t('role.farmer', 'Farmer'),
-      description: 'Scan crops for aflatoxin risk, get AI recommendations, and join the farming community.',
-      features: ['15-feature scanning wizard', 'AI chat assistant', 'Community forum', 'Gamification rewards']
+      description: 'Advanced crop health monitoring and AI-powered recommendations',
+      features: ['Crop Health Monitoring', 'AI Risk Analysis', 'Weather Insights', 'Expert Consultations']
     },
     {
       role: 'buyer' as UserRole,
-      icon: '🏪',
+      icon: <Building2 className="w-8 h-8 text-white" />,
+      iconBg: 'bg-blue-500',
       title: t('role.buyer', 'Buyer'),
-      description: 'Quickly assess corn quality and contamination levels before purchase.',
-      features: ['Camera-based detection', 'Quality assessment', 'Resell bad corn to NGOs', 'Quick verification']
+      description: 'Quality assessment and supply chain management tools',
+      features: ['Quality Assessment', 'Supply Chain Tracking', 'Market Analytics', 'NGO Network']
     },
     {
       role: 'government' as UserRole,
-      icon: '🏛️',
+      icon: <Building className="w-8 h-8 text-white" />,
+      iconBg: 'bg-purple-500',
       title: t('role.government', 'Government'),
-      description: 'Monitor regional contamination levels and track agricultural data.',
-      features: ['Analytics dashboard', 'Regional insights', 'Export reports', 'Resource allocation']
+      description: 'Regional Analytics',
+      features: ['Regional Analytics', 'Policy Insights', 'Resource Planning', 'Export Reports']
     }
   ];
 
@@ -53,11 +57,19 @@ const RoleSelection = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-accent/10 p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8 pt-8">
-          <h1 className="text-3xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
-            {t('role.select', 'Choose Your Role')}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 flex items-center justify-center">
+      <div className="w-full max-w-6xl">
+        <div className="text-center mb-12">
+          <div className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <Wheat className="w-10 h-10 text-white" />
+          </div>
+          
+          <h1 className="text-3xl font-bold text-primary mb-2">
+            Welcome to AflaGuard
+          </h1>
+          
+          <h2 className="text-xl text-foreground flex items-center justify-center gap-2">
+            Choose Your Role
             <button
               onClick={() => handleSpeak(t('role.select', 'Choose Your Role'))}
               className="p-1 rounded-full hover:bg-accent transition-colors"
@@ -66,25 +78,27 @@ const RoleSelection = () => {
                 <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
               </svg>
             </button>
-          </h1>
+          </h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
           {roles.map((role) => (
             <Card
               key={role.role}
               className={`
-                cursor-pointer transition-all hover:shadow-lg
+                cursor-pointer transition-all hover:shadow-xl bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:-translate-y-1
                 ${selectedRole === role.role 
-                  ? 'border-primary bg-primary/5 ring-2 ring-primary/20' 
-                  : 'border-border hover:border-primary/50'
+                  ? 'ring-2 ring-primary shadow-2xl' 
+                  : 'hover:shadow-xl'
                 }
               `}
               onClick={() => handleRoleSelect(role.role)}
             >
-              <CardHeader className="text-center">
-                <div className="text-4xl mb-2">{role.icon}</div>
-                <CardTitle className="flex items-center justify-center gap-2">
+              <CardHeader className="text-center pb-6">
+                <div className={`w-16 h-16 ${role.iconBg} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
+                  {role.icon}
+                </div>
+                <CardTitle className="text-xl font-bold text-foreground flex items-center justify-center gap-2">
                   {role.title}
                   <button
                     onClick={(e) => {
@@ -98,13 +112,13 @@ const RoleSelection = () => {
                     </svg>
                   </button>
                 </CardTitle>
+                <p className="text-muted-foreground text-center">{role.description}</p>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">{role.description}</p>
-                <ul className="space-y-2">
+              <CardContent className="pt-0">
+                <ul className="space-y-3">
                   {role.features.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm">
-                      <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                    <li key={index} className="flex items-center gap-3 text-sm text-foreground">
+                      <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
                       {feature}
                     </li>
                   ))}
@@ -118,7 +132,7 @@ const RoleSelection = () => {
           <Button 
             onClick={handleContinue}
             size="lg"
-            className="px-8"
+            className="px-12 h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl"
           >
             {t('action.continue', 'Continue')}
           </Button>

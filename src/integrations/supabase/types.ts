@@ -46,6 +46,84 @@ export type Database = {
           },
         ]
       }
+      buyer_gamification: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          last_scan_date: string | null
+          scan_streak: number
+          total_points: number
+          total_scans: number
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          last_scan_date?: string | null
+          scan_streak?: number
+          total_points?: number
+          total_scans?: number
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          last_scan_date?: string | null
+          scan_streak?: number
+          total_points?: number
+          total_scans?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      buyer_scans: {
+        Row: {
+          aflatoxin_detected: boolean
+          buyer_id: string
+          confidence_score: number
+          created_at: string
+          environment_condition: string | null
+          id: string
+          image_data: string | null
+          risk_level: string
+          risk_score: number
+          storage_condition: string | null
+          transport_condition: string | null
+          updated_at: string
+        }
+        Insert: {
+          aflatoxin_detected: boolean
+          buyer_id: string
+          confidence_score: number
+          created_at?: string
+          environment_condition?: string | null
+          id?: string
+          image_data?: string | null
+          risk_level: string
+          risk_score: number
+          storage_condition?: string | null
+          transport_condition?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aflatoxin_detected?: boolean
+          buyer_id?: string
+          confidence_score?: number
+          created_at?: string
+          environment_condition?: string | null
+          id?: string
+          image_data?: string | null
+          risk_level?: string
+          risk_score?: number
+          storage_condition?: string | null
+          transport_condition?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       community_posts: {
         Row: {
           author_id: string
@@ -365,10 +443,31 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      government_analytics: {
+        Row: {
+          average_risk_score: number | null
+          high_risk_scans: number | null
+          month_year: string | null
+          total_buyers: number | null
+          total_scans: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      get_safe_user_info: {
+        Args: { user_id_param: string }
+        Returns: {
+          created_at: string
+          full_name: string
+          id: string
+          role: string
+        }[]
+      }
+      update_buyer_gamification: {
+        Args: { buyer_id: string; points_to_add: number }
+        Returns: undefined
+      }
     }
     Enums: {
       genotype_category:

@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { authService, FarmerUser } from '@/lib/auth';
 import { ttsService } from '@/lib/tts';
-import { Volume2 } from 'lucide-react';
+import { Volume2, Wheat } from 'lucide-react';
 
 const PhoneAuth = () => {
   const navigate = useNavigate();
@@ -193,27 +193,40 @@ const PhoneAuth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center p-4 animate-fade-in">
-      <Card className="w-full max-w-md animate-bounce-in hover-scale hover-glow">
-        <CardHeader className="text-center animate-slide-in">
-          <CardTitle className="text-2xl text-primary animate-pulse">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 flex items-center justify-center">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <Wheat className="w-10 h-10 text-white" />
+          </div>
+          
+          <h1 className="text-3xl font-bold text-primary mb-2">
             Welcome to AflaGuard
-          </CardTitle>
-          <p className="text-muted-foreground">
-            Your Agricultural Protection Assistant
+          </h1>
+          
+          <p className="text-muted-foreground text-lg">
+            Professional Agricultural Intelligence Platform
           </p>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 animate-scale-up">
-              <TabsTrigger value="login" onClick={resetForm}>Login</TabsTrigger>
-              <TabsTrigger value="signup" onClick={resetForm}>Sign Up</TabsTrigger>
-            </TabsList>
+        </div>
+
+        <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-xl text-foreground">
+              Authentication
+            </CardTitle>
+          </CardHeader>
+          
+          <CardContent>
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 bg-muted rounded-xl p-1">
+                <TabsTrigger value="login" onClick={resetForm} className="rounded-lg">Login</TabsTrigger>
+                <TabsTrigger value="signup" onClick={resetForm} className="rounded-lg">Sign Up</TabsTrigger>
+              </TabsList>
             
-            <TabsContent value="login" className="space-y-4 animate-fade-in">
+            <TabsContent value="login" className="space-y-6 mt-6">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Label htmlFor="login-name">Name</Label>
+                  <Label htmlFor="login-name" className="text-foreground">Name</Label>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -230,13 +243,13 @@ const PhoneAuth = () => {
                   value={loginName}
                   onChange={(e) => setLoginName(e.target.value)}
                   disabled={loading}
-                  className="transition-all duration-200 hover:border-primary/50"
+                  className="h-12 border-2 border-gray-200 rounded-xl focus:border-primary"
                 />
               </div>
               
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Label htmlFor="login-password">Password</Label>
+                  <Label htmlFor="login-password" className="text-foreground">Password</Label>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -253,24 +266,24 @@ const PhoneAuth = () => {
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   disabled={loading}
-                  className="transition-all duration-200 hover:border-primary/50"
+                  className="h-12 border-2 border-gray-200 rounded-xl focus:border-primary"
                 />
               </div>
               
               <Button 
                 onClick={handleLogin}
                 disabled={loading}
-                className="w-full animate-scale-up hover:animate-wiggle"
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl"
                 size="lg"
               >
                 {loading ? 'Logging in...' : 'Login'}
               </Button>
             </TabsContent>
             
-            <TabsContent value="signup" className="space-y-4 animate-fade-in">
+            <TabsContent value="signup" className="space-y-6 mt-6">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Label htmlFor="signup-name">Full Name</Label>
+                  <Label htmlFor="signup-name" className="text-foreground">Full Name</Label>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -287,13 +300,13 @@ const PhoneAuth = () => {
                   value={signupName}
                   onChange={(e) => setSignupName(e.target.value)}
                   disabled={loading}
-                  className="transition-all duration-200 hover:border-primary/50"
+                  className="h-12 border-2 border-gray-200 rounded-xl focus:border-primary"
                 />
               </div>
               
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Label htmlFor="signup-phone">Phone Number</Label>
+                  <Label htmlFor="signup-phone" className="text-foreground">Phone Number</Label>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -310,13 +323,13 @@ const PhoneAuth = () => {
                   value={signupPhone}
                   onChange={(e) => setSignupPhone(e.target.value)}
                   disabled={loading}
-                  className="transition-all duration-200 hover:border-primary/50"
+                  className="h-12 border-2 border-gray-200 rounded-xl focus:border-primary"
                 />
               </div>
               
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Label htmlFor="signup-password">Set Password</Label>
+                  <Label htmlFor="signup-password" className="text-foreground">Set Password</Label>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -333,31 +346,32 @@ const PhoneAuth = () => {
                   value={signupPassword}
                   onChange={(e) => setSignupPassword(e.target.value)}
                   disabled={loading}
-                  className="transition-all duration-200 hover:border-primary/50"
+                  className="h-12 border-2 border-gray-200 rounded-xl focus:border-primary"
                 />
               </div>
               <Button 
                 onClick={handleDirectSignup}
                 disabled={loading}
-                className="w-full animate-scale-up hover:animate-wiggle"
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl"
                 size="lg"
               >
                 {loading ? 'Creating Account...' : 'Create Account'}
               </Button>
             </TabsContent>
+            
+            <div className="mt-8 text-center">
+              <Button
+                variant="link"
+                onClick={() => navigate('/role-selection')}
+                className="text-sm text-muted-foreground hover:text-primary"
+              >
+                ← Back to Role Selection
+              </Button>
+            </div>
           </Tabs>
-          
-          <div className="mt-6 text-center">
-            <Button
-              variant="link"
-              onClick={() => navigate('/role-selection')}
-              className="text-sm text-muted-foreground hover:text-primary"
-            >
-              ← Back to Role Selection
-            </Button>
-          </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };
