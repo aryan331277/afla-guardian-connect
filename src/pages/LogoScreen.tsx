@@ -39,6 +39,20 @@ const LogoScreen = () => {
             </p>
           </div>
 
+          {/* Data Privacy Message */}
+          <div className="space-y-3 animate-fade-in">
+            <div className="bg-card border border-border rounded-lg p-4 max-w-md mx-auto">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">🔒</span>
+                <h3 className="text-sm font-semibold text-card-foreground">Your Privacy Matters</h3>
+              </div>
+              <p className="text-xs text-card-foreground leading-relaxed">
+                We protect your agricultural data with enterprise-grade security. 
+                Your crop information and farm data remain confidential and are never shared without your consent.
+              </p>
+            </div>
+          </div>
+
           {/* Tagline */}
           <div className="space-y-3 animate-fade-in">
             <p className="text-lg text-accent font-medium">
