@@ -132,6 +132,18 @@ const BuyerDashboard = () => {
     }
   };
 
+  const handleLearnMore = () => {
+    alert('Our AI-powered system provides 95% accuracy in detecting aflatoxin contamination using advanced computer vision and machine learning algorithms. The system analyzes visual patterns, color variations, and kernel characteristics to identify potential contamination.');
+  };
+
+  const handleViewNetwork = () => {
+    setCurrentView('ngo-marketplace');
+  };
+
+  const handleViewTrends = () => {
+    alert('Market Trends:\n• Current corn price: $180/ton\n• Quality grain demand: High\n• Contaminated grain disposal rate: $25-30/ton\n• Market forecast: Stable prices expected through harvest season');
+  };
+
   const getThemeIcon = () => {
     switch (theme) {
       case 'dark': return <Moon className="w-5 h-5" />;
@@ -716,7 +728,7 @@ const BuyerDashboard = () => {
             <p className="text-gray-600 mb-4">
               Our AI-powered system provides 95% accuracy in detecting aflatoxin contamination.
             </p>
-            <Button variant="outline" className="w-full">Learn More</Button>
+            <Button variant="outline" className="w-full" onClick={handleLearnMore}>Learn More</Button>
           </CardContent>
         </Card>
 
@@ -731,7 +743,7 @@ const BuyerDashboard = () => {
             <p className="text-gray-600 mb-4">
               Connect with 50+ verified NGOs for safe disposal of contaminated grain.
             </p>
-            <Button variant="outline" className="w-full">View Network</Button>
+            <Button variant="outline" className="w-full" onClick={handleViewNetwork}>View Network</Button>
           </CardContent>
         </Card>
 
@@ -746,7 +758,7 @@ const BuyerDashboard = () => {
             <p className="text-gray-600 mb-4">
               Get real-time pricing and market trends for quality grain trading.
             </p>
-            <Button variant="outline" className="w-full">View Trends</Button>
+            <Button variant="outline" className="w-full" onClick={handleViewTrends}>View Trends</Button>
           </CardContent>
         </Card>
       </div>
