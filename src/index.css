@@ -8,13 +8,13 @@
   :root {
     /* Clean modern background */
     --background: 0 0% 100%;
-    --foreground: 210 15% 12%;
+    --foreground: 0 0% 0%;
 
-    /* Professional teal primary (matching reference) */
-    --primary: 178 60% 37%;
-    --primary-foreground: 0 0% 98%;
-    --primary-light: 178 50% 50%;
-    --primary-dark: 178 70% 25%;
+    /* Light mode: #117977 and #FFFFFF */
+    --primary: 178 66% 28%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 178 60% 35%;
+    --primary-dark: 178 70% 20%;
 
     /* Modern gray secondary */
     --secondary: 210 15% 95%;
@@ -76,13 +76,14 @@
   }
 
   .dark {
-    --background: 210 25% 8%;
-    --foreground: 210 10% 95%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
 
-    --primary: 178 55% 45%;
-    --primary-foreground: 210 25% 8%;
-    --primary-light: 178 45% 55%;
-    --primary-dark: 178 65% 35%;
+    /* Dark mode: #17A6A4 and #000000 */
+    --primary: 178 72% 38%;
+    --primary-foreground: 0 0% 0%;
+    --primary-light: 178 65% 45%;
+    --primary-dark: 178 80% 30%;
 
     --secondary: 210 20% 15%;
     --secondary-foreground: 210 10% 95%;
@@ -121,14 +122,15 @@
   }
 
   .colorblind {
-    --primary: 200 70% 45%;
-    --primary-foreground: 200 15% 95%;
-    --accent: 45 85% 55%;
-    --accent-foreground: 45 15% 15%;
-    --destructive: 280 50% 55%;
-    --success: 280 30% 35%;
-    --warning: 45 85% 55%;
-    --info: 200 70% 55%;
+    /* Colorblind: #154C3B and #6ABCEC */
+    --primary: 160 54% 20%;
+    --primary-foreground: 198 81% 67%;
+    --accent: 198 81% 67%;
+    --accent-foreground: 160 54% 20%;
+    --destructive: 160 54% 20%;
+    --success: 160 54% 20%;
+    --warning: 198 81% 67%;
+    --info: 198 81% 67%;
   }
 }
 

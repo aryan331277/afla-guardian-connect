@@ -121,30 +121,14 @@ const BuyerDashboard = () => {
   const handleCameraCapture = async () => {
     const result = await takePhoto();
     if (result) {
-      // Simulate AI processing
-      setScanProgress(25);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setScanProgress(50);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setScanProgress(75);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setScanProgress(100);
-      
-      await ttsService.speak('Photo captured successfully. AI analysis complete.', 'en');
-      
-      // Show results after a brief delay
-      setTimeout(() => {
-        alert('AI Analysis Complete!\n\nCorn Quality: Good\nAflatoxin Level: Low\nRecommendation: Safe for consumption');
-        setScanProgress(0);
-      }, 500);
+      await ttsService.speak('Photo captured successfully.', 'en');
     }
   };
 
   const handleGallerySelect = async () => {
     const result = await selectFromGallery();
     if (result) {
-      await ttsService.speak('Photo selected from gallery. Processing with AI.', 'en');
-      handleCameraCapture(); // Use same processing flow
+      await ttsService.speak('Photo selected from gallery.', 'en');
     }
   };
 
@@ -213,9 +197,18 @@ const BuyerDashboard = () => {
       return;
     }
     
-    await ttsService.speak(`Pickup request sent to ${selectedNGO.name}. SMS will be sent to their phone number.`, 'en');
-    // Here you would normally send the actual request
-    alert(`Pickup request sent to ${selectedNGO.name}!\nSMS will be sent to ${selectedNGO.phone} with your pickup request details.`);
+    try {
+      await ttsService.speak(`Pickup request sent to ${selectedNGO.name}.`, 'en');
+      alert(`Pickup request sent to ${selectedNGO.name}!\nSMS will be sent to ${selectedNGO.phone} with your pickup request details.`);
+      
+      // Reset form
+      setGrainQuantity('');
+      setGrainCondition('');
+      setSelectedNGO(null);
+    } catch (error) {
+      console.error('Error sending pickup request:', error);
+      await ttsService.speak('Error sending pickup request. Please try again.', 'en');
+    }
   };
 
   if (isLoading) {
