@@ -1,4 +1,5 @@
 import { LocationData } from './geolocation.service';
+import { offlineService } from './offline.service';
 
 export interface WeatherData {
   temperature: number;
@@ -41,6 +42,30 @@ class ApiService {
   }
 
   async fetchWeatherData(location: LocationData): Promise<WeatherData> {
+    const cacheKey = `weather_${location.latitude}_${location.longitude}`;
+    
+    // Try to get cached data first
+    const cachedData = offlineService.getCachedData(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+    
+    // If offline, return default data
+    if (offlineService.isOffline()) {
+      const defaultData = {
+        temperature: 25,
+        humidity: 60,
+        rainfall: 0,
+        windSpeed: 5,
+        pressure: 1013,
+        description: 'Weather data unavailable offline',
+        icon: '☁️',
+        location: `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`,
+        timestamp: Date.now()
+      };
+      return defaultData;
+    }
+    
     try {
       // Simulate API call - Replace with actual weather API
       await this.delay(1000 + Math.random() * 1000);
@@ -52,7 +77,7 @@ class ApiService {
       const windSpeed = Math.random() * 15; // 0-15 m/s
       const pressure = 1000 + Math.random() * 50; // 1000-1050 hPa
       
-      return {
+      const weatherData = {
         temperature: Math.round(temperature * 10) / 10,
         humidity: Math.round(humidity),
         rainfall: Math.round(rainfall * 10) / 10,
@@ -63,12 +88,37 @@ class ApiService {
         location: `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`,
         timestamp: Date.now()
       };
+      
+      // Cache for 30 minutes
+      await offlineService.cacheData(cacheKey, weatherData, 30 * 60 * 1000);
+      
+      return weatherData;
     } catch (error) {
       throw new Error(`Failed to fetch weather data: ${error}`);
     }
   }
 
   async fetchNDVIData(location: LocationData): Promise<NDVIData> {
+    const cacheKey = `ndvi_${location.latitude}_${location.longitude}`;
+    
+    // Try to get cached data first
+    const cachedData = offlineService.getCachedData(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+    
+    // If offline, return default data
+    if (offlineService.isOffline()) {
+      const defaultData = {
+        value: 0.5,
+        interpretation: 'Fair' as const,
+        date: new Date().toISOString().split('T')[0],
+        cloudCover: 15,
+        location: `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`
+      };
+      return defaultData;
+    }
+    
     try {
       // Simulate NDVI API call
       await this.delay(1500 + Math.random() * 1000);
@@ -77,19 +127,44 @@ class ApiService {
       const ndviValue = 0.2 + Math.random() * 0.6;
       const cloudCover = Math.random() * 30; // 0-30% cloud cover
       
-      return {
+      const ndviData = {
         value: Math.round(ndviValue * 1000) / 1000,
         interpretation: this.interpretNDVI(ndviValue),
         date: new Date().toISOString().split('T')[0],
         cloudCover: Math.round(cloudCover),
         location: `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`
       };
+      
+      // Cache for 1 hour
+      await offlineService.cacheData(cacheKey, ndviData, 60 * 60 * 1000);
+      
+      return ndviData;
     } catch (error) {
       throw new Error(`Failed to fetch NDVI data: ${error}`);
     }
   }
 
   async fetchSoilMoistureData(location: LocationData): Promise<SoilMoistureData> {
+    const cacheKey = `soil_${location.latitude}_${location.longitude}`;
+    
+    // Try to get cached data first
+    const cachedData = offlineService.getCachedData(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+    
+    // If offline, return default data
+    if (offlineService.isOffline()) {
+      const defaultData = {
+        moistureLevel: 50,
+        status: 'Optimal' as const,
+        temperature: 25,
+        recommendation: 'Soil moisture data unavailable offline',
+        lastUpdated: new Date().toISOString()
+      };
+      return defaultData;
+    }
+    
     try {
       // Simulate soil moisture API call
       await this.delay(800 + Math.random() * 800);
@@ -97,13 +172,18 @@ class ApiService {
       const moistureLevel = Math.random() * 100; // 0-100%
       const soilTemperature = 15 + Math.random() * 20; // 15-35°C
       
-      return {
+      const soilData = {
         moistureLevel: Math.round(moistureLevel),
         status: this.getMoistureStatus(moistureLevel),
         temperature: Math.round(soilTemperature * 10) / 10,
         recommendation: this.getMoistureRecommendation(moistureLevel),
         lastUpdated: new Date().toISOString()
       };
+      
+      // Cache for 2 hours
+      await offlineService.cacheData(cacheKey, soilData, 2 * 60 * 60 * 1000);
+      
+      return soilData;
     } catch (error) {
       throw new Error(`Failed to fetch soil moisture data: ${error}`);
     }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { geolocationService, LocationData, LocationError } from '@/services/geolocation.service';
 import { apiService, WeatherData, NDVIData, SoilMoistureData } from '@/services/api.service';
+import { offlineService } from '@/services/offline.service';
 
 interface LocationDataState {
   location: LocationData | null;
@@ -24,6 +25,16 @@ export const useLocationData = () => {
     permissionStatus: null,
     retryCount: 0
   });
+
+  // Auto-sync when back online
+  useEffect(() => {
+    const handleOnline = () => {
+      offlineService.syncWhenOnline();
+    };
+
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
+  }, []);
 
   const fetchLocationAndData = useCallback(async () => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -61,6 +72,17 @@ export const useLocationData = () => {
       if (weather.status === 'rejected') console.error('Weather fetch failed:', weather.reason);
       if (ndvi.status === 'rejected') console.error('NDVI fetch failed:', ndvi.reason);
       if (soilMoisture.status === 'rejected') console.error('Soil moisture fetch failed:', soilMoisture.reason);
+
+      // Queue offline action if needed
+      if (offlineService.isOffline()) {
+        await offlineService.queueOfflineAction('location_data_fetch', {
+          location: state.location,
+          weather: weather.status === 'fulfilled' ? weather.value : null,
+          ndvi: ndvi.status === 'fulfilled' ? ndvi.value : null,
+          soilMoisture: soilMoisture.status === 'fulfilled' ? soilMoisture.value : null,
+          timestamp: new Date().toISOString()
+        });
+      }
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';

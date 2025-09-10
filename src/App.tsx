@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 import SplashScreen from "./pages/SplashScreen";
 import LogoScreen from "./pages/LogoScreen";
 import PrivacyAgreement from "./pages/PrivacyAgreement";
@@ -42,6 +43,7 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <OfflineIndicator />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LogoScreen />} />
