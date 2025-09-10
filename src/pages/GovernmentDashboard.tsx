@@ -88,10 +88,6 @@ const GovernmentDashboard = () => {
     await ttsService.speak(text, user?.language || 'en');
   };
 
-  const exportData = (format: 'pdf' | 'csv' | 'png') => {
-    console.log(`Exporting data as ${format}`);
-    // Implementation would go here
-  };
 
   const getThemeIcon = () => {
     switch (theme) {
@@ -338,40 +334,6 @@ const GovernmentDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Export Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('gov.export', 'Export Data')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              <Button 
-                onClick={() => exportData('pdf')}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Export PDF
-              </Button>
-              <Button 
-                onClick={() => exportData('csv')}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Export CSV
-              </Button>
-              <Button 
-                onClick={() => exportData('png')}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Export PNG
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Suggestions Panel */}
         <Card>
