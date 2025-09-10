@@ -154,7 +154,6 @@ const FarmerDashboard = () => {
                 </div>
                 <div className="hidden sm:block">
                   <h1 className="text-lg sm:text-xl font-bold text-foreground">AflaGuard Pro</h1>
-                  <p className="text-xs text-muted-foreground">Agricultural Intelligence Platform</p>
                 </div>
               </div>
               {user && (
