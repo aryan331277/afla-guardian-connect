@@ -18,18 +18,18 @@
 
     /* Modern gray secondary */
     --secondary: 210 15% 95%;
-    --secondary-foreground: 210 15% 12%;
+    --secondary-foreground: 0 0% 0%;
 
     /* Clean accent */
     --accent: 210 15% 95%;
-    --accent-foreground: 210 15% 12%;
+    --accent-foreground: 0 0% 0%;
 
     /* Modern UI elements */
     --card: 0 0% 100%;
-    --card-foreground: 210 15% 12%;
+    --card-foreground: 0 0% 0%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 210 15% 12%;
+    --popover-foreground: 0 0% 0%;
 
     --muted: 210 15% 96%;
     --muted-foreground: 210 15% 20%;
@@ -85,17 +85,17 @@
     --primary-light: 178 65% 45%;
     --primary-dark: 178 80% 30%;
 
-    --secondary: 210 20% 15%;
-    --secondary-foreground: 210 10% 95%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 95%;
 
     --accent: 45 80% 60%;
     --accent-foreground: 210 30% 8%;
 
-    --card: 210 25% 12%;
-    --card-foreground: 210 10% 95%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 210 25% 12%;
-    --popover-foreground: 210 10% 95%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 95%;
 
     --muted: 210 20% 18%;
     --muted-foreground: 210 15% 85%;
