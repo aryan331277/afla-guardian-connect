@@ -41,7 +41,7 @@ const BuyerScan = () => {
   const allQuestionsAnswered = answers.storage && answers.transport && answers.environment;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="sm" onClick={() => navigate('/buyer')}>
@@ -79,7 +79,7 @@ const BuyerScan = () => {
                     <div className="relative">
                       <img src={capturedImage} alt="Captured corn" className="w-full h-64 object-cover" />
                       <div className="absolute top-2 right-2">
-                        <div className="bg-green-500 text-white rounded-full p-1">
+                        <div className="bg-primary text-primary-foreground rounded-full p-1">
                           <Check className="w-4 h-4" />
                         </div>
                       </div>

@@ -264,15 +264,15 @@ const BuyerDashboard = () => {
 
   // Header Component
   const Header = () => (
-    <div className="bg-white border-b border-gray-200 p-4">
+    <div className="bg-background border-b border-border p-4">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center">
-            <Building className="w-6 h-6 text-white" />
+            <Building className="w-6 h-6 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">AflaGuard</h1>
-            <p className="text-sm text-gray-600">Professional Agriculture</p>
+            <h1 className="text-xl font-bold text-foreground">AflaGuard</h1>
+            <p className="text-sm text-muted-foreground">Professional Agriculture</p>
           </div>
         </div>
         
@@ -315,19 +315,19 @@ const BuyerDashboard = () => {
             </svg>
           </Button>
           
-          <div className="flex items-center gap-3 bg-gray-100 rounded-full px-4 py-2">
-            <span className="text-sm font-medium">0 pts</span>
+          <div className="flex items-center gap-3 bg-muted rounded-full px-4 py-2">
+            <span className="text-sm font-medium text-foreground">0 pts</span>
           </div>
-          <div className="flex items-center gap-3 bg-gray-100 rounded-full px-4 py-2">
-            <span className="text-sm font-medium">Curious Scout</span>
+          <div className="flex items-center gap-3 bg-muted rounded-full px-4 py-2">
+            <span className="text-sm font-medium text-foreground">Curious Scout</span>
           </div>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-bold">A</span>
+              <span className="text-primary-foreground text-sm font-bold">A</span>
             </div>
             <div className="text-sm">
-              <div className="font-medium">Aryan</div>
-              <div className="text-gray-600">buyer</div>
+              <div className="font-medium text-foreground">Aryan</div>
+              <div className="text-muted-foreground">buyer</div>
             </div>
           </div>
         </div>
@@ -339,11 +339,11 @@ const BuyerDashboard = () => {
   const UpgradeBanner = () => (
     <div className="bg-primary p-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center gap-3 text-white">
+        <div className="flex items-center gap-3 text-primary-foreground">
           <span className="text-2xl">⭐</span>
           <span className="text-lg font-medium">Upgrade to Premium for advanced analytics and ad-free experience</span>
         </div>
-        <Button variant="outline" size="lg" className="bg-white text-primary border-white hover:bg-gray-100 h-12 px-6">
+        <Button variant="outline" size="lg" className="bg-background text-primary border-border hover:bg-muted h-12 px-6">
           Upgrade Now
         </Button>
       </div>
@@ -358,8 +358,8 @@ const BuyerDashboard = () => {
           <ArrowLeft className="w-6 h-6" />
         </Button>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-900">Corn Quality Assessment</h1>
-          <p className="text-gray-600 text-lg">Step 1 of 3 - AI-Powered Quality Analysis</p>
+          <h1 className="text-3xl font-bold text-foreground">Corn Quality Assessment</h1>
+          <p className="text-muted-foreground text-lg">Step 1 of 3 - AI-Powered Quality Analysis</p>
         </div>
         <Button variant="ghost" size="lg" className="p-3">
           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -368,7 +368,7 @@ const BuyerDashboard = () => {
         </Button>
       </div>
 
-      <div className="bg-gray-200 h-3 rounded-full mb-8">
+      <div className="bg-muted h-3 rounded-full mb-8">
         <div 
           className="bg-primary h-full rounded-full transition-all duration-500" 
           style={{ width: scanProgress > 0 ? `${scanProgress}%` : '33%' }}
@@ -377,8 +377,8 @@ const BuyerDashboard = () => {
 
       <Card className="max-w-3xl mx-auto shadow-xl">
         <CardHeader className="text-center pb-8">
-          <div className="w-20 h-20 bg-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
-            <Camera className="w-10 h-10 text-white" />
+          <div className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <Camera className="w-10 h-10 text-primary-foreground" />
           </div>
           <CardTitle className="text-2xl">Capture Corn Sample</CardTitle>
         </CardHeader>
@@ -396,10 +396,10 @@ const BuyerDashboard = () => {
               </p>
             </div>
           ) : (
-            <div className="bg-gray-50 rounded-3xl p-16 mb-8">
-              <Camera className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+            <div className="bg-muted rounded-3xl p-16 mb-8">
+              <Camera className="w-20 h-20 text-muted-foreground mx-auto mb-6" />
               <h3 className="text-2xl font-semibold mb-4">Take Photo of Corn Sample</h3>
-              <p className="text-gray-600 text-lg mb-8">Position your camera over the corn kernels for AI analysis</p>
+              <p className="text-muted-foreground text-lg mb-8">Position your camera over the corn kernels for AI analysis</p>
             </div>
           )}
           
@@ -408,7 +408,7 @@ const BuyerDashboard = () => {
               onClick={handleCameraCapture}
               disabled={cameraLoading}
               size="lg"
-              className="flex items-center gap-3 bg-blue-500 hover:bg-blue-600 h-14 px-8 text-lg"
+              className="flex items-center gap-3 bg-primary hover:bg-primary/90 h-14 px-8 text-lg"
             >
               <Camera className="w-6 h-6" />
               {cameraLoading ? 'Opening Camera...' : 'Open Camera'}
@@ -443,7 +443,7 @@ const BuyerDashboard = () => {
               
               {/* Transport Condition */}
               <div className="space-y-3">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-foreground">
                   How would you rate the transport conditions?
                 </label>
                 <div className="grid grid-cols-3 gap-3">
@@ -462,7 +462,7 @@ const BuyerDashboard = () => {
 
               {/* Storage Condition */}
               <div className="space-y-3">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-foreground">
                   How would you rate the storage conditions?
                 </label>
                 <div className="grid grid-cols-3 gap-3">
@@ -484,7 +484,7 @@ const BuyerDashboard = () => {
                   <Button 
                     onClick={generateFinalAssessment}
                     size="lg"
-                    className="w-full h-14 bg-green-600 hover:bg-green-700 text-white text-lg"
+                    className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground text-lg"
                     disabled={scanProgress > 0}
                   >
                     {scanProgress > 0 ? 'Analyzing...' : 'Generate Final Assessment'}
@@ -522,8 +522,8 @@ const BuyerDashboard = () => {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">NGO Marketplace</h1>
-          <p className="text-gray-600">Find buyers for contaminated grain disposal</p>
+          <h1 className="text-2xl font-bold text-foreground">NGO Marketplace</h1>
+          <p className="text-muted-foreground">Find buyers for contaminated grain disposal</p>
         </div>
       </div>
 
@@ -549,11 +549,11 @@ const BuyerDashboard = () => {
                     <h3 className="font-semibold text-lg">{ngo.name}</h3>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-primary">{ngo.price}</div>
-                      <div className="text-sm text-gray-600">KES/kg</div>
+                      <div className="text-sm text-muted-foreground">KES/kg</div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-4 mb-3 text-sm text-gray-600">
+                  <div className="flex items-center gap-4 mb-3 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
                       {ngo.distance}
@@ -564,9 +564,9 @@ const BuyerDashboard = () => {
                     </div>
                   </div>
                   
-                  <p className="text-gray-700 mb-3">{ngo.description}</p>
+                  <p className="text-muted-foreground mb-3">{ngo.description}</p>
                   
-                  <div className="flex items-center gap-1 text-gray-600">
+                  <div className="flex items-center gap-1 text-muted-foreground">
                     <Phone className="w-4 h-4" />
                     <span className="text-sm">{ngo.phone}</span>
                   </div>
@@ -586,9 +586,9 @@ const BuyerDashboard = () => {
           {!selectedNGO ? (
             <Card>
               <CardContent className="p-12 text-center">
-                <Building className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <Building className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Select an NGO to continue</h3>
-                <p className="text-gray-600">Please select an NGO from the list to start your pickup request.</p>
+                <p className="text-muted-foreground">Please select an NGO from the list to start your pickup request.</p>
               </CardContent>
             </Card>
           ) : (
@@ -645,14 +645,14 @@ const BuyerDashboard = () => {
                 
                 <Button 
                   onClick={handleSendPickupRequest}
-                  className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white"
+                  className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground"
                   disabled={!grainQuantity || !grainCondition}
                 >
                   <Truck className="w-4 h-4 mr-2" />
                   Send Pickup Request
                 </Button>
                 
-                <p className="text-sm text-gray-600 text-center">
+                <p className="text-sm text-muted-foreground text-center">
                   An SMS will be sent to {selectedNGO.phone} with your pickup request details.
                 </p>
               </CardContent>
@@ -674,11 +674,11 @@ const BuyerDashboard = () => {
           onClick={() => setCurrentView('scan')}
         >
           <CardHeader className="text-center pb-8 pt-8">
-            <div className="w-24 h-24 bg-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <Camera className="w-12 h-12 text-white" />
+            <div className="w-24 h-24 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <Camera className="w-12 h-12 text-primary-foreground" />
             </div>
             <CardTitle className="text-2xl mb-3">Corn Quality Assessment</CardTitle>
-            <p className="text-gray-600 text-lg">AI-powered quality analysis</p>
+            <p className="text-muted-foreground text-lg">AI-powered quality analysis</p>
           </CardHeader>
           <CardContent className="text-center pb-8">
             <Button size="lg" className="w-full h-14 text-lg font-medium">
@@ -693,11 +693,11 @@ const BuyerDashboard = () => {
           onClick={() => setCurrentView('ngo-marketplace')}
         >
           <CardHeader className="text-center pb-8 pt-8">
-            <div className="w-24 h-24 bg-green-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <RecycleIcon className="w-12 h-12 text-white" />
+            <div className="w-24 h-24 bg-accent rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <RecycleIcon className="w-12 h-12 text-accent-foreground" />
             </div>
             <CardTitle className="text-2xl mb-3">NGO Marketplace</CardTitle>
-            <p className="text-gray-600 text-lg">Contaminated grain disposal</p>
+            <p className="text-muted-foreground text-lg">Contaminated grain disposal</p>
           </CardHeader>
           <CardContent className="text-center pb-8">
             <Button size="lg" className="w-full h-14 text-lg font-medium bg-green-500 hover:bg-green-600">
@@ -757,7 +757,7 @@ const BuyerDashboard = () => {
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               Our AI-powered system provides 95% accuracy in detecting aflatoxin contamination.
             </p>
             <Button variant="outline" className="w-full" onClick={handleLearnMore}>Learn More</Button>
@@ -772,7 +772,7 @@ const BuyerDashboard = () => {
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               Connect with 50+ verified NGOs for safe disposal of contaminated grain.
             </p>
             <Button variant="outline" className="w-full" onClick={handleViewNetwork}>View Network</Button>
@@ -787,7 +787,7 @@ const BuyerDashboard = () => {
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               Get real-time pricing and market trends for quality grain trading.
             </p>
             <Button variant="outline" className="w-full" onClick={handleViewTrends}>View Trends</Button>
@@ -798,7 +798,7 @@ const BuyerDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
       <UpgradeBanner />
       
