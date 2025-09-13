@@ -231,7 +231,7 @@ const CommunityFeed = () => {
                 <Users className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h2 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
+                <h2 className="text-xl font-bold text-primary">
                   Professional Network
                 </h2>
                 <p className="text-sm text-muted-foreground font-medium">Agricultural Intelligence Community</p>
@@ -287,7 +287,7 @@ const CommunityFeed = () => {
           <CardHeader className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-t-lg">
             <CardTitle className="flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-primary" />
-              <span className="bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
+              <span className="text-primary">
                 Share Professional Insight
               </span>
             </CardTitle>

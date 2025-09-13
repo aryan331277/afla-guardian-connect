@@ -165,7 +165,7 @@ const RiskAnalysis = ({ insights, onClose }: RiskAnalysisProps) => {
         </Button>
         <CardTitle className="flex items-center gap-3">
           <Activity className="w-6 h-6 text-primary" />
-          <span className="bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
+          <span className="text-primary">
             AI Risk Analysis
           </span>
         </CardTitle>

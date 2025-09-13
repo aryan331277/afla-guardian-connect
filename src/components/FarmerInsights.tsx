@@ -220,7 +220,7 @@ const FarmerInsights = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
+        <h2 className="text-2xl font-bold text-primary">
           Farm Intelligence Dashboard
         </h2>
         <div className="flex items-center gap-2">
