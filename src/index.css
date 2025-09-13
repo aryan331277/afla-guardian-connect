@@ -11,7 +11,7 @@
     --foreground: 0 0% 0%;
 
     /* Light mode: #117977 and #FFFFFF */
-    --primary: 178 66% 28%;
+    --primary: 179 75% 27%;
     --primary-foreground: 0 0% 100%;
     --primary-light: 178 60% 35%;
     --primary-dark: 178 70% 20%;
@@ -80,7 +80,7 @@
     --foreground: 0 0% 100%;
 
     /* Dark mode: #17A6A4 and #000000 */
-    --primary: 178 72% 38%;
+    --primary: 179 76% 37%;
     --primary-foreground: 0 0% 0%;
     --primary-light: 178 65% 45%;
     --primary-dark: 178 80% 30%;
@@ -123,9 +123,9 @@
 
   .colorblind {
     /* Colorblind: #154C3B and #6ABCEC */
-    --primary: 160 54% 20%;
+    --primary: 161 57% 19%;
     --primary-foreground: 198 81% 67%;
-    --accent: 198 81% 67%;
+    --accent: 202 77% 67%;
     --accent-foreground: 160 54% 20%;
     --destructive: 160 54% 20%;
     --success: 160 54% 20%;
