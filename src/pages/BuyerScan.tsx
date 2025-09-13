@@ -35,9 +35,40 @@ const BuyerScan = () => {
 
   const analyzeRisk = () => {
     setCurrentStep('analysis');
-    // Add analysis logic here
-  };
+    setTimeout(() => {
+      const baseScore = 3;
+      let riskScore = baseScore;
+      if (answers.storage === 'outdoor-open') riskScore += 3;
+      else if (answers.storage === 'outdoor-covered') riskScore += 1;
+      if (answers.transport === 'open-truck') riskScore += 2;
+      if (answers.environment === 'high-humidity') riskScore += 3;
 
+      const clamped = Math.min(9, Math.max(1, riskScore));
+      const riskLevel = clamped >= 6 ? 'High Risk' : clamped >= 4 ? 'Medium Risk' : 'Low Risk';
+
+      const payload = {
+        riskLevel,
+        riskColor: '',
+        riskScore: clamped,
+        recommendations: [
+          'Dry the grain to safe moisture levels (≤13%).',
+          'Store in a clean, dry, and ventilated area.',
+          'Use proper covers during transport to prevent moisture exposure.'
+        ],
+        warnings: answers.environment === 'high-humidity' ? ['High humidity significantly increases aflatoxin risk.'] : [],
+        nextSteps: [
+          'Inspect storage area for leaks and pests.',
+          'Re-test grain in 3 days if stored in humid conditions.',
+          'Consider using drying agents or dehumidifiers if necessary.'
+        ],
+        timestamp: new Date().toISOString(),
+        scanData: { image: capturedImage, answers }
+      };
+
+      localStorage.setItem('lastScanResult', JSON.stringify(payload));
+      navigate('/scan-results');
+    }, 1500);
+  };
   const allQuestionsAnswered = answers.storage && answers.transport && answers.environment;
 
   return (

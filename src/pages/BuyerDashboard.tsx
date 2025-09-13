@@ -343,7 +343,7 @@ const BuyerDashboard = () => {
           <span className="text-2xl">⭐</span>
           <span className="text-lg font-medium">Upgrade to Premium for advanced analytics and ad-free experience</span>
         </div>
-        <Button variant="outline" size="lg" className="bg-background text-primary border-border hover:bg-muted h-12 px-6">
+        <Button variant="outline" size="lg" className="bg-background text-primary border-border hover:bg-muted h-12 px-6" onClick={() => navigate('/upgrade')}>
           Upgrade Now
         </Button>
       </div>
