@@ -166,6 +166,16 @@ const BuyerDashboard = () => {
   };
 
   const generateFinalAssessment = async () => {
+    if (!photo?.webPath) {
+      await ttsService.speak('Please capture a photo first before generating assessment.', 'en');
+      return;
+    }
+    
+    if (!transportCondition || !storageCondition) {
+      await ttsService.speak('Please answer all assessment questions before generating the report.', 'en');
+      return;
+    }
+
     setScanProgress(25);
     await new Promise(resolve => setTimeout(resolve, 1000));
     setScanProgress(50);
@@ -178,8 +188,15 @@ const BuyerDashboard = () => {
     const assessmentResult = calculateQualityScore();
     
     setTimeout(() => {
-      alert(`AI Assessment Complete!\n\nOverall Quality: ${assessmentResult.grade}\nTransport: ${transportCondition}\nStorage: ${storageCondition}\n\nRecommendation: ${assessmentResult.recommendation}`);
+      alert(`AI Assessment Complete!\n\nOverall Quality: ${assessmentResult.grade}\nTransport: ${transportCondition}\nStorage: ${storageCondition}\n\nRecommendation: ${assessmentResult.recommendation}\n\n${assessmentResult.grade === 'Poor' ? 'Consider using the NGO Marketplace to dispose of contaminated grain safely.' : 'Your grain quality looks good for market sale!'}`);
       setScanProgress(0);
+      
+      // Reset assessment after completion
+      if (assessmentResult.grade === 'Poor') {
+        setTimeout(() => {
+          setCurrentView('ngo-marketplace');
+        }, 2000);
+      }
     }, 500);
   };
 
@@ -206,20 +223,34 @@ const BuyerDashboard = () => {
   const handleSendPickupRequest = async () => {
     if (!selectedNGO || !grainQuantity || !grainCondition) {
       await ttsService.speak('Please fill in all required fields', 'en');
+      alert('Please fill in all required fields:\n- Select an NGO\n- Enter grain quantity\n- Describe grain condition');
+      return;
+    }
+    
+    const quantity = parseInt(grainQuantity);
+    if (quantity <= 0 || isNaN(quantity)) {
+      await ttsService.speak('Please enter a valid quantity greater than zero', 'en');
+      alert('Please enter a valid quantity greater than zero');
       return;
     }
     
     try {
       await ttsService.speak(`Pickup request sent to ${selectedNGO.name}.`, 'en');
-      alert(`Pickup request sent to ${selectedNGO.name}!\nSMS will be sent to ${selectedNGO.phone} with your pickup request details.`);
+      alert(`Pickup request sent to ${selectedNGO.name}!\n\nDetails:\n- Quantity: ${grainQuantity} kg\n- Condition: ${grainCondition}\n- Estimated Cost: ${calculateTransaction().toLocaleString()} KES\n\nSMS will be sent to ${selectedNGO.phone} with your pickup request details.`);
       
       // Reset form
       setGrainQuantity('');
       setGrainCondition('');
       setSelectedNGO(null);
+      
+      // Navigate back to dashboard after successful request
+      setTimeout(() => {
+        setCurrentView('dashboard');
+      }, 2000);
     } catch (error) {
       console.error('Error sending pickup request:', error);
       await ttsService.speak('Error sending pickup request. Please try again.', 'en');
+      alert('Error sending pickup request. Please try again.');
     }
   };
 
@@ -453,9 +484,10 @@ const BuyerDashboard = () => {
                   <Button 
                     onClick={generateFinalAssessment}
                     size="lg"
-                    className="w-full h-14 bg-success hover:bg-success/90 text-lg"
+                    className="w-full h-14 bg-green-600 hover:bg-green-700 text-white text-lg"
+                    disabled={scanProgress > 0}
                   >
-                    Generate Final Assessment
+                    {scanProgress > 0 ? 'Analyzing...' : 'Generate Final Assessment'}
                   </Button>
                 </div>
               )}
