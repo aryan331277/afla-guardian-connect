@@ -19,7 +19,7 @@ const LogoScreen = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <Card className="w-full max-w-lg text-center p-8 animate-fade-in">
         <div className="space-y-6">
           {/* Logo */}

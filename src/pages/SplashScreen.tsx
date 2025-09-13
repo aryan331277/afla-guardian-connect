@@ -31,7 +31,7 @@ const SplashScreen = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+    <div className="min-h-screen bg-black flex items-center justify-center">
       <div className={`text-center transition-opacity duration-1000 ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
         <div className="mb-8">
           <div className="w-32 h-32 mx-auto bg-primary rounded-full flex items-center justify-center shadow-2xl">
