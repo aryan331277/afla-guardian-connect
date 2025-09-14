@@ -25,7 +25,7 @@ const Community = () => {
     {
       id: '1',
       author: 'Mary K.',
-      content: 'Just completed my first AflaGuard scan! The recommendations were very helpful. My maize is showing low risk for aflatoxin contamination.',
+      content: 'Just completed my first Verdan scan! The recommendations were very helpful. My maize is showing low risk for aflatoxin contamination.',
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
       likes: 12,
       replies: 3,

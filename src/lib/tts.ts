@@ -158,9 +158,9 @@ export class TTSService {
 
   async testVoice(language: Language): Promise<void> {
     const testTexts = {
-      en: 'Hello! This is AflaGuard speaking. Welcome to your agricultural protection assistant.',
-      sw: 'Hujambo! Hii ni AflaGuard inayoongea. Karibu kwenye msaidizi wako wa ulinzi wa kilimo.',
-      ki: 'Wĩ mwega! Ũyũ nĩ AflaGuard ũrakwaria. Wamũkĩra kũrĩ mũteithĩrĩri waku wa kũgitĩra ũrĩmi.'
+      en: 'Hello! This is Verdan speaking. Welcome to your agricultural protection assistant.',
+      sw: 'Hujambo! Hii ni Verdan inayoongea. Karibu kwenye msaidizi wako wa ulinzi wa kilimo.',
+      ki: 'Wĩ mwega! Ũyũ nĩ Verdan ũrakwaria. Wamũkĩra kũrĩ mũteithĩrĩri waku wa kũgitĩra ũrĩmi.'
     };
 
     await this.speak(testTexts[language], language);

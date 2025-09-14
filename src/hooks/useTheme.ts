@@ -6,7 +6,7 @@ export function useTheme() {
 
   useEffect(() => {
     // Get saved theme from localStorage
-    const savedTheme = localStorage.getItem('aflaguard-theme') as Theme;
+    const savedTheme = localStorage.getItem('verdan-theme') as Theme;
     if (savedTheme && ['light', 'dark', 'colorblind'].includes(savedTheme)) {
       setTheme(savedTheme);
       applyTheme(savedTheme);
@@ -33,7 +33,7 @@ export function useTheme() {
     }
     
     // Save to localStorage
-    localStorage.setItem('aflaguard-theme', newTheme);
+    localStorage.setItem('verdan-theme', newTheme);
   };
 
   const toggleTheme = () => {

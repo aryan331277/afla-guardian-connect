@@ -42,7 +42,7 @@ const LanguageSelection = () => {
   };
 
   const handleContinue = () => {
-    localStorage.setItem('aflaguard-language', selectedLanguage);
+    localStorage.setItem('verdan-language', selectedLanguage);
     navigate('/role-selection');
   };
 
@@ -55,7 +55,7 @@ const LanguageSelection = () => {
           </div>
           
           <h1 className="text-3xl font-bold text-primary mb-2">
-            Welcome to AflaGuard
+            Welcome to Verdan
           </h1>
           
           <p className="text-muted-foreground text-lg">

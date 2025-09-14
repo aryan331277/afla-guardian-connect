@@ -38,7 +38,7 @@ const SplashScreen = () => {
             <div className="text-primary-foreground text-4xl font-bold">AG</div>
           </div>
         </div>
-        <h1 className="text-4xl font-bold text-primary mb-2">AflaGuard</h1>
+        <h1 className="text-4xl font-bold text-primary mb-2">Verdan</h1>
         <p className="text-lg text-muted-foreground">Protecting Your Harvest</p>
         
         {/* Loading indicator */}

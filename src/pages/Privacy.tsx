@@ -28,7 +28,7 @@ const Privacy = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              AflaGuard collects agricultural data to provide personalized recommendations 
+              Verdan collects agricultural data to provide personalized recommendations 
               and improve farming outcomes. Your data helps us enhance the AI model and 
               provide better insights to the farming community.
             </p>

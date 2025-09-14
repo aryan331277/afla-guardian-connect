@@ -14,7 +14,7 @@ const PrivacyAgreement = () => {
 
   const speakText = async (text: string) => {
     try {
-      const selectedLanguage = localStorage.getItem('aflaguard-language') || 'en';
+      const selectedLanguage = localStorage.getItem('verdan-language') || 'en';
       await ttsService.speak(text, selectedLanguage as any);
     } catch (error) {
       console.log('TTS not available:', error);
@@ -149,7 +149,7 @@ const PrivacyAgreement = () => {
                 </Button>
               </label>
               <p className="text-xs text-muted-foreground">
-                Required to use AflaGuard services
+                Required to use Verdan services
               </p>
             </div>
           </div>
@@ -173,7 +173,7 @@ const PrivacyAgreement = () => {
           </div>
 
           <p className="text-xs text-center text-muted-foreground">
-            By accepting, you can proceed to create your AflaGuard account
+            By accepting, you can proceed to create your Verdan account
           </p>
         </CardContent>
       </Card>

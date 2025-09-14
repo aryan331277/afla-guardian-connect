@@ -80,7 +80,7 @@ const InsightsHistory = () => {
   }, []);
 
   const handleSpeak = async (text: string) => {
-    const language = localStorage.getItem('aflaguard-language') || 'en';
+    const language = localStorage.getItem('verdan-language') || 'en';
     await ttsService.speak(text, language as any);
   };
 

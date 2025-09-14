@@ -153,7 +153,7 @@ const FarmerDashboard = () => {
                   <span className="text-primary-foreground font-bold text-sm sm:text-lg">AG</span>
                 </div>
                 <div className="hidden sm:block">
-                  <h1 className="text-lg sm:text-xl font-bold text-foreground">AflaGuard Pro</h1>
+                  <h1 className="text-lg sm:text-xl font-bold text-foreground">Verdan Pro</h1>
                 </div>
               </div>
               {user && (

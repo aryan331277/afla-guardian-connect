@@ -32,7 +32,7 @@ const LogoScreen = () => {
           {/* App Name */}
           <div className="space-y-2 animate-slide-in">
             <h1 className="text-4xl font-bold text-primary animate-typing">
-              AflaGuard
+              Verdan
             </h1>
             <p className="text-xl text-muted-foreground animate-fade-in">
               Agricultural Protection Assistant

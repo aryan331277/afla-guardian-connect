@@ -135,7 +135,7 @@ export interface AnalyticsData {
   synced: boolean;
 }
 
-export class AflaGuardDB extends Dexie {
+export class VerdanDB extends Dexie {
   users!: Table<User>;
   farmerScans!: Table<FarmerScan>;
   buyerScans!: Table<BuyerScan>;
@@ -146,7 +146,7 @@ export class AflaGuardDB extends Dexie {
   analyticsData!: Table<AnalyticsData>;
 
   constructor() {
-    super('AflaGuardDB');
+    super('VerdanDB');
     
     this.version(1).stores({
       users: '++id, phone, role, language, lastSeen',
@@ -161,7 +161,7 @@ export class AflaGuardDB extends Dexie {
   }
 }
 
-export const db = new AflaGuardDB();
+export const db = new VerdanDB();
 
 // Database helper functions
 export class DatabaseService {

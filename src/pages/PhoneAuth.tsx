@@ -194,7 +194,7 @@ const PhoneAuth = () => {
 
   const handleContinue = () => {
     // Skip authentication and go directly to the selected role dashboard
-    const role = localStorage.getItem('aflaguard-role') || 'farmer';
+    const role = localStorage.getItem('verdan-role') || 'farmer';
     
     switch (role) {
       case 'farmer':
@@ -220,7 +220,7 @@ const PhoneAuth = () => {
           </div>
           
           <h1 className="text-3xl font-bold text-primary mb-2">
-            Welcome to AflaGuard
+            Welcome to Verdan
           </h1>
           
           <p className="text-muted-foreground text-lg">

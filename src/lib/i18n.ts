@@ -11,9 +11,9 @@ export interface Translations {
 export const translations: Translations = {
   // App Name & Branding
   'app.name': {
-    en: 'AflaGuard',
-    sw: 'AflaGuard',
-    ki: 'AflaGuard'
+    en: 'Verdan',
+    sw: 'Verdan',
+    ki: 'Verdan'
   },
   'app.tagline': {
     en: 'Protecting Your Harvest',

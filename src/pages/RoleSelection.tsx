@@ -43,7 +43,7 @@ const RoleSelection = () => {
   };
 
   const handleContinue = async () => {
-    localStorage.setItem('aflaguard-role', selectedRole);
+    localStorage.setItem('verdan-role', selectedRole);
     
     // Speak the role confirmation
     const roleText = roles.find(r => r.role === selectedRole)?.title || selectedRole;
@@ -78,7 +78,7 @@ const RoleSelection = () => {
           </div>
           
           <h1 className="text-3xl font-bold text-primary mb-2">
-            Welcome to AflaGuard
+            Welcome to Verdan
           </h1>
           
           <h2 className="text-xl text-foreground flex items-center justify-center gap-2">
