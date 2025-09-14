@@ -28,6 +28,7 @@ import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 import AdBanner from "./components/AdBanner";
 import AuthGuard from "./components/AuthGuard";
+import { MobileBottomNav } from "./components/MobileBottomNav";
 
 const queryClient = new QueryClient();
 
@@ -42,7 +43,7 @@ const AppContent = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-16 sm:pb-0">
       <OfflineIndicator />
       <BrowserRouter>
         <Routes>
@@ -67,6 +68,7 @@ const AppContent = () => {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <MobileBottomNav />
         <AdBanner />
       </BrowserRouter>
     </div>

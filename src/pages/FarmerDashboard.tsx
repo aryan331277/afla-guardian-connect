@@ -163,46 +163,46 @@ const FarmerDashboard = () => {
               )}
             </div>
 
-            <div className="flex items-center space-x-1 sm:space-x-2">
+            <div className="flex items-center space-x-1">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={refresh}
                 disabled={dataLoading}
-                className="hover:bg-muted/50 p-2"
+                className="hover:bg-muted/50 p-1.5 sm:p-2"
               >
-                <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-3 h-3 sm:w-4 sm:h-4 ${dataLoading ? 'animate-spin' : ''}`} />
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="hover:bg-muted/50 p-2"
+                    className="hover:bg-muted/50 p-1.5 sm:p-2"
                   >
                     {getThemeIcon()}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuContent align="end" className="w-32 sm:w-40 bg-background border-border z-50">
                   <DropdownMenuItem 
                     onClick={() => setSpecificTheme('light')}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 text-xs sm:text-sm"
                   >
-                    <Sun className="w-4 h-4" />
+                    <Sun className="w-3 h-3 sm:w-4 sm:h-4" />
                     Light
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => setSpecificTheme('dark')}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 text-xs sm:text-sm"
                   >
-                    <Moon className="w-4 h-4" />
+                    <Moon className="w-3 h-3 sm:w-4 sm:h-4" />
                     Dark
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => setSpecificTheme('colorblind')}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 text-xs sm:text-sm"
                   >
-                    <Palette className="w-4 h-4" />
+                    <Palette className="w-3 h-3 sm:w-4 sm:h-4" />
                     Colorblind
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -211,11 +211,13 @@ const FarmerDashboard = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/profile')}
-                className="hover:bg-muted/50 p-2"
+                className="hover:bg-muted/50 p-1.5 sm:p-2"
               >
-                <UserIcon className="w-4 h-4" />
+                <UserIcon className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
-              <LogoutButton />
+              <div className="scale-75 sm:scale-100">
+                <LogoutButton />
+              </div>
             </div>
           </div>
         </div>
@@ -225,26 +227,26 @@ const FarmerDashboard = () => {
 
         {/* Main Dashboard Tabs */}
         <Tabs defaultValue="insights" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-muted/50 h-12">
-            <TabsTrigger value="insights" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-              <Leaf className="w-4 h-4" />
-              <span className="hidden sm:inline">Insights</span>
+          <TabsList className="grid w-full grid-cols-5 bg-muted/50 h-10 sm:h-12 overflow-x-auto">
+            <TabsTrigger value="insights" className="flex flex-col sm:flex-row items-center gap-1 text-xs px-2 py-1 min-w-0">
+              <Leaf className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="text-[10px] sm:text-xs truncate">Insights</span>
             </TabsTrigger>
-            <TabsTrigger value="community" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-              <MessageCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">Community</span>
+            <TabsTrigger value="community" className="flex flex-col sm:flex-row items-center gap-1 text-xs px-2 py-1 min-w-0">
+              <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="text-[10px] sm:text-xs truncate">Community</span>
             </TabsTrigger>
-            <TabsTrigger value="assistant" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-              <Bot className="w-4 h-4" />
-              <span className="hidden sm:inline">AI Assistant</span>
+            <TabsTrigger value="assistant" className="flex flex-col sm:flex-row items-center gap-1 text-xs px-2 py-1 min-w-0">
+              <Bot className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="text-[10px] sm:text-xs truncate">AI</span>
             </TabsTrigger>
-            <TabsTrigger value="tools" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-              <Scan className="w-4 h-4" />
-              <span className="hidden sm:inline">Tools</span>
+            <TabsTrigger value="tools" className="flex flex-col sm:flex-row items-center gap-1 text-xs px-2 py-1 min-w-0">
+              <Scan className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="text-[10px] sm:text-xs truncate">Tools</span>
             </TabsTrigger>
-            <TabsTrigger value="resources" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-              <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline">Resources</span>
+            <TabsTrigger value="resources" className="flex flex-col sm:flex-row items-center gap-1 text-xs px-2 py-1 min-w-0">
+              <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="text-[10px] sm:text-xs truncate">Resources</span>
             </TabsTrigger>
           </TabsList>
 

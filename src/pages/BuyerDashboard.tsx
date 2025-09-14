@@ -264,27 +264,27 @@ const BuyerDashboard = () => {
 
   // Header Component
   const Header = () => (
-    <div className="bg-background border-b border-border p-4">
+    <div className="bg-background border-b border-border p-3 sm:p-4">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center">
-            <Building className="w-6 h-6 text-primary-foreground" />
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+          <div className="w-8 h-8 sm:w-12 sm:h-12 bg-primary rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0">
+            <Building className="w-4 h-4 sm:w-6 sm:h-6 text-primary-foreground" />
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">Verdan</h1>
-            <p className="text-sm text-muted-foreground">Professional Agriculture</p>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg sm:text-xl font-bold text-foreground truncate">Verdan</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Professional Agriculture</p>
           </div>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1 sm:gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="lg" className="flex items-center gap-2 h-12 px-4">
+              <Button variant="ghost" size="sm" className="flex items-center gap-1 sm:gap-2 h-8 sm:h-12 px-2 sm:px-4">
                 {getThemeIcon()}
-                <span className="hidden sm:inline">{getThemeLabel()}</span>
+                <span className="hidden md:inline text-xs sm:text-sm">{getThemeLabel()}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-40 sm:w-48 bg-background border-border z-50">
               <DropdownMenuItem 
                 onClick={() => setSpecificTheme('light')}
                 className="flex items-center gap-2 p-3"
@@ -352,17 +352,17 @@ const BuyerDashboard = () => {
 
   // Corn Quality Assessment View
   const CornQualityAssessment = () => (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" onClick={() => setCurrentView('dashboard')} size="lg" className="p-3">
-          <ArrowLeft className="w-6 h-6" />
+    <div className="max-w-4xl mx-auto p-3 sm:p-6">
+      <div className="flex items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+        <Button variant="ghost" onClick={() => setCurrentView('dashboard')} size="sm" className="p-2 sm:p-3">
+          <ArrowLeft className="w-4 h-4 sm:w-6 sm:h-6" />
         </Button>
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold text-foreground">Corn Quality Assessment</h1>
-          <p className="text-muted-foreground text-lg">Step 1 of 3 - AI-Powered Quality Analysis</p>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-3xl font-bold text-foreground truncate">Corn Quality Assessment</h1>
+          <p className="text-muted-foreground text-sm sm:text-lg hidden sm:block">Step 1 of 3 - AI-Powered Quality Analysis</p>
         </div>
-        <Button variant="ghost" size="lg" className="p-3">
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+        <Button variant="ghost" size="sm" className="p-2 sm:p-3">
+          <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
           </svg>
         </Button>
