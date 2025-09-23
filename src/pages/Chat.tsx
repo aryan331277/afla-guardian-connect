@@ -1,9 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Send, Bot, ExternalLink, MessageCircle } from 'lucide-react';
+
+// Declare Voiceflow types
+declare global {
+  interface Window {
+    voiceflow?: {
+      chat: {
+        load: (config: {
+          verify: { projectID: string };
+          url: string;
+          versionID: string;
+          voice: { url: string };
+        }) => void;
+      };
+    };
+  }
+}
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -11,6 +27,34 @@ const Chat = () => {
   const [messages, setMessages] = useState([
     { role: 'assistant', content: 'Hello! I\'m your AI farming assistant. How can I help you today?' }
   ]);
+
+  useEffect(() => {
+    // Load Voiceflow chatbot script
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.onload = function() {
+      if (window.voiceflow) {
+        window.voiceflow.chat.load({
+          verify: { projectID: '688a3d27d04cee16daed63b8' },
+          url: 'https://general-runtime.voiceflow.com',
+          versionID: 'production',
+          voice: {
+            url: "https://runtime-api.voiceflow.com"
+          }
+        });
+      }
+    };
+    script.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs";
+    document.head.appendChild(script);
+
+    return () => {
+      // Cleanup script on component unmount
+      const existingScript = document.querySelector('script[src="https://cdn.voiceflow.com/widget-next/bundle.mjs"]');
+      if (existingScript) {
+        document.head.removeChild(existingScript);
+      }
+    };
+  }, []);
 
   const sendMessage = () => {
     if (!message.trim()) return;
