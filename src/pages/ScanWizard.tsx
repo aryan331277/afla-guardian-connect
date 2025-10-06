@@ -275,7 +275,7 @@ const ScanWizard = () => {
             </div>
 
             <Button 
-              onClick={() => window.open('https://google.com', '_blank')}
+              onClick={() => window.location.assign('/chat')}
               className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground hover-glow animate-bounce-in"
               style={{ '--index': 3 } as any}
             >

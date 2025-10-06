@@ -33,15 +33,22 @@ const Chat = () => {
     const script = document.createElement('script');
     script.type = 'text/javascript';
     script.onload = function() {
-      if (window.voiceflow) {
-        window.voiceflow.chat.load({
-          verify: { projectID: '688a3d27d04cee16daed63b8' },
-          url: 'https://general-runtime.voiceflow.com',
-          versionID: 'production',
-          voice: {
-            url: "https://runtime-api.voiceflow.com"
-          }
-        });
+      try {
+        const vf = (window as any).voiceflow?.chat;
+        if (vf) {
+          vf.load({
+            verify: { projectID: '688a3d27d04cee16daed63b8' },
+            url: 'https://general-runtime.voiceflow.com',
+            versionID: 'production',
+            voice: {
+              url: "https://runtime-api.voiceflow.com"
+            }
+          });
+          // Auto-open the widget so users can start chatting immediately
+          vf.open?.();
+        }
+      } catch (e) {
+        console.error('Voiceflow init error', e);
       }
     };
     script.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs";
@@ -74,7 +81,7 @@ const Chat = () => {
         </Button>
         <h1 className="text-xl font-bold text-primary">AI Assistant</h1>
         <div className="flex gap-2 ml-auto">
-          <Button variant="outline" size="sm" className="hover-scale" onClick={() => window.open('https://google.com', '_blank')}>
+          <Button variant="outline" size="sm" className="hover-scale" onClick={() => (window as any).voiceflow?.chat?.open?.()}>
             <ExternalLink className="w-4 h-4 mr-1" />
             AI Chatbot
           </Button>
