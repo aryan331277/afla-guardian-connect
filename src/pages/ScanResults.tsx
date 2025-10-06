@@ -132,7 +132,7 @@ const ScanResults = () => {
               <ul className="space-y-3">
                 {result.nextSteps.map((step, index) => (
                   <li key={index} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-                    <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    <div className="w-6 h-6 bg-blue-600 text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                       {index + 1}
                     </div>
                     <span className="text-sm">{step}</span>

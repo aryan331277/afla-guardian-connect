@@ -51,7 +51,7 @@ const LanguageSelection = () => {
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-            <Globe className="w-10 h-10 text-white" />
+            <Globe className="w-10 h-10 text-primary-foreground" />
           </div>
           
           <h1 className="text-3xl font-bold text-primary mb-2">
@@ -122,7 +122,7 @@ const LanguageSelection = () => {
             
             <Button 
               onClick={handleContinue}
-              className="w-full mt-8 h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl"
+              className="w-full mt-8 h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl"
               size="lg"
             >
               Continue

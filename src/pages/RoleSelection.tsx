@@ -14,7 +14,7 @@ const RoleSelection = () => {
   const roles = [
     {
       role: 'farmer' as UserRole,
-      icon: <Wheat className="w-8 h-8 text-white" />,
+      icon: <Wheat className="w-8 h-8 text-primary-foreground" />,
       iconBg: 'bg-primary',
       title: t('role.farmer', 'Farmer'),
       description: 'Advanced crop health monitoring and AI-powered recommendations',
@@ -22,7 +22,7 @@ const RoleSelection = () => {
     },
     {
       role: 'buyer' as UserRole,
-      icon: <Building2 className="w-8 h-8 text-white" />,
+      icon: <Building2 className="w-8 h-8 text-primary-foreground" />,
       iconBg: 'bg-blue-500',
       title: t('role.buyer', 'Buyer'),
       description: 'Quality assessment and supply chain management tools',
@@ -30,7 +30,7 @@ const RoleSelection = () => {
     },
     {
       role: 'government' as UserRole,
-      icon: <Building className="w-8 h-8 text-white" />,
+      icon: <Building className="w-8 h-8 text-primary-foreground" />,
       iconBg: 'bg-purple-500',
       title: t('role.government', 'Government'),
       description: 'Regional Analytics',
@@ -74,7 +74,7 @@ const RoleSelection = () => {
       <div className="w-full max-w-6xl">
         <div className="text-center mb-12">
           <div className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-            <Wheat className="w-10 h-10 text-white" />
+            <Wheat className="w-10 h-10 text-primary-foreground" />
           </div>
           
           <h1 className="text-3xl font-bold text-primary mb-2">
@@ -145,7 +145,7 @@ const RoleSelection = () => {
           <Button 
             onClick={handleContinue}
             size="lg"
-            className="px-12 h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl"
+            className="px-12 h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl"
           >
             {t('action.continue', 'Continue')}
           </Button>

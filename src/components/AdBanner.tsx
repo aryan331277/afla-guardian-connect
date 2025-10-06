@@ -26,7 +26,7 @@ const AdBanner = () => {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 ad-banner bg-gradient-to-r from-accent/90 to-primary/90 text-white">
+    <div className="fixed bottom-0 left-0 right-0 z-50 ad-banner bg-gradient-to-r from-accent/90 to-primary/90 text-accent-foreground">
       <div className="flex items-center justify-between h-full px-4">
         <div className="flex-1 text-center">
           <p className="text-sm font-medium">

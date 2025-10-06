@@ -282,7 +282,7 @@ const RiskAnalysis = ({ insights, onClose }: RiskAnalysisProps) => {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-semibold">Risk Assessment</h3>
-                  <Badge className={`${getRiskColor(analysis.riskLevel)} text-white border-none px-4 py-2`}>
+                  <Badge className={`${getRiskColor(analysis.riskLevel)} border-none px-4 py-2`}>
                     {analysis.riskLevel} Risk
                   </Badge>
                 </div>

@@ -363,7 +363,7 @@ const FarmerDashboard = () => {
                     {ndvi && (
                       <Badge 
                         variant="outline" 
-                        className={`${getStatusColor(ndvi.interpretation)} text-white border-none text-xs px-2 py-1`}
+                        className={`${getStatusColor(ndvi.interpretation)} border-none text-xs px-2 py-1`}
                       >
                         {ndvi.interpretation}
                       </Badge>
@@ -411,7 +411,7 @@ const FarmerDashboard = () => {
                     {soilMoisture && (
                       <Badge 
                         variant="outline" 
-                        className={`${getStatusColor(soilMoisture.status)} text-white border-none text-xs px-2 py-1`}
+                        className={`${getStatusColor(soilMoisture.status)} border-none text-xs px-2 py-1`}
                       >
                         {soilMoisture.status}
                       </Badge>

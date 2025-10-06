@@ -276,7 +276,7 @@ const ScanWizard = () => {
 
             <Button 
               onClick={() => window.open('https://google.com', '_blank')}
-              className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white hover-glow animate-bounce-in"
+              className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground hover-glow animate-bounce-in"
               style={{ '--index': 3 } as any}
             >
               <Bot className="w-4 h-4 mr-2" />
@@ -438,7 +438,7 @@ const ScanWizard = () => {
             <Button
                 onClick={handleSubmit}
                 disabled={analysisLoading || dataLoading}
-                className="w-full bg-gradient-to-r from-success to-success/80 hover:from-success/90 hover:to-success text-white hover-glow animate-scale-in"
+                className="w-full bg-gradient-to-r from-success to-success/80 hover:from-success/90 hover:to-success text-primary-foreground hover-glow animate-scale-in"
               >
                 {analysisLoading ? (
                   <>
