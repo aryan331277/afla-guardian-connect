@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import * as ort from 'onnxruntime-web';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +31,62 @@ interface RiskAnalysisProps {
 const RiskAnalysis = ({ insights, onClose }: RiskAnalysisProps) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<any>(null);
+
+  // Encode insights into a numeric feature vector for ONNX model
+  const encodeInsights = (): Float32Array => {
+    const encodeCat = (v?: string) => {
+      if (v === 'poor') return 1;
+      if (v === 'average') return 0.5;
+      return 0; // excellent or undefined
+    };
+    const temp = insights.weather?.temperature ?? 25; // typical default
+    const humidity = insights.weather?.humidity ?? 50;
+    const ndvi = typeof insights.ndvi?.value === 'number' ? insights.ndvi!.value : 0.5;
+    const moisture = insights.soilMoisture?.moistureLevel ?? 40;
+
+    // Normalize to 0-1 (simple min-max assumptions)
+    const nTemp = Math.min(1, Math.max(0, (temp - 0) / 50)); // 0-50C
+    const nHum = Math.min(1, Math.max(0, humidity / 100));
+    const nNdvi = Math.min(1, Math.max(0, ndvi)); // NDVI 0-1
+    const nMoist = Math.min(1, Math.max(0, moisture / 100));
+
+    return new Float32Array([
+      encodeCat(insights.soilHealth),
+      encodeCat(insights.waterAvailability),
+      encodeCat(insights.pestStatus),
+      encodeCat(insights.fertilizationStatus),
+      nTemp,
+      nHum,
+      nNdvi,
+      nMoist,
+    ]);
+  };
+
+  const predictWithOnnx = async (): Promise<number | null> => {
+    try {
+      const session = await ort.InferenceSession.create('/models/farmer.onnx');
+      const features = encodeInsights();
+      const input = new ort.Tensor('float32', features, [1, features.length]);
+      // Use first input name for maximum compatibility
+      const feeds: Record<string, ort.Tensor> = { } as any;
+      // @ts-ignore - inputNames is available at runtime
+      const inputName = (session as any).inputNames ? (session as any).inputNames[0] : 'input';
+      feeds[inputName] = input;
+      const outputMap = await session.run(feeds);
+      const firstKey = Object.keys(outputMap)[0];
+      const outTensor = outputMap[firstKey];
+      const val: any = (outTensor as any).data ? (outTensor as any).data[0] : undefined;
+      if (val == null) return null;
+      const rawNum = typeof val === 'string' ? parseFloat(val) : Number(val);
+      if (!isFinite(rawNum)) return null;
+      // Assume model outputs 0-1; map to 0-100. If already 0-100, clamp.
+      const score = rawNum <= 1 ? rawNum * 100 : rawNum;
+      return Math.min(100, Math.max(0, score));
+    } catch (e) {
+      console.warn('ONNX model not available or failed, falling back:', e);
+      return null;
+    }
+  };
 
   const calculateRiskScore = () => {
     let riskScore = 0;
@@ -79,20 +136,36 @@ const RiskAnalysis = ({ insights, onClose }: RiskAnalysisProps) => {
 
   const runAnalysis = async () => {
     setIsAnalyzing(true);
-    
-    // Simulate ML model processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const result = calculateRiskScore();
-    
-    setAnalysis({
-      riskScore: result.score,
-      riskLevel: result.level,
-      riskFactors: result.factors,
-      recommendations: generateRecommendations(result),
-      videos: getRelevantVideos(result.level)
-    });
-    
+
+    // Try ONNX model first if available (expects /public/models/farmer.onnx)
+    let resultScore: number | null = await predictWithOnnx();
+    let result:
+      | { score: number; level: string; factors: string[] }
+      | null = null;
+
+    if (resultScore == null) {
+      // Fallback to local heuristic
+      result = calculateRiskScore();
+    } else {
+      // Build factors from insights for transparency
+      const base = calculateRiskScore();
+      result = {
+        score: resultScore,
+        level: resultScore < 20 ? 'Low' : resultScore < 40 ? 'Moderate' : resultScore < 70 ? 'High' : 'Critical',
+        factors: base.factors,
+      };
+    }
+
+    if (result) {
+      setAnalysis({
+        riskScore: result.score,
+        riskLevel: result.level,
+        riskFactors: result.factors,
+        recommendations: generateRecommendations(result),
+        videos: getRelevantVideos(result.level),
+      });
+    }
+
     setIsAnalyzing(false);
   };
 

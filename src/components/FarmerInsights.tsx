@@ -223,7 +223,7 @@ const FarmerInsights = () => {
         <h2 className="text-2xl font-bold text-primary">
           Farm Intelligence Dashboard
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button 
             onClick={refresh}
             variant="outline"
