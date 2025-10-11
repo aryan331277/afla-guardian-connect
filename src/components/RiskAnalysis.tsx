@@ -144,7 +144,7 @@ const RiskAnalysis = ({ insights, onClose }: RiskAnalysisProps) => {
   const runAnalysis = async () => {
     setIsAnalyzing(true);
 
-    // Try ONNX model first if available (expects /public/models/farmer.onnx)
+    // Try ONNX model first if available. Place at public/models/farmer.onnx (served at /models/farmer.onnx)
     let resultScore: number | null = await predictWithOnnx();
     let result:
       | { score: number; level: string; factors: string[] }
