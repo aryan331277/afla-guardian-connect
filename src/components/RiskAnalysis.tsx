@@ -74,23 +74,45 @@ const RiskAnalysis = ({ insights, onClose }: RiskAnalysisProps) => {
       const session = await ort.InferenceSession.create('/models/farmer.onnx');
       const features = encodeInsights();
       const input = new ort.Tensor('float32', features, [1, features.length]);
-      // Use first input name for maximum compatibility
-      const feeds: Record<string, ort.Tensor> = { } as any;
-      // @ts-ignore - inputNames is available at runtime
-      const inputName = (session as any).inputNames ? (session as any).inputNames[0] : 'input';
+      
+      // Get the correct input name from the session
+      const inputNames = session.inputNames;
+      if (!inputNames || inputNames.length === 0) {
+        console.warn('No input names found in ONNX model');
+        return null;
+      }
+      
+      const inputName = inputNames[0];
+      const feeds: Record<string, ort.Tensor> = {};
       feeds[inputName] = input;
+      
       const outputMap = await session.run(feeds);
-      const firstKey = Object.keys(outputMap)[0];
-      const outTensor = outputMap[firstKey];
-      const val: any = (outTensor as any).data ? (outTensor as any).data[0] : undefined;
-      if (val == null) return null;
+      const outputNames = session.outputNames;
+      
+      if (!outputNames || outputNames.length === 0) {
+        console.warn('No output names found in ONNX model');
+        return null;
+      }
+      
+      const outputTensor = outputMap[outputNames[0]];
+      if (!outputTensor || !outputTensor.data) {
+        console.warn('Invalid output from ONNX model');
+        return null;
+      }
+      
+      const val = outputTensor.data[0];
       const rawNum = typeof val === 'string' ? parseFloat(val) : Number(val);
-      if (!isFinite(rawNum)) return null;
+      
+      if (!isFinite(rawNum)) {
+        console.warn('Model output is not a finite number:', rawNum);
+        return null;
+      }
+      
       // Assume model outputs 0-1; map to 0-100. If already 0-100, clamp.
       const score = rawNum <= 1 ? rawNum * 100 : rawNum;
       return Math.min(100, Math.max(0, score));
     } catch (e) {
-      console.warn('ONNX model not available or failed, falling back:', e);
+      console.warn('ONNX model not available or failed, using fallback heuristic:', e);
       return null;
     }
   };
@@ -224,11 +246,11 @@ const RiskAnalysis = ({ insights, onClose }: RiskAnalysisProps) => {
 
   const getRiskColor = (level: string) => {
     switch (level) {
-      case 'Low': return 'bg-green-500';
-      case 'Moderate': return 'bg-yellow-500';
-      case 'High': return 'bg-orange-500';
-      case 'Critical': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'Low': return 'bg-[hsl(var(--success))] text-white';
+      case 'Moderate': return 'bg-[hsl(var(--warning))] text-foreground';
+      case 'High': return 'bg-[hsl(var(--risk-high))] text-white';
+      case 'Critical': return 'bg-[hsl(var(--destructive))] text-white';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -301,14 +323,14 @@ const RiskAnalysis = ({ insights, onClose }: RiskAnalysisProps) => {
 
                 {analysis.riskFactors.length > 0 && (
                   <div>
-                    <h4 className="font-semibold mb-2 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" />
+                    <h4 className="font-semibold mb-2 flex items-center gap-2 text-foreground">
+                      <AlertTriangle className="w-4 h-4 text-[hsl(var(--warning))]" />
                       Risk Factors Identified
                     </h4>
                     <ul className="space-y-1">
                       {analysis.riskFactors.map((factor: string, index: number) => (
                         <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
-                          <span className="w-1 h-1 bg-orange-500 rounded-full mt-2 flex-shrink-0"></span>
+                          <span className="w-1 h-1 bg-[hsl(var(--warning))] rounded-full mt-2 flex-shrink-0"></span>
                           {factor}
                         </li>
                       ))}
@@ -319,17 +341,17 @@ const RiskAnalysis = ({ insights, onClose }: RiskAnalysisProps) => {
             </Card>
 
             {/* Recommendations */}
-            <Card className="border-green-200">
+            <Card className="border-[hsl(var(--success))] bg-card">
               <CardContent className="p-6">
                 <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <CheckCircle className="w-5 h-5 text-[hsl(var(--success))]" />
                   Recommended Actions
                 </h3>
                 <div className="grid gap-3">
                   {analysis.recommendations.map((rec: string, index: number) => (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                      <TrendingUp className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm">{rec}</span>
+                    <div key={index} className="flex items-start gap-3 p-3 bg-[hsl(var(--success))]/10 rounded-lg border border-[hsl(var(--success))]/30">
+                      <TrendingUp className="w-4 h-4 text-[hsl(var(--success))] mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-foreground">{rec}</span>
                     </div>
                   ))}
                 </div>
@@ -337,21 +359,21 @@ const RiskAnalysis = ({ insights, onClose }: RiskAnalysisProps) => {
             </Card>
 
             {/* Educational Videos */}
-            <Card className="border-blue-200">
+            <Card className="border-[hsl(var(--info))] bg-card">
               <CardContent className="p-6">
                 <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <Youtube className="w-5 h-5 text-red-600" />
+                  <Youtube className="w-5 h-5 text-[hsl(var(--destructive))]" />
                   Educational Resources
                 </h3>
                 <div className="grid gap-4">
                   {analysis.videos.map((video: any, index: number) => (
-                    <div key={index} className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors cursor-pointer">
+                    <div key={index} className="flex items-center gap-4 p-4 bg-[hsl(var(--info))]/10 rounded-lg border border-[hsl(var(--info))]/30 hover:bg-[hsl(var(--info))]/20 transition-colors cursor-pointer">
                       <div className="text-2xl">{video.thumbnail}</div>
                       <div className="flex-1">
-                        <h4 className="font-medium">{video.title}</h4>
+                        <h4 className="font-medium text-foreground">{video.title}</h4>
                         <p className="text-sm text-muted-foreground">{video.channel} • {video.duration}</p>
                       </div>
-                      <ExternalLink className="w-4 h-4 text-blue-600" />
+                      <ExternalLink className="w-4 h-4 text-[hsl(var(--info))]" />
                     </div>
                   ))}
                 </div>
