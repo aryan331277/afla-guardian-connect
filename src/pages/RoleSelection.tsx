@@ -70,7 +70,7 @@ const RoleSelection = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 flex items-center justify-center">
+    <div className="dark min-h-screen bg-gradient-to-br from-background via-background to-primary/10 p-4 flex items-center justify-center">
       <div className="w-full max-w-6xl">
         <div className="text-center mb-12">
           <div className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
@@ -87,7 +87,7 @@ const RoleSelection = () => {
               onClick={() => handleSpeak(t('role.select', 'Choose Your Role'))}
               className="p-1 rounded-full hover:bg-accent transition-colors"
             >
-              <svg className="w-5 h-5 text-voice-inactive" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-5 h-5 text-[hsl(var(--voice-inactive))]" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
               </svg>
             </button>
@@ -99,7 +99,7 @@ const RoleSelection = () => {
             <Card
               key={role.role}
               className={`
-                cursor-pointer transition-all hover:shadow-xl bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:-translate-y-1
+                cursor-pointer transition-all hover:shadow-xl bg-card/95 backdrop-blur-sm border-border shadow-lg hover:-translate-y-1
                 ${selectedRole === role.role 
                   ? 'ring-2 ring-primary shadow-2xl' 
                   : 'hover:shadow-xl'
@@ -120,7 +120,7 @@ const RoleSelection = () => {
                     }}
                     className="p-1 rounded-full hover:bg-accent transition-colors"
                   >
-                    <svg className="w-4 h-4 text-voice-inactive" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-[hsl(var(--voice-inactive))]" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
                     </svg>
                   </button>

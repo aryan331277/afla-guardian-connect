@@ -47,7 +47,7 @@ const LanguageSelection = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 flex items-center justify-center">
+    <div className="dark min-h-screen bg-gradient-to-br from-background via-background to-primary/10 p-4 flex items-center justify-center">
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
@@ -63,7 +63,7 @@ const LanguageSelection = () => {
           </p>
         </div>
 
-        <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+        <Card className="border-border shadow-xl bg-card/95 backdrop-blur-sm">
           <CardHeader className="text-center pb-6">
             <CardTitle className="text-xl flex items-center justify-center gap-2 text-foreground">
               Select Your Language
@@ -71,7 +71,7 @@ const LanguageSelection = () => {
                 onClick={() => handleTestVoice(selectedLanguage)}
                 className="p-1 rounded-full hover:bg-accent transition-colors"
               >
-                <svg className="w-5 h-5 text-voice-inactive" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 text-[hsl(var(--voice-inactive))]" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
                 </svg>
               </button>
@@ -85,8 +85,8 @@ const LanguageSelection = () => {
                 className={`
                   flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md
                   ${selectedLanguage === language.code 
-                    ? 'bg-primary/5 border-primary shadow-sm' 
-                    : 'bg-white border-gray-200 hover:border-primary/30'
+                    ? 'bg-primary/10 border-primary shadow-sm' 
+                    : 'bg-card border-border hover:border-primary/30'
                   }
                 `}
                 onClick={() => handleLanguageSelect(language.code)}
@@ -113,7 +113,7 @@ const LanguageSelection = () => {
                     }
                   `}
                 >
-                  <svg className="w-4 h-4 text-voice-inactive" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 text-[hsl(var(--voice-inactive))]" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10 3.5a.5.5 0 00-.5-.5h-3a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-13zM11.5 3.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v13a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-13z"/>
                   </svg>
                 </button>
