@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as ort from 'onnxruntime-web';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,13 @@ interface RiskAnalysisProps {
 const RiskAnalysis = ({ insights, onClose }: RiskAnalysisProps) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<any>(null);
+
+  // Auto-run analysis when the component opens (farmer clicks Risk Analysis)
+  useEffect(() => {
+    // Kick off analysis immediately; will use ONNX model if available
+    runAnalysis();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Encode insights into a numeric feature vector for ONNX model
   const encodeInsights = (): Float32Array => {
