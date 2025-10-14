@@ -150,7 +150,7 @@ const FarmerDashboard = () => {
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-primary-foreground font-bold text-sm sm:text-lg">AG</span>
+                  <span className="text-primary-foreground font-bold text-sm sm:text-lg">V</span>
                 </div>
                 <div className="hidden sm:block">
                   <h1 className="text-lg sm:text-xl font-bold text-foreground">Verdan Pro</h1>
