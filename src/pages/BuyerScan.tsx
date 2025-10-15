@@ -4,20 +4,24 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ArrowLeft, Camera, Check } from 'lucide-react';
+import { ArrowLeft, Camera, Check, Loader2 } from 'lucide-react';
 import Webcam from 'react-webcam';
 import { t } from '@/lib/i18n';
+import { yoloService } from '@/services/yolo.service';
+import { aflatoxinRiskService } from '@/services/aflatoxin-risk.service';
+import { apiService } from '@/services/api.service';
+import { useToast } from '@/hooks/use-toast';
 
 const BuyerScan = () => {
   const navigate = useNavigate();
   const webcamRef = useRef<Webcam>(null);
+  const { toast } = useToast();
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
   const [currentStep, setCurrentStep] = useState<'camera' | 'questions' | 'analysis'>('camera');
   const [answers, setAnswers] = useState({
     storage: '',
-    transport: '',
-    environment: ''
+    transport: ''
   });
 
   const capture = () => {
@@ -33,43 +37,101 @@ const BuyerScan = () => {
     setAnswers(prev => ({ ...prev, [question]: value }));
   };
 
-  const analyzeRisk = () => {
+  const analyzeRisk = async () => {
+    if (!capturedImage) {
+      toast({
+        title: 'Error',
+        description: 'No image captured',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setCurrentStep('analysis');
-    setTimeout(() => {
-      const baseScore = 3;
-      let riskScore = baseScore;
-      if (answers.storage === 'outdoor-open') riskScore += 3;
-      else if (answers.storage === 'outdoor-covered') riskScore += 1;
-      if (answers.transport === 'open-truck') riskScore += 2;
-      if (answers.environment === 'high-humidity') riskScore += 3;
 
-      const clamped = Math.min(9, Math.max(1, riskScore));
-      const riskLevel = clamped >= 6 ? 'High Risk' : clamped >= 4 ? 'Medium Risk' : 'Low Risk';
+    try {
+      // Step 1: Run YOLO detection
+      toast({
+        title: 'Analyzing',
+        description: 'Detecting aflatoxin in corn sample...'
+      });
+      
+      const detection = await yoloService.detectAflatoxin(capturedImage);
+      
+      console.log('YOLO Detection Results:', detection);
 
+      // Step 2: Get weather data for temperature and humidity
+      let temperature: number | undefined;
+      let humidity: number | undefined;
+
+      try {
+        // Try to get user's location
+        if (navigator.geolocation) {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+          });
+
+          const weatherData = await apiService.fetchWeatherData({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            timestamp: Date.now()
+          });
+
+          temperature = weatherData.temperature;
+          humidity = weatherData.humidity;
+        }
+      } catch (error) {
+        console.log('Could not fetch weather data, continuing without it:', error);
+      }
+
+      // Step 3: Calculate risk using the formula
+      const riskResult = aflatoxinRiskService.calculateRisk({
+        healthyCount: detection.healthyCount,
+        aflatoxinCount: detection.aflatoxinCount,
+        transport: answers.transport,
+        storage: answers.storage,
+        temperature,
+        humidity
+      });
+
+      // Step 4: Save results and navigate
       const payload = {
-        riskLevel,
-        riskColor: '',
-        riskScore: clamped,
-        recommendations: [
-          'Dry the grain to safe moisture levels (≤13%).',
-          'Store in a clean, dry, and ventilated area.',
-          'Use proper covers during transport to prevent moisture exposure.'
-        ],
-        warnings: answers.environment === 'high-humidity' ? ['High humidity significantly increases aflatoxin risk.'] : [],
-        nextSteps: [
-          'Inspect storage area for leaks and pests.',
-          'Re-test grain in 3 days if stored in humid conditions.',
-          'Consider using drying agents or dehumidifiers if necessary.'
-        ],
+        riskLevel: riskResult.riskLevel,
+        riskColor: riskResult.riskColor,
+        riskScore: riskResult.riskScore,
+        recommendations: riskResult.recommendations,
+        warnings: riskResult.warnings,
+        nextSteps: riskResult.nextSteps,
         timestamp: new Date().toISOString(),
-        scanData: { image: capturedImage, answers }
+        scanData: {
+          image: capturedImage,
+          answers,
+          detection: riskResult.detectionDetails,
+          environmental: { temperature, humidity }
+        }
       };
 
       localStorage.setItem('lastScanResult', JSON.stringify(payload));
+      
+      toast({
+        title: 'Analysis Complete',
+        description: `Risk Level: ${riskResult.riskLevel}`
+      });
+
       navigate('/scan-results');
-    }, 1500);
+    } catch (error) {
+      console.error('Error analyzing risk:', error);
+      toast({
+        title: 'Analysis Error',
+        description: 'Failed to complete risk analysis. Please try again.',
+        variant: 'destructive'
+      });
+      setCurrentStep('questions');
+    }
   };
-  const allQuestionsAnswered = answers.storage && answers.transport && answers.environment;
+
+  const allQuestionsAnswered = answers.storage && answers.transport;
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -143,7 +205,7 @@ const BuyerScan = () => {
 
             {currentStep === 'questions' && (
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-center">{t('scan.questionsTitle', 'Additional Information')}</h3>
+                <h3 className="text-lg font-semibold text-center">{t('scan.questionsTitle', 'Storage & Transport Information')}</h3>
                 
                 <div className="space-y-4">
                   <div>
@@ -151,15 +213,15 @@ const BuyerScan = () => {
                     <RadioGroup value={answers.storage} onValueChange={(value) => handleAnswerChange('storage', value)} className="mt-2">
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="dry-warehouse" id="dry-warehouse" />
-                        <Label htmlFor="dry-warehouse">{t('scan.dryWarehouse', 'Dry warehouse')}</Label>
+                        <Label htmlFor="dry-warehouse">{t('scan.dryWarehouse', 'Dry warehouse (Excellent)')}</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="outdoor-covered" id="outdoor-covered" />
-                        <Label htmlFor="outdoor-covered">{t('scan.outdoorCovered', 'Outdoor covered area')}</Label>
+                        <Label htmlFor="outdoor-covered">{t('scan.outdoorCovered', 'Outdoor covered area (Average)')}</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="outdoor-open" id="outdoor-open" />
-                        <Label htmlFor="outdoor-open">{t('scan.outdoorOpen', 'Outdoor open area')}</Label>
+                        <Label htmlFor="outdoor-open">{t('scan.outdoorOpen', 'Outdoor open area (Bad)')}</Label>
                       </div>
                     </RadioGroup>
                   </div>
@@ -169,33 +231,15 @@ const BuyerScan = () => {
                     <RadioGroup value={answers.transport} onValueChange={(value) => handleAnswerChange('transport', value)} className="mt-2">
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="covered-truck" id="covered-truck" />
-                        <Label htmlFor="covered-truck">{t('scan.coveredTruck', 'Covered truck')}</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="open-truck" id="open-truck" />
-                        <Label htmlFor="open-truck">{t('scan.openTruck', 'Open truck')}</Label>
+                        <Label htmlFor="covered-truck">{t('scan.coveredTruck', 'Covered truck (Excellent)')}</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="sacks" id="sacks" />
-                        <Label htmlFor="sacks">{t('scan.sacks', 'In sacks/bags')}</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  <div>
-                    <Label className="text-base font-medium">{t('scan.environmentQuestion', 'What were the environmental conditions?')}</Label>
-                    <RadioGroup value={answers.environment} onValueChange={(value) => handleAnswerChange('environment', value)} className="mt-2">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="dry-season" id="dry-season" />
-                        <Label htmlFor="dry-season">{t('scan.drySeason', 'Dry season')}</Label>
+                        <Label htmlFor="sacks">{t('scan.sacks', 'In sacks/bags (Average)')}</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="rainy-season" id="rainy-season" />
-                        <Label htmlFor="rainy-season">{t('scan.rainySeason', 'Rainy season')}</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="high-humidity" id="high-humidity" />
-                        <Label htmlFor="high-humidity">{t('scan.highHumidity', 'High humidity area')}</Label>
+                        <RadioGroupItem value="open-truck" id="open-truck" />
+                        <Label htmlFor="open-truck">{t('scan.openTruck', 'Open truck (Bad)')}</Label>
                       </div>
                     </RadioGroup>
                   </div>
@@ -207,7 +251,7 @@ const BuyerScan = () => {
                   size="lg" 
                   className="w-full"
                 >
-                  {t('scan.analyzeAflatoxinRisk', 'Analyse Aflatoxin Risk')}
+                  {t('scan.analyzeAflatoxinRisk', 'Analyze Aflatoxin Risk')}
                 </Button>
               </div>
             )}
@@ -216,9 +260,10 @@ const BuyerScan = () => {
               <div className="text-center space-y-4">
                 <div className="animate-pulse">
                   <div className="w-16 h-16 mx-auto bg-primary/20 rounded-full flex items-center justify-center mb-4">
-                    <Camera className="w-8 h-8 text-primary" />
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
                   </div>
-                  <p className="text-lg">{t('scan.analyzing', 'Analyzing aflatoxin risk...')}</p>
+                  <p className="text-lg font-medium">{t('scan.analyzing', 'Analyzing corn sample...')}</p>
+                  <p className="text-sm text-muted-foreground mt-2">Detecting aflatoxin contamination with AI</p>
                 </div>
               </div>
             )}
