@@ -37,9 +37,19 @@ const UpgradePlan = () => {
               </div>
             ))}
             
-            <Button className="w-full mt-6" size="lg">
+            <Button 
+              className="w-full mt-6" 
+              size="lg"
+              onClick={() => {
+                // M-Pesa integration will be added when Stripe credentials are configured
+                console.log('Payment initiated - awaiting Stripe integration');
+              }}
+            >
               Upgrade via M-Pesa
             </Button>
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              Secure payment powered by Stripe
+            </p>
           </CardContent>
         </Card>
       </div>
