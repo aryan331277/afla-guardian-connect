@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Send, Bot, Mic, MicOff, Volume2, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useVoiceChat } from '@/hooks/useVoiceChat';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -18,10 +17,46 @@ const Chat = () => {
     { role: 'assistant', content: 'Hello! I\'m your AI farming assistant. How can I help you today?' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [language, setLanguage] = useState('en');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
+  const synthRef = useRef<SpeechSynthesis | null>(null);
   const { toast } = useToast();
-  const { isRecording, isProcessing, startRecording, stopRecording, speakText } = useVoiceChat();
+
+  useEffect(() => {
+    // Initialize speech synthesis
+    if ('speechSynthesis' in window) {
+      synthRef.current = window.speechSynthesis;
+    }
+
+    // Initialize speech recognition
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setMessage(transcript);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onerror = () => {
+        setIsListening(false);
+        toast({
+          title: 'Speech Recognition Error',
+          description: 'Could not recognize speech. Please try again.',
+          variant: 'destructive',
+        });
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, [toast]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -141,19 +176,55 @@ const Chat = () => {
     setIsLoading(false);
   };
 
-  const handleVoiceInput = async () => {
-    if (isRecording) {
-      const transcript = await stopRecording(language);
-      if (transcript) {
-        setMessage(transcript);
-      }
+  const handleVoiceInput = () => {
+    if (!recognitionRef.current) {
+      toast({
+        title: 'Not Supported',
+        description: 'Speech recognition is not supported in this browser.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
     } else {
-      await startRecording();
+      const languageMap: { [key: string]: string } = {
+        'en': 'en-US',
+        'sw': 'sw-KE',
+        'ki': 'ki-KE'
+      };
+      recognitionRef.current.lang = languageMap[language] || 'en-US';
+      recognitionRef.current.start();
+      setIsListening(true);
     }
   };
 
   const handleSpeak = (text: string) => {
-    speakText(text);
+    if (!synthRef.current) {
+      toast({
+        title: 'Not Supported',
+        description: 'Text-to-speech is not supported in this browser.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Stop any ongoing speech
+    synthRef.current.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    const languageMap: { [key: string]: string } = {
+      'en': 'en-US',
+      'sw': 'sw-KE',
+      'ki': 'ki-KE'
+    };
+    utterance.lang = languageMap[language] || 'en-US';
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+
+    synthRef.current.speak(utterance);
   };
 
   return (
@@ -222,20 +293,20 @@ const Chat = () => {
       </div>
 
       <div className="p-4 bg-card border-t space-y-2">
-        {isProcessing && (
+        {isListening && (
           <div className="text-sm text-muted-foreground flex items-center gap-2">
             <Loader2 className="w-4 h-4 animate-spin" />
-            Processing voice...
+            Listening...
           </div>
         )}
         <div className="flex gap-2">
           <Button
-            variant={isRecording ? "destructive" : "outline"}
+            variant={isListening ? "destructive" : "outline"}
             size="icon"
             onClick={handleVoiceInput}
-            disabled={isProcessing || isLoading}
+            disabled={isLoading}
           >
-            {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
           </Button>
           <Input
             value={message}
